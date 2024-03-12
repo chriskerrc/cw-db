@@ -1,12 +1,12 @@
 package edu.uob;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExampleDBTests {
 
@@ -99,6 +99,17 @@ public class ExampleDBTests {
         String response = sendCommandToServer("SELECT * FROM libraryfines;");
         assertTrue(response.contains("[ERROR]"), "An attempt was made to access a non-existent table, however an [ERROR] tag was not returned");
         assertFalse(response.contains("[OK]"), "An attempt was made to access a non-existent table, however an [OK] tag was returned");
+    }
+
+    // Test Preprocessor
+
+    @Test
+    public void testProcessorInsertQuery() {
+        String query = "  INSERT  INTO  people   VALUES(  'Simon Lock'  ,35, 'simon@bristol.ac.uk' , 1.8  ) ; ";
+        Preprocessor preprocessor = new Preprocessor(query);
+        String processed = preprocessor.tokens.toString();
+        String expected = "[INSERT, INTO, people, VALUES, (, 'Simon Lock', ,, 35, ,, 'simon@bristol.ac.uk', ,, 1.8, ), ;]";
+        assertEquals(processed, expected);
     }
 
 }
