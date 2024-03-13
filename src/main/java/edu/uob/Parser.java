@@ -4,9 +4,8 @@ import java.util.Objects;
 
 public class Parser {
     ArrayList<String> tokenisedList;
-   public Parser(String query) { //maybe pass parser the arraylist of tokens, not a string?
-       Preprocessor preprocessor = new Preprocessor(query);
-       tokenisedList = preprocessor.getTokens();
+   public Parser(ArrayList<String> tokens) {
+       this.tokenisedList = tokens;
    }
 
     public String tokenToString(int tokenIndex) {
@@ -48,14 +47,14 @@ public class Parser {
     public boolean isDigit(int tokenIndex) {
         String currentToken = tokenToString(tokenIndex);
         if(currentToken.length() != 1){
-            throw new RuntimeException("Invalid Digit");
+            throw new RuntimeException("Invalid Digit A");
         }
         char c = currentToken.charAt(0);
-        if(!Character.isDigit(c)){
+        if(Character.isDigit(c)){
             return true;
         }
         else{
-            throw new RuntimeException("Invalid Digit");
+            throw new RuntimeException("Invalid Digit B");
         }
     }
 
