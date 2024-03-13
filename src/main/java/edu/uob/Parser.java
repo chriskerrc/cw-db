@@ -4,109 +4,115 @@ import java.util.Objects;
 
 public class Parser {
     ArrayList<String> tokenisedList;
-   public Parser(ArrayList<String> tokens) {
-       this.tokenisedList = tokens;
-   }
+
+    public Parser(ArrayList<String> tokens) {
+        this.tokenisedList = tokens;
+    }
 
     public String tokenToString(int tokenIndex) {
         return tokenisedList.get(tokenIndex);
     }
 
+    //ensure that arbitary additional whitespace is handled
+
     //I need to catch these runtime exceptions somewhere so they're not passed onto the user
     //Could I use for each to avoid repeated line "String currentToken ..."
-   public boolean isBoolOperator(int tokenIndex) {
-       String currentToken = tokenToString(tokenIndex);
-       if(Objects.equals(currentToken, "AND") || Objects.equals(currentToken, "OR")) {
-           return true;
-       }
-       else {
-           throw new RuntimeException("Invalid Bool Operator");
-       }
-   }
+    public boolean isBoolOperator(int tokenIndex) {
+        String currentToken = tokenToString(tokenIndex);
+        if (Objects.equals(currentToken, "AND") || Objects.equals(currentToken, "OR")) {
+            return true;
+        } else {
+            throw new RuntimeException("Invalid Bool Operator");
+        }
+    }
 
-   public boolean isAlterationType(int tokenIndex) {
-       String currentToken = tokenToString(tokenIndex);
-       if(Objects.equals(currentToken, "ADD") || Objects.equals(currentToken, "DROP")) {
-           return true;
-       }
-       else{
-           throw new RuntimeException("Invalid Alteration Type");
-       }
-   }
+    public boolean isAlterationType(int tokenIndex) {
+        String currentToken = tokenToString(tokenIndex);
+        if (Objects.equals(currentToken, "ADD") || Objects.equals(currentToken, "DROP")) {
+            return true;
+        } else {
+            throw new RuntimeException("Invalid Alteration Type");
+        }
+    }
 
-   public boolean isBooleanLiteral(int tokenIndex) {
-       String currentToken = tokenToString(tokenIndex);
-       if(Objects.equals(currentToken, "TRUE") || Objects.equals(currentToken, "FALSE")) {
-           return true;
-       }
-       else{
-           throw new RuntimeException("Invalid Boolean Literal");
-       }
-   }
+    public boolean isBooleanLiteral(int tokenIndex) {
+        String currentToken = tokenToString(tokenIndex);
+        if (Objects.equals(currentToken, "TRUE") || Objects.equals(currentToken, "FALSE")) {
+            return true;
+        } else {
+            throw new RuntimeException("Invalid Boolean Literal");
+        }
+    }
 
     public boolean isDigit(int tokenIndex) {
         String currentToken = tokenToString(tokenIndex);
-        if(currentToken.length() != 1){
-            throw new RuntimeException("Invalid Digit A");
+        if (currentToken.length() != 1) {
+            return false;
         }
         char c = currentToken.charAt(0);
-        if(Character.isDigit(c)){
-            return true;
-        }
-        else{
-            throw new RuntimeException("Invalid Digit B");
-        }
+        return Character.isDigit(c);
     }
 
     //TO DO: make this long line shorter
     public boolean isComparator(int tokenIndex) {
         String currentToken = tokenToString(tokenIndex);
-        if(Objects.equals(currentToken, "==") || Objects.equals(currentToken, ">") || Objects.equals(currentToken, "<") || Objects.equals(currentToken, "<=") || Objects.equals(currentToken, ">=") || Objects.equals(currentToken, "!=") || Objects.equals(currentToken, "LIKE")) {
+        if (Objects.equals(currentToken, "==") || Objects.equals(currentToken, ">") || Objects.equals(currentToken, "<") || Objects.equals(currentToken, "<=") || Objects.equals(currentToken, ">=") || Objects.equals(currentToken, "!=") || Objects.equals(currentToken, "LIKE")) {
             return true;
-        }
-        else{
+        } else {
             throw new RuntimeException("Invalid Comparator");
         }
     }
 
     public boolean isUppercase(int tokenIndex) {
         String currentToken = tokenToString(tokenIndex);
-        if(currentToken.length() != 1){
-            throw new RuntimeException("Invalid Uppercase Letter");
+        if (currentToken.length() != 1) {
+            return false;
         }
         char c = currentToken.charAt(0);
-        if(Character.isUpperCase(c)){
-            return true;
-        }
-        else{
-            throw new RuntimeException("Invalid Uppercase Letter");
-        }
+        return Character.isUpperCase(c);
     }
 
     public boolean isLowercase(int tokenIndex) {
         String currentToken = tokenToString(tokenIndex);
-        if(currentToken.length() != 1){
-            throw new RuntimeException("Invalid Lowercase Letter A");
+        if (currentToken.length() != 1) {
+            return false;
         }
         char c = currentToken.charAt(0);
-        if(Character.isLowerCase(c)){
+        return Character.isLowerCase(c);
+    }
+
+    public boolean isLetter(int tokenIndex) {
+        return isLowercase(tokenIndex) || isUppercase(tokenIndex);
+    }
+
+    public boolean isSymbol(int tokenIndex) {
+        String currentToken = tokenToString(tokenIndex);
+        if (currentToken.length() != 1) {
+            return false;
+        }
+        return currentToken.matches(".*[!#$%&()*+,-./:;>=<?@\\[\\]^_`{}~].*");
+    }
+
+    public boolean isCharLiteral(int tokenIndex){
+        String currentToken = tokenToString(tokenIndex);
+        char c = currentToken.charAt(0);
+        if(isDigit(tokenIndex) || isLetter(tokenIndex) || isSymbol(tokenIndex) || c == ' '){
             return true;
         }
-        else{
-            throw new RuntimeException("Invalid Lowercase Letter B");
-        }
-    }
-/*
-    public boolean isLetter(int tokenIndex) {
-        //need to separate this from upper and lowercase checks because they throw exceptions
-        else{
-            throw new RuntimeException("Invalid Letter");
-        }
+        throw new RuntimeException("Invalid Char Literal");
     }
 
- */
+    //TO DO NEXT
 
-    //how can I handle ORs between different parts of the grammar when one part will throw an exception
-    //only throw exception in isLetter?
+    //DigitSequence
+
+    //PlainText
+    //TableName
+    //AttributeName
+    //DatabaseName
+    //IntegerLiteral
+    //FloatLiteral
+
+
 
 }

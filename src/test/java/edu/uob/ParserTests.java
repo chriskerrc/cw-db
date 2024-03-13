@@ -115,7 +115,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("a");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isDigit(0));
+        assertFalse(parser.isDigit(0));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("!");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isDigit(0));
+        assertFalse(parser.isDigit(0));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("22");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isDigit(0));
+        assertFalse(parser.isDigit(0));
     }
 
     //Comparator
@@ -230,7 +230,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("a");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isUppercase(0));
+        assertFalse(parser.isUppercase(0));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("t");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isUppercase(0));
+        assertFalse(parser.isUppercase(0));
     }
 
     @Test
@@ -246,7 +246,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("+");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isUppercase(0));
+        assertFalse(parser.isUppercase(0));
     }
 
     //Lowercase
@@ -280,7 +280,7 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("A");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isLowercase(0));
+        assertFalse(parser.isLowercase(0));
     }
 
     @Test
@@ -288,19 +288,163 @@ public class ParserTests {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("/");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isLowercase(0));
+        assertFalse(parser.isLowercase(0));
     }
 
     //Letter
-/*
     @Test
-    public void testParserLetterUppercase() {
-        String query = " A ";
-        Parser parser = new Parser(query);
+    public void testParserLetterUppercaseA() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("A");
+        Parser parser = new Parser(tokens);
         assertTrue(parser.isLetter(0));
     }
 
-*/
+    @Test
+    public void testParserLetterUppercaseO() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("O");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isLetter(0));
+    }
 
+    @Test
+    public void testParserLetterLowercaseP() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("p");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isLetter(0));
+    }
 
+    @Test
+    public void testParserLetterLowercaseC() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("c");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isLetter(0));
+    }
+
+    @Test
+    public void testParserLetterPunctuation() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(".");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isLetter(0));
+    }
+
+    @Test
+    public void testParserLetterNumber() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("0");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isLetter(0));
+    }
+
+    //Symbol
+
+    @Test
+    public void testParserSymbolForwardSlash() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("/");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolOpenSquareBracket() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("[");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolCloseSquareBracket() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("]");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolCaret() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("^");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolAt() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("@");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolTwoSymbols() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("^/");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolLetter() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("a");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isSymbol(0));
+    }
+
+    @Test
+    public void testParserSymbolBar() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("|");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isSymbol(0));
+    }
+
+    //Char Literal
+
+    @Test
+    public void testParserCharLiteralSpace() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(" ");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCharLiteral(0));
+    }
+
+    @Test
+    public void testParserCharLiteralLetter() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("A");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCharLiteral(0));
+    }
+
+    @Test
+    public void testParserCharLiteralSymbol() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("/");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCharLiteral(0));
+    }
+
+    @Test
+    public void testParserCharLiteralDigit() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("7");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCharLiteral(0));
+    }
+
+    @Test
+    public void testParserCharLiteralInvalid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("INVALID");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCharLiteral(0));
+    }
 }
