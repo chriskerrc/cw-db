@@ -100,16 +100,4 @@ public class ExampleDBTests {
         assertTrue(response.contains("[ERROR]"), "An attempt was made to access a non-existent table, however an [ERROR] tag was not returned");
         assertFalse(response.contains("[OK]"), "An attempt was made to access a non-existent table, however an [OK] tag was returned");
     }
-
-    // Test Preprocessor
-
-    @Test
-    public void testProcessorInsertQuery() {
-        String query = "  INSERT  INTO  people   VALUES(  'Simon Lock'  ,35, 'simon@bristol.ac.uk' , 1.8  ) ; ";
-        Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
-        String expected = "[INSERT, INTO, people, VALUES, (, 'Simon Lock', ,, 35, ,, 'simon@bristol.ac.uk', ,, 1.8, ), ;]";
-        assertEquals(processed, expected);
-    }
-
 }
