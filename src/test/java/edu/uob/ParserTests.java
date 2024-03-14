@@ -505,4 +505,90 @@ public class ParserTests {
         assertThrows(RuntimeException.class, ()-> parser.isIntegerLiteral(0));
     }
 
+    @Test
+    public void testParserPlainTextOneDigit() {
+        ArrayList<String> tokens = initialiseArrayList("1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isPlainText(0));
+    }
+
+    @Test
+    public void testParserPlainTextOneLetter() {
+        ArrayList<String> tokens = initialiseArrayList("A");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isPlainText(0));
+    }
+
+    @Test
+    public void testParserPlainTextMixedStartAlpha() {
+        ArrayList<String> tokens = initialiseArrayList("a124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isPlainText(0));
+    }
+
+    @Test
+    public void testParserPlainTextMixedStartDigit() {
+        ArrayList<String> tokens = initialiseArrayList("0124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isPlainText(0));
+    }
+
+    @Test
+    public void testParserDatabaseNameOneDigit() {
+        ArrayList<String> tokens = initialiseArrayList("1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDatabaseName(0));
+    }
+
+    @Test
+    public void testParserDatabaseNameOneLetter() {
+        ArrayList<String> tokens = initialiseArrayList("A");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDatabaseName(0));
+    }
+
+    @Test
+    public void testParserDatabaseNameStartAlpha() {
+        ArrayList<String> tokens = initialiseArrayList("a124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDatabaseName(0));
+    }
+
+    @Test
+    public void testParserDatabaseNameMixedStartDigit() {
+        ArrayList<String> tokens = initialiseArrayList("0124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDatabaseName(0));
+    }
+
+    @Test
+    public void testParserUse() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+        tokens.add("0124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isUse(0));
+    }
+
+    @Test
+    public void testParserUseInvalidUse() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("US");
+        tokens.add("0124dfsg1");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isUse(0));
+    }
+
+    @Test
+    public void testParserUseInvalidDatabaseName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("US");
+        tokens.add("01#4dfsg1");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isUse(0));
+    }
+
+    //create a function to convert comma separated tokens in string to tokens
+
+
 }

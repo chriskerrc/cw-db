@@ -133,15 +133,41 @@ public class Parser {
         throw new RuntimeException("Invalid Char Literal");
     }
 
+    //couldn't think of an easy way to make this method recursive
+    public boolean isPlainText(int tokenIndex) {
+        String currentToken = tokenToString(tokenIndex);
+        int stringLength = currentToken.length();
+        for (int i = 0; i < stringLength; i++) {
+            if (!Character.isDigit(currentToken.charAt(i)) && !Character.isAlphabetic(currentToken.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    public boolean isDatabaseName(int tokenIndex) {
+        if(isPlainText(tokenIndex)){
+            return true;
+        }
+        throw new RuntimeException("Invalid Database Name");
+    }
+
+    public boolean isUse(int tokenIndex){
+        String currentToken = tokenToString(tokenIndex);
+        if(Objects.equals(currentToken, "USE")){
+            tokenIndex++;
+            if(isDatabaseName(tokenIndex)){
+                return true;
+            }
+        }
+
+        throw new RuntimeException("Invalid Use command");
+    }
 
     //TO DO NEXT
 
-    //PlainText
-    //TableName
-    //AttributeName
-    //DatabaseName
-    //FloatLiteral
+    //Create...
+
 
 
 
