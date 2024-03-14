@@ -13,7 +13,7 @@ public class Parser {
         return tokenisedList.get(tokenIndex);
     }
 
-    //ensure that arbitary additional whitespace is handled
+    //ensure that arbitrary additional whitespace is handled
 
     //I need to catch these runtime exceptions somewhere so they're not passed onto the user
     //Could I use for each to avoid repeated line "String currentToken ..."
@@ -52,6 +52,37 @@ public class Parser {
         char c = currentToken.charAt(0);
         return Character.isDigit(c);
     }
+
+    public boolean isDigitSequence(int tokenIndex, int startCharacterIndex){
+        String currentToken = tokenToString(tokenIndex);
+        int stringLength = currentToken.length();
+        for(int i = startCharacterIndex; i < stringLength; i++){
+            if(!Character.isDigit(currentToken.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isIntegerLiteral(int tokenIndex){
+        String currentToken = tokenToString(tokenIndex);
+        if(Character.isDigit(currentToken.charAt(0))){
+            if(isDigitSequence(tokenIndex, 0)) {
+                return true;
+            }
+        }
+        if(currentToken.charAt(0) == '+' || currentToken.charAt(0) == '-'){
+            if(isDigitSequence(tokenIndex, 1)){
+                return true;
+            }
+        }
+        throw new RuntimeException("Invalid Integer Literal");
+    }
+    /*
+    public boolean isFloatLiteral(int tokenIndex){
+
+    }
+     */
 
     //TO DO: make this long line shorter
     public boolean isComparator(int tokenIndex) {
@@ -102,15 +133,14 @@ public class Parser {
         throw new RuntimeException("Invalid Char Literal");
     }
 
-    //TO DO NEXT
 
-    //DigitSequence
+
+    //TO DO NEXT
 
     //PlainText
     //TableName
     //AttributeName
     //DatabaseName
-    //IntegerLiteral
     //FloatLiteral
 
 

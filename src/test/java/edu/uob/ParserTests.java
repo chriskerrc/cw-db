@@ -9,11 +9,17 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 public class ParserTests {
 
+    public ArrayList<String> initialiseArrayList(String input) {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(input);
+        return tokens;
+    }
+    //To do: use initialiseArrayList method across these test methods
+
     //BoolOperator
     @Test
     public void testParserBoolOperatorOR() {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("OR");
+        ArrayList<String> tokens = initialiseArrayList("OR");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isBoolOperator(0));
     }
@@ -447,4 +453,56 @@ public class ParserTests {
         Parser parser = new Parser(tokens);
         assertThrows(RuntimeException.class, ()-> parser.isCharLiteral(0));
     }
+
+    @Test
+    public void testParserDigitSequenceMultipleNumbers() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("12345");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDigitSequence(0, 0));
+    }
+
+    @Test
+    public void testParserDigitSequenceSingleNumber() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isDigitSequence(0, 0));
+    }
+
+    @Test
+    public void testParserDigitSequenceLetter() {
+        ArrayList<String> tokens = initialiseArrayList("123a5");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isDigitSequence(0, 0));
+    }
+
+    @Test
+    public void testParserIntegerLiteralUnsigned() {
+        ArrayList<String> tokens = initialiseArrayList("1235");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isIntegerLiteral(0));
+    }
+
+    @Test
+    public void testParserIntegerLiteralPlus() {
+        ArrayList<String> tokens = initialiseArrayList("+1235");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isIntegerLiteral(0));
+    }
+
+    @Test
+    public void testParserIntegerLiteralMinus() {
+        ArrayList<String> tokens = initialiseArrayList("-1235");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isIntegerLiteral(0));
+    }
+
+    @Test
+    public void testParserIntegerLiteralLetter() {
+        ArrayList<String> tokens = initialiseArrayList("-123z");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isIntegerLiteral(0));
+    }
+
 }
