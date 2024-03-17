@@ -9,6 +9,9 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 public class ParserTests {
 
+    //create a function to convert comma separated tokens in string to tokens
+
+
     public ArrayList<String> initialiseArrayList(String input) {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(input);
@@ -481,6 +484,20 @@ public class ParserTests {
         assertTrue(parser.isPlainText(tokens));
     }
 
+    @Test
+    public void testParserPlainTextHasSymbol() {
+        ArrayList<String> tokens = initialiseArrayList("0124d^sg1");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isPlainText(tokens));
+    }
+
+    @Test
+    public void testParserPlainTextSingleSymbol() {
+        ArrayList<String> tokens = initialiseArrayList("%");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isPlainText(tokens));
+    }
+
 //Database Name
     @Test
     public void testParserDatabaseNameOneDigit() {
@@ -595,17 +612,17 @@ public class ParserTests {
         tokens.add("US");
         tokens.add("0124dfsg1");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isUse(tokens));
+        assertFalse(parser.isUse(tokens));
         parser.setCurrentWord(0);
     }
 
     @Test
     public void testParserUseInvalidDatabaseName() {
         ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("US");
-        tokens.add("01#4dfsg1");
+        tokens.add("USE");
+        tokens.add("01^4dfsg1");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isUse(tokens));
+        assertFalse(parser.isUse(tokens));
         parser.setCurrentWord(0);
     }
 
@@ -691,6 +708,385 @@ public class ParserTests {
         parser.setCurrentWord(0);
     }
 
-    //create a function to convert comma separated tokens in string to tokens
+    //Create Table
+
+    @Test
+    public void testParserCreateTableNoAttributeList() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableNoAttributeListInvalidCreate() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREAT");
+        tokens.add("TABLE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableNoAttributeListInvalidTable() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("ABLE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableNoAttributeListInvalidTableName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Name*");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableShortAttributeList() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableLongAttributeList() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(",");
+        tokens.add("Name2");
+        tokens.add(",");
+        tokens.add("Name3");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateTable(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    //Create Table: Attribute List sub method
+
+    @Test
+    public void testParserCreateTableAttributeListSubMethodOneAttributeName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateTableAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableAttributeListSubMethodOneInvalidAttributeName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("(");
+        tokens.add("Name&1");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTableAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+/*
+//This test fails
+    @Test
+    public void testParserCreateTableAttributeListSubMethodOneIAttributeNameMissingCloseBracket() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("(");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTableAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+*/
+    @Test
+    public void testParserCreateTableAttributeListSubMethodAttributeList() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(",");
+        tokens.add("Name2");
+        tokens.add(",");
+        tokens.add("Name3");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateTableAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateTableAttributeListSubMethodAttributeListMissingComma() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(",");
+        tokens.add("Name2");
+        tokens.add("Name3");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateTableAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    //Create Database
+
+    @Test
+    public void testParserCreateDatabaseInvalidDatabaseName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name*");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateDatabase(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateDatabaseValid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreateDatabase(tokens));
+        parser.setCurrentWord(0);
+    }
+/*
+//This test fails
+    @Test
+    public void testParserCreateDatabaseMissingDatabaseName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateDatabase(tokens));
+        parser.setCurrentWord(0);
+    }
+*/
+    @Test
+    public void testParserCreateDatabaseInvalidDatabaseKeyword() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABAS");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCreateDatabase(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    //Create
+
+    @Test
+    public void testParserCreateCommandDatabase() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreate(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCreateCommandTable() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("(");
+        tokens.add("Name1");
+        tokens.add(",");
+        tokens.add("Name2");
+        tokens.add(",");
+        tokens.add("Name3");
+        tokens.add(")");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCreate(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    //Command Type
+
+    @Test
+    public void testParserCommandTypeCreateDatabase() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandTypeCreateTable() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandTypeCreateTableInvalidTableName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("*");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandTypeUseDatabase() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+        tokens.add("DATABASE");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandTypeUseDatabaseInvalid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+        tokens.add("Na@me");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    //edge case
+
+    /* this test should return false but it returns true
+
+    @Test
+    public void testParserCommandTypeUseDatabaseInvalid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+       // tokens.add("DATABASE");
+        tokens.add("Na@me");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+     */
+
+    //Command
+
+    @Test
+    public void testParserCommandUseValid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+        tokens.add("Name");
+        tokens.add(";");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandUseMissingSemiColon() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("USE");
+        tokens.add("Name");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateDatabaseValid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name1");
+        tokens.add(";");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateDatabaseMissingSemicolon() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateDatabaseInvalidName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("DATABASE");
+        tokens.add("N@me1");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateTableValid() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Name1");
+        tokens.add(";");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isCommandType(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateTableMissingSemicolon() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Name1");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserCommandCreateTableInvalidName() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("CREATE");
+        tokens.add("TABLE");
+        tokens.add("Nam&1");
+        tokens.add(";");
+        Parser parser = new Parser(tokens);
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
 
 }

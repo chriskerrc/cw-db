@@ -1,4 +1,5 @@
 package edu.uob;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -10,26 +11,60 @@ public class Parser {
         this.tokenisedList = tokens;
     }
 
-    public String tokenToString(int tokenIndex) {
-        return tokenisedList.get(tokenIndex);
-    }
-
-    public void setCurrentWord(int wordIndex){
-        currentWord = wordIndex;
-    }
-
-    private void incrementCurrentWord(){
-        currentWord++;
-    }
-
-    public int getCurrentWord(){
-        return currentWord;
-    }
-
     //ensure that arbitrary additional whitespace is handled
 
     //I need to catch these runtime exceptions somewhere so they're not passed onto the user
     //Could I use for each to avoid repeated line "String currentToken ..."
+
+    //Replace Objects.equals ... with currentWordMatches method
+
+    //Commands
+
+
+    public boolean isCommand(ArrayList<String> tokens){
+        if(!isCommandType(tokens)){
+            throw new RuntimeException("Invalid Command");
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, ";")){
+            throw new RuntimeException("Invalid Command: missing semi-colon?");
+        }
+        return true;
+    }
+    public boolean isCommandType(ArrayList<String> tokens) {
+        if(isUse(tokens)){
+            return true;
+        }
+        setCurrentWord(0); //could replace with reset current word
+        if(isCreate(tokens)){
+            return true;
+        }
+        //add other commands
+        return false;
+    }
+    public boolean isUse(ArrayList<String> tokens){
+        if(Objects.equals(tokens.get(currentWord), "USE")){
+            incrementCurrentWord(tokens);
+            if(isDatabaseName(tokens)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isCreate(ArrayList<String> tokens){
+        if(isCreateTable(tokens)){
+            return true;
+        }
+        setCurrentWord(0); //could replace with reset current word
+        if(isCreateDatabase(tokens)){
+            return true;
+        }
+        return false;
+    }
+
+    //Grammar rule methods
+
     public boolean isBoolOperator(ArrayList<String> tokens) {
         if (Objects.equals(tokens.get(currentWord), "AND") || Objects.equals(tokens.get(currentWord), "OR")) {
             return true;
@@ -89,26 +124,26 @@ public class Parser {
     //<Comparator>  	::=  "==" | ">" | "<" | ">=" | "<=" | "!=" | " LIKE "
 
     public boolean isComparator(ArrayList<String> tokens) {
-        if (Objects.equals(tokens.get(currentWord), "==")) {
+        if (currentWordMatches(tokens, "==")) {
             return true;
         }
-        else if(Objects.equals(tokens.get(currentWord), ">")) {
+        else if(currentWordMatches(tokens, ">")) {
             return true;
             }
-        else if(Objects.equals(tokens.get(currentWord), "<")) {
+        else if(currentWordMatches(tokens, "<")) {
             return true;
         }
-        else if(Objects.equals(tokens.get(currentWord), ">=")) {
+        else if(currentWordMatches(tokens, ">=")) {
             return true;
         }
-        else if(Objects.equals(tokens.get(currentWord), "<=")) {
+        else if(currentWordMatches(tokens, "<=")) {
             return true;
         }
-        else if(Objects.equals(tokens.get(currentWord), "!=")) {
+        else if(currentWordMatches(tokens, "!=")) {
             return true;
         }
         //preprocessor will strip out spaces either side of "LIKE"
-        else if(Objects.equals(tokens.get(currentWord), "LIKE")) {
+        else if(currentWordMatches(tokens, "LIKE")) {
             return true;
         }
         else {
@@ -166,10 +201,7 @@ public class Parser {
     }
 
     public boolean isDatabaseName(ArrayList<String> tokens) {
-        if(isPlainText(tokens)){
-            return true;
-        }
-        throw new RuntimeException("Invalid Database Name");
+        return isPlainText(tokens);
     }
 
     public boolean isAttributeName(ArrayList<String> tokens) {
@@ -179,11 +211,16 @@ public class Parser {
     public boolean isAttributeList(ArrayList<String> tokens) {
        while(currentWord < tokens.size()) {
            if (isAttributeName(tokens)) {
-               incrementCurrentWord();
-               if (currentWord < tokens.size() && Objects.equals(tokens.get(currentWord), ",")) {
-                   incrementCurrentWord();
+               incrementCurrentWord(tokens);
+               System.out.println("isAttributeList first " + currentWord);
+               if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
+                   incrementCurrentWord(tokens);
+                   System.out.println("isAttributeList second " + currentWord);
                }
                else {
+                   //Only one Attribute Name (no list) so reset currentWord after look ahead
+                   decrementCurrentWord(tokens);
+                   System.out.println("isAttributeList third " + currentWord);
                    return true;
                }
            }
@@ -193,22 +230,105 @@ public class Parser {
        }
         return false;
     }
-    
+
     public boolean isTableName(ArrayList<String> tokens) {
-        if(isPlainText(tokens)){
-            return true;
-        }
-        throw new RuntimeException("Invalid Table Name");
+        return isPlainText(tokens);
     }
 
-    public boolean isUse(ArrayList<String> tokens){
-        if(Objects.equals(tokens.get(currentWord), "USE")){
-            setCurrentWord(1);
-            if(isDatabaseName(tokens)){
+    //<CreateTable> 	::=  "CREATE " "TABLE " [TableName] | "CREATE " "TABLE " [TableName] "(" <AttributeList> ")"
+
+    public boolean isCreateTable(ArrayList<String> tokens){
+        //I'm assuming space after CREATE and TABLE will be stripped out by preprocessor?
+        if(!currentWordMatches(tokens, "CREATE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "TABLE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
+            return false;
+        }
+        if(tokens.size() > 3) { //magic number
+            incrementCurrentWord(tokens);
+            //No attribute list
+            if (!currentWordMatches(tokens, "(")){
                 return true;
             }
+            //Expecting attribute list
+            else{
+                System.out.println("current word before call sub method" + tokens.get(currentWord));
+                return isCreateTableAttributeList(tokens);
+            }
         }
-        throw new RuntimeException("Invalid Use command");
+        else{
+            return true;
+        }
+    }
+
+    public boolean isCreateTableAttributeList(ArrayList<String> tokens){
+        if(!currentWordMatches(tokens, "(")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isAttributeList(tokens)){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        System.out.println(currentWord);
+        //on return from isAttributeList, current word is too high when there's two valid tokens followed by no closing bracket
+        if(!currentWordMatches(tokens, ")")){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isCreateDatabase(ArrayList<String> tokens){
+        //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
+        if(!currentWordMatches(tokens, "CREATE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "DATABASE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        return isDatabaseName(tokens);
+    }
+
+    //Helper methods
+
+    public String tokenToString(int tokenIndex) {
+        return tokenisedList.get(tokenIndex);
+    }
+
+    public void setCurrentWord(int wordIndex){
+        currentWord = wordIndex;
+    }
+
+    private void incrementCurrentWord(ArrayList<String> tokens){
+        if(currentWord < tokens.size()) {
+            currentWord++;
+            return;
+        }
+        throw new RuntimeException("Reached last token");
+    }
+
+    private void decrementCurrentWord(ArrayList<String> tokens){
+        if(currentWord > 0) {
+            currentWord--;
+            return;
+        }
+        throw new RuntimeException("Reached 0th token");
+    }
+
+    public int getCurrentWord(){
+        return currentWord;
+    }
+
+    private boolean currentWordMatches(ArrayList<String> tokens, String input){
+        return Objects.equals(tokens.get(currentWord), input);
     }
 
 
