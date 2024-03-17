@@ -18,6 +18,10 @@ public class Parser {
         currentWord = wordIndex;
     }
 
+    private void incrementCurrentWord(){
+        currentWord++;
+    }
+
     public int getCurrentWord(){
         return currentWord;
     }
@@ -147,7 +151,7 @@ public class Parser {
         throw new RuntimeException("Invalid Char Literal");
     }
 
-    //couldn't think of an easy way to make this method recursive
+    //couldn't think of an easy way to make the isPlainText method recursive
 
     public boolean isPlainText(ArrayList<String> tokens) {
         int tokenLength = tokens.get(currentWord).length();
@@ -169,12 +173,27 @@ public class Parser {
     }
 
     public boolean isAttributeName(ArrayList<String> tokens) {
-        if(isPlainText(tokens)){
-            return true;
-        }
-        throw new RuntimeException("Invalid Attribute Name");
+        return isPlainText(tokens);
     }
 
+    public boolean isAttributeList(ArrayList<String> tokens) {
+       while(currentWord < tokens.size()) {
+           if (isAttributeName(tokens)) {
+               incrementCurrentWord();
+               if (currentWord < tokens.size() && Objects.equals(tokens.get(currentWord), ",")) {
+                   incrementCurrentWord();
+               }
+               else {
+                   return true;
+               }
+           }
+           else{
+               return false;
+           }
+       }
+        return false;
+    }
+    
     public boolean isTableName(ArrayList<String> tokens) {
         if(isPlainText(tokens)){
             return true;
@@ -184,7 +203,7 @@ public class Parser {
 
     public boolean isUse(ArrayList<String> tokens){
         if(Objects.equals(tokens.get(currentWord), "USE")){
-            setCurrentWord(2);
+            setCurrentWord(1);
             if(isDatabaseName(tokens)){
                 return true;
             }

@@ -510,6 +510,8 @@ public class ParserTests {
         assertTrue(parser.isDatabaseName(tokens));
     }
 
+    //Attribute Name
+
     @Test
     public void testParserAttributeNameOneDigit() {
         ArrayList<String> tokens = initialiseArrayList("1");
@@ -539,6 +541,15 @@ public class ParserTests {
     }
 
     @Test
+    public void testParserAttributeNameInvalid() {
+        ArrayList<String> tokens = initialiseArrayList("0124dfsg'");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isAttributeName(tokens));
+    }
+
+    //Table Name
+
+    @Test
     public void testParserTableNameOneDigit() {
         ArrayList<String> tokens = initialiseArrayList("1");
         Parser parser = new Parser(tokens);
@@ -565,7 +576,9 @@ public class ParserTests {
         Parser parser = new Parser(tokens);
         assertTrue(parser.isTableName(tokens));
     }
- /*
+
+    //Use
+
     @Test
     public void testParserUse() {
         ArrayList<String> tokens = new ArrayList<>();
@@ -573,6 +586,7 @@ public class ParserTests {
         tokens.add("0124dfsg1");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isUse(tokens));
+        parser.setCurrentWord(0);
     }
 
     @Test
@@ -582,6 +596,7 @@ public class ParserTests {
         tokens.add("0124dfsg1");
         Parser parser = new Parser(tokens);
         assertThrows(RuntimeException.class, ()-> parser.isUse(tokens));
+        parser.setCurrentWord(0);
     }
 
     @Test
@@ -591,15 +606,29 @@ public class ParserTests {
         tokens.add("01#4dfsg1");
         Parser parser = new Parser(tokens);
         assertThrows(RuntimeException.class, ()-> parser.isUse(tokens));
+        parser.setCurrentWord(0);
     }
 
+    //Attribute List
 
     @Test
     public void testParserAttributeListOneAttributeName() {
         ArrayList<String> tokens = initialiseArrayList("0124dfsg1");
         Parser parser = new Parser(tokens);
-        assertTrue(parser.isAttributeList(0));
+        assertTrue(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
     }
+
+    @Test
+    public void testParserAttributeListOneAttributeNameThenSomethingElse() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("0124dfsg1");
+        tokens.add("NEXT");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
 
     @Test
     public void testParserAttributeListTwoCommaSeparatedAttributeNames() {
@@ -608,18 +637,59 @@ public class ParserTests {
         tokens.add(",");
         tokens.add("124dfsg1");
         Parser parser = new Parser(tokens);
-        assertTrue(parser.isAttributeList(0));
+        assertTrue(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
     }
 
     @Test
-    public void testParserAttributeListTwoAttributeNamesNoComma() {
+    public void testParserAttributeListFourCommaSeparatedAttributeNames() {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("0124dfsg1");
+        tokens.add(",");
+        tokens.add("124dfsg1");
+        tokens.add(",");
+        tokens.add("124dfsg1");
+        tokens.add(",");
         tokens.add("124dfsg1");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isAttributeList(0));
+        assertTrue(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
     }
-*/
+
+    @Test
+    public void testParserAttributeListEndsWithComma() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("0124dfsg1");
+        tokens.add(",");
+        tokens.add("124dfsg1");
+        tokens.add(",");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserAttributeListEndsWithNonAttributeNameToken() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("0124dfsg1");
+        tokens.add(",");
+        tokens.add("124dfsg1");
+        tokens.add(",");
+        tokens.add("*?**");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserAttributeListTwoConsecutiveCommas() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(",");
+        tokens.add(",");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isAttributeList(tokens));
+        parser.setCurrentWord(0);
+    }
 
     //create a function to convert comma separated tokens in string to tokens
 
