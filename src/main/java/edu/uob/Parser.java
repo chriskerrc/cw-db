@@ -254,6 +254,7 @@ public class Parser {
             incrementCurrentWord(tokens);
             //No attribute list
             if (!currentWordMatches(tokens, "(")){
+                decrementCurrentWord(tokens);
                 return true;
             }
             //Expecting attribute list

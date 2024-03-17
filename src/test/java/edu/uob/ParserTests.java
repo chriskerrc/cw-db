@@ -11,6 +11,8 @@ public class ParserTests {
 
     //create a function to convert comma separated tokens in string to tokens
 
+    //Note that sometimes tests fail when run collectively but pass when run individually
+    //Something to do with static variable currentWord, and not cleaning up properly between tests?
 
     public ArrayList<String> initialiseArrayList(String input) {
         ArrayList<String> tokens = new ArrayList<>();
@@ -1005,7 +1007,7 @@ public class ParserTests {
         tokens.add("Name");
         tokens.add(";");
         Parser parser = new Parser(tokens);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommand(tokens));
         parser.setCurrentWord(0);
     }
 
@@ -1027,7 +1029,7 @@ public class ParserTests {
         tokens.add("Name1");
         tokens.add(";");
         Parser parser = new Parser(tokens);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommand(tokens));
         parser.setCurrentWord(0);
     }
 
@@ -1061,7 +1063,7 @@ public class ParserTests {
         tokens.add("Name1");
         tokens.add(";");
         Parser parser = new Parser(tokens);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommand(tokens));
         parser.setCurrentWord(0);
     }
 
