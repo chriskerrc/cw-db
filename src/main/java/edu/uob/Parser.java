@@ -11,6 +11,7 @@ public class Parser {
         this.tokenisedList = tokens;
     }
 
+    //maybe use error tags for error messages? And throw errors from every small method not just from the top
     //ensure that arbitrary additional whitespace is handled
 
     //I need to catch these runtime exceptions somewhere so they're not passed onto the user
