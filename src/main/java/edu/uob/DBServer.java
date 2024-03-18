@@ -43,7 +43,8 @@ public class DBServer {
     */
     public String handleCommand(String command) {
         // TODO implement your server logic here
-        return "";
+        //temporary test
+        return "[ERROR]";
     }
 
     //  === Methods below handle networking aspects of the project - you will not need to change these ! ===
