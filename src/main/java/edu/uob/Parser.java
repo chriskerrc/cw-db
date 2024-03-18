@@ -212,15 +212,12 @@ public class Parser {
        while(currentWord < tokens.size()) {
            if (isAttributeName(tokens)) {
                incrementCurrentWord(tokens);
-               System.out.println("isAttributeList first " + currentWord);
                if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
                    incrementCurrentWord(tokens);
-                   System.out.println("isAttributeList second " + currentWord);
                }
                else {
                    //Only one Attribute Name (no list) so reset currentWord after look ahead
                    decrementCurrentWord(tokens);
-                   System.out.println("isAttributeList third " + currentWord);
                    return true;
                }
            }
@@ -259,7 +256,6 @@ public class Parser {
             }
             //Expecting attribute list
             else{
-                System.out.println("current word before call sub method" + tokens.get(currentWord));
                 return isCreateTableAttributeList(tokens);
             }
         }
@@ -277,7 +273,6 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(tokens);
-        System.out.println(currentWord);
         //on return from isAttributeList, current word is too high when there's two valid tokens followed by no closing bracket
         if(!currentWordMatches(tokens, ")")){
             return false;
