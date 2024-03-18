@@ -58,10 +58,26 @@ public class Table {
         }
         buffReader.close();
     }
-/*
+
     public void storeFileToDataStructure() throws IOException{
-       //add data to ArrayList of ArrayLists
+        File fileToOpen = new File(filePath);
+        FileReader reader = new FileReader(fileToOpen);
+        BufferedReader buffReader = new BufferedReader(reader);
+        String firstLine = buffReader.readLine(); //need to read all lines
+        String [] rowArray = firstLine.split("\\t");
+        ArrayList<ArrayList<String>> table = new ArrayList<>();
+        ArrayList<String> row0 = new ArrayList<>();
+        int rowLength = rowArray.length;
+        int i = 0;
+        while(i < rowLength){
+            row0.add(rowArray[i]);
+            i++;
+        }
+        table.add(row0); //need to add more than one row
+        System.out.println(table);
+
+        //pass some of this off to other methods?
     }
-*/
+
     //writeTableToFile
 }
