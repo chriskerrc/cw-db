@@ -14,6 +14,8 @@ public class ParserTests {
     //Note that sometimes tests fail when run collectively but pass when run individually
     //Something to do with static variable currentWord, and not cleaning up properly between tests?
 
+    //work out how to test private methods
+
     public ArrayList<String> initialiseArrayList(String input) {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(input);

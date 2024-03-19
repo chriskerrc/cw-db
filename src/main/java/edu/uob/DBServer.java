@@ -80,4 +80,8 @@ public class DBServer {
             }
         }
     }
+
+    public String getStorageFolderPath(){
+        return this.storageFolderPath;
+    }
 }
