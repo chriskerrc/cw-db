@@ -67,6 +67,7 @@ public class Table {
         }
         else{
             throw new IOException("File doesn't exist");
+            //create file instead
         }
     }
 
@@ -86,6 +87,7 @@ public class Table {
         }
         else{
             throw new IOException("File doesn't exist");
+            //create file instead
         }
     }
 
