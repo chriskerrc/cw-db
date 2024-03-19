@@ -19,6 +19,17 @@ public class Parser {
 
     //Replace Objects.equals ... with currentWordMatches method
 
+
+    public boolean parseCommand(ArrayList<String> tokens){
+        Parser p = new Parser(tokens);
+        try {
+            return p.isCommand(tokens);
+        } catch (RuntimeException exception){
+            System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
+            return false;
+        }
+    }
+
     //Commands
 
 
@@ -33,11 +44,12 @@ public class Parser {
         return true;
     }
     public boolean isCommandType(ArrayList<String> tokens) {
+        setCurrentWord(0); //absence of this line broke parsing of USE 
         if(isUse(tokens)){
             return true;
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreate(tokens)){
+        if(isCreate(tokens)) {
             return true;
         }
         //add other commands
