@@ -117,6 +117,7 @@ public class Table {
     }
 
     public void setTableCellValueInDataStructure(int row, int column, String input){
+        //check it's in bounds
         ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
         tableDataStructure.get(row).set(column, input);
     }
