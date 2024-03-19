@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Table {
 
-    String fileName = "people.tab";
+    String fileName = "people.tab"; //change this from hard coded to a parameter
     String filePath = "databases" + File.separator + fileName;
 
     public Table(){
@@ -59,25 +59,33 @@ public class Table {
         buffReader.close();
     }
 
+
     public void storeFileToDataStructure() throws IOException{
+        //check file exists
         File fileToOpen = new File(filePath);
         FileReader reader = new FileReader(fileToOpen);
         BufferedReader buffReader = new BufferedReader(reader);
-        String firstLine = buffReader.readLine(); //need to read all lines
-        String [] rowArray = firstLine.split("\\t");
         ArrayList<ArrayList<String>> table = new ArrayList<>();
-        ArrayList<String> row0 = new ArrayList<>();
+        String line;
+        while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
+            String [] rowArray = line.split("\\t"); //split on tab
+            ArrayList<String> row = fileLineToRow(rowArray);
+            table.add(row);
+        }
+        System.out.println(table);
+    }
+
+    public ArrayList<String> fileLineToRow(String [] rowArray) {
+        ArrayList<String> row = new ArrayList<>();
         int rowLength = rowArray.length;
         int i = 0;
         while(i < rowLength){
-            row0.add(rowArray[i]);
+            row.add(rowArray[i]);
             i++;
         }
-        table.add(row0); //need to add more than one row
-        System.out.println(table);
-
-        //pass some of this off to other methods?
+        return row;
     }
+
 
     //writeTableToFile
 }
