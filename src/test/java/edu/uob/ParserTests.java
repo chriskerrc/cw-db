@@ -2,6 +2,8 @@ package edu.uob;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -855,7 +857,7 @@ public class ParserTests {
     //Create Database
 
     @Test
-    public void testParserCreateDatabaseInvalidDatabaseName() {
+    public void testParserCreateDatabaseInvalidDatabaseName() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABASE");
@@ -866,13 +868,15 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCreateDatabaseValid() {
+    public void testParserCreateDatabaseValid() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABASE");
-        tokens.add("Name1");
+        tokens.add("Name4");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isCreateDatabase(tokens));
+        Database database = new Database();
+        database.deleteDatabaseDirectory("Name4");
         parser.setCurrentWord(0);
     }
 /*
@@ -888,11 +892,11 @@ public class ParserTests {
     }
 */
     @Test
-    public void testParserCreateDatabaseInvalidDatabaseKeyword() {
+    public void testParserCreateDatabaseInvalidDatabaseKeyword() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABAS");
-        tokens.add("Name");
+        tokens.add("NameBad");
         Parser parser = new Parser(tokens);
         assertFalse(parser.isCreateDatabase(tokens));
         parser.setCurrentWord(0);
@@ -901,18 +905,20 @@ public class ParserTests {
     //Create
 
     @Test
-    public void testParserCreateCommandDatabase() {
+    public void testParserCreateCommandDatabase() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABASE");
-        tokens.add("Name");
+        tokens.add("Name3");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isCreate(tokens));
+        Database database = new Database();
+        database.deleteDatabaseDirectory("Name3");
         parser.setCurrentWord(0);
     }
 
     @Test
-    public void testParserCreateCommandTable() {
+    public void testParserCreateCommandTable() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("TABLE");
@@ -931,18 +937,20 @@ public class ParserTests {
     //Command Type
 
     @Test
-    public void testParserCommandTypeCreateDatabase() {
+    public void testParserCommandTypeCreateDatabase() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABASE");
         tokens.add("Name");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isCommandType(tokens));
+        Database database = new Database();
+        database.deleteDatabaseDirectory("Name");
         parser.setCurrentWord(0);
     }
 
     @Test
-    public void testParserCommandTypeCreateTable() {
+    public void testParserCommandTypeCreateTable() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("TABLE");
@@ -953,7 +961,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCommandTypeCreateTableInvalidTableName() {
+    public void testParserCommandTypeCreateTableInvalidTableName() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("TABLE");
@@ -964,7 +972,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCommandTypeUseDatabase() {
+    public void testParserCommandTypeUseDatabase() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("USE");
         tokens.add("DATABASE");
@@ -975,7 +983,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCommandTypeUseDatabaseInvalid() {
+    public void testParserCommandTypeUseDatabaseInvalid() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("USE");
         tokens.add("Na@me");
@@ -1003,7 +1011,7 @@ public class ParserTests {
     //Command
 
     @Test
-    public void testParserCommandUseValid() {
+    public void testParserCommandUseValid() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("USE");
         tokens.add("Name");
@@ -1024,7 +1032,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCommandCreateDatabaseValid() {
+    public void testParserCommandCreateDatabaseValid() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("DATABASE");
@@ -1058,7 +1066,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserCommandCreateTableValid() {
+    public void testParserCommandCreateTableValid() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
         tokens.add("TABLE");
@@ -1066,6 +1074,8 @@ public class ParserTests {
         tokens.add(";");
         Parser parser = new Parser(tokens);
         assertTrue(parser.isCommand(tokens));
+        Database database = new Database();
+        database.deleteDatabaseDirectory("Name1");
         parser.setCurrentWord(0);
     }
 

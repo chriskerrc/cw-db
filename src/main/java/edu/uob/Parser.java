@@ -1,4 +1,5 @@
 package edu.uob;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class Parser {
         Parser p = new Parser(tokens);
         try {
             return p.isCommand(tokens);
-        } catch (RuntimeException exception){
+        } catch (RuntimeException | IOException exception){
             System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
             return false;
         }
@@ -33,7 +34,7 @@ public class Parser {
     //Commands
 
 
-    public boolean isCommand(ArrayList<String> tokens){
+    public boolean isCommand(ArrayList<String> tokens) throws IOException {
         if(!isCommandType(tokens)){
             throw new RuntimeException("Invalid Command");
         }
@@ -43,7 +44,7 @@ public class Parser {
         }
         return true;
     }
-    public boolean isCommandType(ArrayList<String> tokens) {
+    public boolean isCommandType(ArrayList<String> tokens) throws IOException {
         setCurrentWord(0); //absence of this line broke parsing of USE 
         if(isUse(tokens)){
             return true;
@@ -65,7 +66,7 @@ public class Parser {
         return false;
     }
 
-    public boolean isCreate(ArrayList<String> tokens){
+    public boolean isCreate(ArrayList<String> tokens) throws IOException {
         if(isCreateTable(tokens)){
             return true;
         }
@@ -293,7 +294,7 @@ public class Parser {
         return true;
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens){
+    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
         //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
@@ -303,7 +304,12 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(tokens);
-        return isDatabaseName(tokens);
+        if(isDatabaseName(tokens)){
+            Database database = new Database();
+            int currentWordIndex = getCurrentWord();
+            return database.interpretCreateDatabase(tokenToString(currentWordIndex));
+        }
+        return false;
     }
 
     //Helper methods

@@ -53,4 +53,8 @@ public class Database {
         return true;
     }
 
+    public boolean interpretCreateDatabase(String databaseName) throws IOException {
+        return createDatabaseDirectory(databaseName);
+    }
+
 }
