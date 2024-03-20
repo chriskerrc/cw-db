@@ -7,6 +7,7 @@ public class Table {
     private ArrayList<ArrayList<String>> tableDataStructure;
     private String storageFolderPath;
     private String filePath;
+    private final String fileExtension = ".tab";
 
     public Table(){
         DBServer dbServer = new DBServer();
@@ -50,7 +51,7 @@ public class Table {
 
 
     public boolean doesFileExist(String fileName) {
-        File fileToOpen = new File(filePath + fileName);
+        File fileToOpen = new File(filePath + fileName + fileExtension);
         return fileToOpen.exists();
     }
 
@@ -122,6 +123,34 @@ public class Table {
         //check it's in bounds
         ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
         tableDataStructure.get(row).set(column, input);
+    }
+
+    public void createTableNoValues(String tableName){
+        //create table datastructure instance
+        //add ID column
+        //create file tableName.tab
+        //write data to file
+
+    }
+
+    public ArrayList<ArrayList<String>> createTableDataStructure(){
+        tableDataStructure = new ArrayList<>();
+        ArrayList<String> row = new ArrayList<>();
+        //add placeholder column heading to otherwise empty table
+        row.add("id");
+        tableDataStructure.add(row);
+        return tableDataStructure;
+    }
+
+    public boolean writeTableToFile(String tableName, ArrayList<ArrayList<String>> table) throws IOException {
+        if(!doesFileExist(tableName)){
+            return false;
+        }
+        File fileToOpen = new File(filePath + tableName + fileExtension);
+        if(!fileToOpen.createNewFile()){
+            return false;
+        }
+        return true;
     }
 
     //writeTableToFile
