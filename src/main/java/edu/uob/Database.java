@@ -5,6 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class Database {
 
@@ -13,9 +14,7 @@ public class Database {
     private String storageFolderPath;
     private String filePath;
 
-    static private ArrayList<Database> databasesList;
-
-    private int activeDatabaseIndex;
+    static private ArrayList<Table> tablesInDatabase;
 
     private int databaseIndex;
 
@@ -23,7 +22,7 @@ public class Database {
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         filePath = storageFolderPath + File.separator;
-        Table[] tablesInDatabase;
+
     }
 
     public boolean doesDirectoryExist(String fileName) {
@@ -61,11 +60,6 @@ public class Database {
         return createDatabaseDirectory(databaseName);
     }
 
-    //when add database to list, store its index in the database object
-    public int addDatabaseToList(Database database){
-        databasesList.add(database);
-        return databasesList.indexOf(database);
-    }
 
     public void setDatabaseIndex(Database database, int databaseIndex){
         database.databaseIndex = databaseIndex;
@@ -75,22 +69,28 @@ public class Database {
         return database.databaseIndex;
     }
 
-    public Database getActiveDatabase(int activeDatabaseIndex){
-        return databasesList.get(activeDatabaseIndex);
+    public void addTableToListCurrentTables(Table table){
+        tablesInDatabase.add(table);
     }
 
-    public int generateNewDatabaseIndex(){
-        return databasesList.size(); //check that this provides the correct index (avoid off by one error)
+    public void removeTableFromListCurrentTables(String tableName){
+        Iterator<Table> iterator = tablesInDatabase.iterator();
+        while(iterator.hasNext()){
+            Table table = iterator.next();
+            if(Objects.equals(table.getTableName(), tableName)){
+                iterator.remove();
+                break;
+            }
+        }
     }
 
-    public void addTableListCurrentTables(Table table){
-
+    public String getDatabaseName(){
+        return databaseName;
     }
 
+    //call addTableToList when creating table
     //method: have a setter method addTableToActiveDatabase that can be called from Table class to add the table to list of current tables, or remove it when deleted:
             //a list storing a reference to the table object
             //need to call this on create table
-    //inside table class, have a table name attribute with getter and setter method
-    //method: load tables into database - put this method in table class
 
 }

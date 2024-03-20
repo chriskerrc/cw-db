@@ -9,6 +9,8 @@ public class Table {
     private String filePath;
     private final String fileExtension = ".tab";
 
+    private String tableName;
+
     public Table(){
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
@@ -151,6 +153,10 @@ public class Table {
             return false;
         }
         return true;
+    }
+
+    public String getTableName(){
+        return tableName;
     }
 
     //writeTableToFile
