@@ -38,7 +38,7 @@ public class DatabaseTests {
     }
 
     @Test
-    public void testCreateNewDatabaseObjectAndAddToMetadataList() throws IOException {
+    public void testCreateNewDatabaseObjectsAndAddToMetadataList() throws IOException {
         DBServer dbServer = new DBServer();
         //Add first database
         dbServer.handleCommand("CREATE DATABASE databaseForList1;");
@@ -51,8 +51,25 @@ public class DatabaseTests {
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("databaseForList1"));
         assertTrue(database.deleteDatabaseDirectory("databaseForList2"));
-
     }
+
+    @Test
+    public void testUseDatabase() throws IOException {
+        DBServer dbServer = new DBServer();
+        //Add first database
+        dbServer.handleCommand("CREATE DATABASE databaseForUse;");
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        assertEquals(databaseMetadata.getDatabaseIndexFromName("databaseForUse"), 0);
+        //Use database
+        dbServer.handleCommand("USE databaseForUse;");
+        databaseMetadata = dbServer.getDatabaseMetadata();
+        assertEquals(databaseMetadata.getDatabaseInUse(), "databaseForUse");
+        //Create new database
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory("databaseForUse"));
+    }
+
+
 
 
 

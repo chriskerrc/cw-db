@@ -59,7 +59,9 @@ public class Parser {
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
-                return true;
+                Database database = new Database();
+                int currentWordIndex = getCurrentWord();
+                return database.interpretUseDatabase(tokenToString(currentWordIndex));
             }
         }
         return false;

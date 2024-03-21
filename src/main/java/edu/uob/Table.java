@@ -144,6 +144,7 @@ public class Table {
         return tableDataStructure;
     }
 
+    //the following method isn't finished
     public boolean writeTableToFile(String tableName, ArrayList<ArrayList<String>> table) throws IOException {
         if(!doesFileExist(tableName)){
             return false;

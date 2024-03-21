@@ -14,7 +14,7 @@ public class Database extends DatabaseMetadata {
     private String storageFolderPath;
     private String filePath;
 
-    static private ArrayList<Table> tablesInDatabase;
+    private ArrayList<Table> tablesInDatabase = new ArrayList<>();
 
     private int databaseIndex;
 
@@ -56,10 +56,23 @@ public class Database extends DatabaseMetadata {
         return true;
     }
 
+    //should the interpreter methods be in this class? or in DatabaseMetadata?
     public boolean interpretCreateDatabase(String databaseName, Database databaseObject) throws IOException {
         addDatabaseToList(databaseObject);
         setDatabaseName(databaseName, databaseObject);
         return createDatabaseDirectory(databaseName);
+    }
+
+    public boolean interpretUseDatabase(String databaseName){
+        if(databaseObjectAlreadyExists(databaseName)){
+            setDatabaseInUse(databaseName);
+            //load tables from file into database
+            //forget tables loaded into other databases (so not keeping too much in memory)
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
 
@@ -71,10 +84,15 @@ public class Database extends DatabaseMetadata {
         return database.databaseIndex;
     }
 
-    public void addTableToListCurrentTables(Table table){
+    public void loadTableToDatabase(Table table){
         tablesInDatabase.add(table);
     }
-
+/*
+    public Table getTableFromDatabase(String tableName){
+        //
+        return table;
+    }
+*/
     public void removeTableFromListCurrentTables(String tableName){
         Iterator<Table> iterator = tablesInDatabase.iterator();
         while(iterator.hasNext()){

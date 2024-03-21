@@ -7,6 +7,8 @@ public class DatabaseMetadata {
 
     static private ArrayList<Database> databasesList = new ArrayList<>();
 
+    static private String databaseInUse;
+
     //private int activeDatabaseIndex;
 
     public int addDatabaseToList(Database database){
@@ -52,6 +54,14 @@ public class DatabaseMetadata {
 
     public ArrayList<Database> getDatabasesList(){
         return databasesList;
+    }
+
+    public void setDatabaseInUse(String databaseName){
+        databaseInUse = databaseName;
+    }
+
+    public String getDatabaseInUse(){
+        return databaseInUse;
     }
 }
 
