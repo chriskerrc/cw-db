@@ -2,6 +2,7 @@ package edu.uob;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -67,6 +68,34 @@ public class DatabaseTests {
         //Create new database
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("databaseForUse"));
+    }
+
+    @Test
+    public void testLoadFilesInDatabaseFolderIntoArray() throws IOException {
+        Database database = new Database();
+        String[] filesList = database.getFilesInDatabaseFolder("people");
+        if(filesList != null) {
+            //not sure why it loads sheds before people...
+            assertEquals(filesList[0], "sheds");
+            assertEquals(filesList[1], "people");
+        }
+    }
+
+
+    //the following test fails because the file reading code expects the file to be in the root, not in the people folder
+    @Test
+    public void testLoadAllFilesInDatabaseFolderIntoDatabaseObject() throws IOException {
+        Database database = new Database();
+        String[] filesList = database.getFilesInDatabaseFolder("people");
+        if(filesList != null) {
+            assertEquals(filesList[0], "sheds");
+            assertEquals(filesList[1], "people");
+        }
+        assert filesList != null;
+        database.loadAllTablesInFolderToDatabaseObject(filesList);
+        assertTrue(database.getTableObjectInDatabaseFromName("sheds"));
+        assertTrue(database.getTableObjectInDatabaseFromName("people"));
+
     }
 
 

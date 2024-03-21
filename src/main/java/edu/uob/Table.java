@@ -1,6 +1,8 @@
 package edu.uob;
 import java.io.*;
 import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Table {
 
@@ -15,7 +17,8 @@ public class Table {
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         tableDataStructure = new ArrayList<>();
-        filePath = storageFolderPath + File.separator;
+        //hardcoding inUseFolder to "people" for now. Need to get it instead
+        filePath = storageFolderPath + File.separator + "people" + File.separator;
     }
 
     /*
@@ -74,6 +77,7 @@ public class Table {
         }
     }
 
+    //copied and pasted code across these two methods
     public void storeFileToDataStructure(String fileName) throws IOException{
         if(doesFileExist(fileName)) {
             File fileToOpen = new File(filePath + fileName);
@@ -87,6 +91,27 @@ public class Table {
                 tableDataStructure.add(row);
             }
             System.out.println(tableDataStructure);
+        }
+        else{
+            throw new IOException("File doesn't exist");
+            //create file instead
+        }
+    }
+
+    public Table storeNamedFileToTableObject(String fileName) throws IOException{
+        if(doesFileExist(fileName)) {
+            Table table = new Table();
+            File fileToOpen = new File(filePath + fileName + fileExtension);
+            FileReader reader = new FileReader(fileToOpen);
+            BufferedReader buffReader = new BufferedReader(reader);
+            tableDataStructure = new ArrayList<>();
+            String line;
+            while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
+                String[] rowArray = line.split("\\t"); //split on tab
+                ArrayList<String> row = fileLineToRow(rowArray);
+                tableDataStructure.add(row);
+            }
+            return table;
         }
         else{
             throw new IOException("File doesn't exist");
@@ -158,6 +183,10 @@ public class Table {
 
     public String getTableName(){
         return tableName;
+    }
+
+    public void setTableName(String newTableName){
+        tableName = newTableName;
     }
 
     //writeTableToFile

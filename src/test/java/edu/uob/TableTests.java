@@ -70,6 +70,13 @@ public class TableTests {
         assertEquals(value, "Christian");
     }
 
+    @Test
+    public void testFileExistsInDatabaseFolder() throws IOException {
+        Table table = new Table();
+        assertTrue(table.doesFileExist("sheds"));
+    }
+
+
 
 
 
