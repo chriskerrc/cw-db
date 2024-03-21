@@ -1,6 +1,5 @@
 package edu.uob;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -8,7 +7,7 @@ public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
 
-    public Parser(ArrayList<String> tokens) {
+    public Parser(ArrayList<String> tokens, DatabaseMetadata dbCommand) {
         this.tokenisedList = tokens;
     }
 
@@ -21,8 +20,8 @@ public class Parser {
     //Replace Objects.equals ... with currentWordMatches method
 
 
-    public boolean parseCommand(ArrayList<String> tokens){
-        Parser p = new Parser(tokens);
+    public boolean parseCommand(ArrayList<String> tokens, DatabaseMetadata dbCommand){
+        Parser p = new Parser(tokens, dbCommand);
         try {
             return p.isCommand(tokens);
         } catch (RuntimeException | IOException exception){
@@ -307,7 +306,7 @@ public class Parser {
         if(isDatabaseName(tokens)){
             Database database = new Database();
             int currentWordIndex = getCurrentWord();
-            return database.interpretCreateDatabase(tokenToString(currentWordIndex));
+            return database.interpretCreateDatabase(tokenToString(currentWordIndex), database);
         }
         return false;
     }

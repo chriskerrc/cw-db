@@ -1,12 +1,11 @@
 package edu.uob;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Objects;
 
-public class DBCommand {
+public class DatabaseMetadata {
 
-    static private ArrayList<Database> databasesList;
+    static private ArrayList<Database> databasesList = new ArrayList<>();
 
     //private int activeDatabaseIndex;
 
@@ -49,6 +48,10 @@ public class DBCommand {
             }
         }
         return false;
+    }
+
+    public ArrayList<Database> getDatabasesList(){
+        return databasesList;
     }
 }
 

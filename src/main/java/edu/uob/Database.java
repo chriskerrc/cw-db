@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Objects;
 
-public class Database {
+public class Database extends DatabaseMetadata {
 
     String databaseName;
 
@@ -56,7 +56,9 @@ public class Database {
         return true;
     }
 
-    public boolean interpretCreateDatabase(String databaseName) throws IOException {
+    public boolean interpretCreateDatabase(String databaseName, Database databaseObject) throws IOException {
+        addDatabaseToList(databaseObject);
+        setDatabaseName(databaseName, databaseObject);
         return createDatabaseDirectory(databaseName);
     }
 
@@ -86,6 +88,10 @@ public class Database {
 
     public String getDatabaseName(){
         return databaseName;
+    }
+
+    public void setDatabaseName(String newDatabaseName, Database database){
+        database.databaseName = newDatabaseName;
     }
 
     //call addTableToList when creating table

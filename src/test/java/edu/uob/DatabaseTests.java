@@ -37,6 +37,23 @@ public class DatabaseTests {
 
     }
 
+    @Test
+    public void testCreateNewDatabaseObjectAndAddToMetadataList() throws IOException {
+        DBServer dbServer = new DBServer();
+        //Add first database
+        dbServer.handleCommand("CREATE DATABASE databaseForList1;");
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        assertEquals(databaseMetadata.getDatabaseIndexFromName("databaseForList1"), 0);
+        //Add second database
+        dbServer.handleCommand("CREATE DATABASE databaseForList2;");
+        databaseMetadata = dbServer.getDatabaseMetadata();
+        assertEquals(databaseMetadata.getDatabaseIndexFromName("databaseForList2"), 1);
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory("databaseForList1"));
+        assertTrue(database.deleteDatabaseDirectory("databaseForList2"));
+
+    }
+
 
 
 
