@@ -1,5 +1,6 @@
 package edu.uob;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -50,6 +51,26 @@ public class DatabaseMetadata {
             }
         }
         return false;
+    }
+
+
+    public boolean interpretCreateDatabase(String databaseName) throws IOException {
+        Database database = new Database();
+        addDatabaseToList(database);
+        database.setDatabaseName(databaseName);
+        return database.createDatabaseDirectory(databaseName);
+    }
+
+    public boolean interpretUseDatabase(String databaseName){
+        //create database objet
+        if(databaseObjectAlreadyExists(databaseName)){
+            setDatabaseInUse(databaseName);
+            //load tables from file into database
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public ArrayList<Database> getDatabasesList(){

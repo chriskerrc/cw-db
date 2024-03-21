@@ -606,7 +606,7 @@ public class ParserTests {
         tokens.add("USE");
         tokens.add("0124dfsg1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isUse(tokens));
+        assertTrue(parser.isUse(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -616,7 +616,7 @@ public class ParserTests {
         tokens.add("US");
         tokens.add("0124dfsg1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isUse(tokens));
+        assertFalse(parser.isUse(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -626,7 +626,7 @@ public class ParserTests {
         tokens.add("USE");
         tokens.add("01^4dfsg1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isUse(tokens));
+        assertFalse(parser.isUse(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -861,7 +861,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name*");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isCreateDatabase(tokens));
+        assertFalse(parser.isCreateDatabase(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -872,7 +872,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name4");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCreateDatabase(tokens));
+        assertTrue(parser.isCreateDatabase(tokens, dbCommand));
         Database database = new Database();
         database.deleteDatabaseDirectory("Name4");
         parser.setCurrentWord(0);
@@ -896,7 +896,7 @@ public class ParserTests {
         tokens.add("DATABAS");
         tokens.add("NameBad");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isCreateDatabase(tokens));
+        assertFalse(parser.isCreateDatabase(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -909,7 +909,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name3");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCreate(tokens));
+        assertTrue(parser.isCreate(tokens, dbCommand));
         Database database = new Database();
         database.deleteDatabaseDirectory("Name3");
         parser.setCurrentWord(0);
@@ -928,7 +928,7 @@ public class ParserTests {
         tokens.add("Name3");
         tokens.add(")");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCreate(tokens));
+        assertTrue(parser.isCreate(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -941,7 +941,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommandType(tokens, dbCommand));
         Database database = new Database();
         database.deleteDatabaseDirectory("Name");
         parser.setCurrentWord(0);
@@ -954,7 +954,7 @@ public class ParserTests {
         tokens.add("TABLE");
         tokens.add("Name");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommandType(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -965,7 +965,7 @@ public class ParserTests {
         tokens.add("TABLE");
         tokens.add("*");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isCommandType(tokens));
+        assertFalse(parser.isCommandType(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -976,7 +976,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommandType(tokens));
+        assertTrue(parser.isCommandType(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -986,7 +986,7 @@ public class ParserTests {
         tokens.add("USE");
         tokens.add("Na@me");
         Parser parser = new Parser(tokens, dbCommand);
-        assertFalse(parser.isCommandType(tokens));
+        assertFalse(parser.isCommandType(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1015,7 +1015,7 @@ public class ParserTests {
         tokens.add("Name");
         tokens.add(";");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommand(tokens));
+        assertTrue(parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1025,7 +1025,7 @@ public class ParserTests {
         tokens.add("USE");
         tokens.add("Name");
         Parser parser = new Parser(tokens, dbCommand);
-        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1037,7 +1037,7 @@ public class ParserTests {
         tokens.add("Name1");
         tokens.add(";");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommand(tokens));
+        assertTrue(parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1048,7 +1048,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("Name1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1059,7 +1059,7 @@ public class ParserTests {
         tokens.add("DATABASE");
         tokens.add("N@me1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1071,7 +1071,7 @@ public class ParserTests {
         tokens.add("Name1");
         tokens.add(";");
         Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommand(tokens));
+        assertTrue(parser.isCommand(tokens, dbCommand));
         Database database = new Database();
         database.deleteDatabaseDirectory("Name1");
         parser.setCurrentWord(0);
@@ -1084,7 +1084,7 @@ public class ParserTests {
         tokens.add("TABLE");
         tokens.add("Name1");
         Parser parser = new Parser(tokens, dbCommand);
-        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1096,7 +1096,7 @@ public class ParserTests {
         tokens.add("Nam&1");
         tokens.add(";");
         Parser parser = new Parser(tokens, dbCommand);
-        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 

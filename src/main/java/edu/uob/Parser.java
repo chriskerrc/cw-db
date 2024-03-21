@@ -7,7 +7,7 @@ public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
 
-    public Parser(ArrayList<String> tokens, DatabaseMetadata dbCommand) {
+    public Parser(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) {
         this.tokenisedList = tokens;
     }
 
@@ -20,10 +20,10 @@ public class Parser {
     //Replace Objects.equals ... with currentWordMatches method
 
 
-    public boolean parseCommand(ArrayList<String> tokens, DatabaseMetadata dbCommand){
-        Parser p = new Parser(tokens, dbCommand);
+    public boolean parseCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata){
+        Parser p = new Parser(tokens, databaseMetadata);
         try {
-            return p.isCommand(tokens);
+            return p.isCommand(tokens, databaseMetadata);
         } catch (RuntimeException | IOException exception){
             System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
             return false;
@@ -33,8 +33,8 @@ public class Parser {
     //Commands
 
 
-    public boolean isCommand(ArrayList<String> tokens) throws IOException {
-        if(!isCommandType(tokens)){
+    public boolean isCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
+        if(!isCommandType(tokens, databaseMetadata)){
             throw new RuntimeException("Invalid Command");
         }
         incrementCurrentWord(tokens);
@@ -43,19 +43,19 @@ public class Parser {
         }
         return true;
     }
-    public boolean isCommandType(ArrayList<String> tokens) throws IOException {
+    public boolean isCommandType(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         setCurrentWord(0); //absence of this line broke parsing of USE 
-        if(isUse(tokens)){
+        if(isUse(tokens, databaseMetadata)){
             return true;
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreate(tokens)) {
+        if(isCreate(tokens, databaseMetadata)) {
             return true;
         }
         //add other commands
         return false;
     }
-    public boolean isUse(ArrayList<String> tokens){
+    public boolean isUse(ArrayList<String> tokens, DatabaseMetadata databaseMetadata){
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
@@ -67,12 +67,12 @@ public class Parser {
         return false;
     }
 
-    public boolean isCreate(ArrayList<String> tokens) throws IOException {
+    public boolean isCreate(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         if(isCreateTable(tokens)){
             return true;
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreateDatabase(tokens)){
+        if(isCreateDatabase(tokens, databaseMetadata)){
             return true;
         }
         return false;
@@ -295,7 +295,7 @@ public class Parser {
         return true;
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
+    public boolean isCreateDatabase(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
@@ -306,9 +306,8 @@ public class Parser {
         }
         incrementCurrentWord(tokens);
         if(isDatabaseName(tokens)){
-            Database database = new Database();
             int currentWordIndex = getCurrentWord();
-            return database.interpretCreateDatabase(tokenToString(currentWordIndex), database);
+            return databaseMetadata.interpretCreateDatabase(tokenToString(currentWordIndex));
         }
         return false;
     }

@@ -56,26 +56,6 @@ public class Database extends DatabaseMetadata {
         return true;
     }
 
-    //should the interpreter methods be in this class? or in DatabaseMetadata?
-    public boolean interpretCreateDatabase(String databaseName, Database databaseObject) throws IOException {
-        addDatabaseToList(databaseObject);
-        setDatabaseName(databaseName, databaseObject);
-        return createDatabaseDirectory(databaseName);
-    }
-
-    public boolean interpretUseDatabase(String databaseName){
-        if(databaseObjectAlreadyExists(databaseName)){
-            setDatabaseInUse(databaseName);
-            //load tables from file into database
-            //forget tables loaded into other databases (so not keeping too much in memory)
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
-
     public void setDatabaseIndex(Database database, int databaseIndex){
         database.databaseIndex = databaseIndex;
     }
@@ -108,8 +88,8 @@ public class Database extends DatabaseMetadata {
         return databaseName;
     }
 
-    public void setDatabaseName(String newDatabaseName, Database database){
-        database.databaseName = newDatabaseName;
+    public void setDatabaseName(String newDatabaseName){
+        databaseName = newDatabaseName;
     }
 
     //call addTableToList when creating table
