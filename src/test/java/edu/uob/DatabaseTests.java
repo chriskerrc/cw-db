@@ -55,7 +55,7 @@ public class DatabaseTests {
     }
 
     @Test
-    public void testUseDatabase() throws IOException {
+    public void testUseDatabaseUpdateDatabaseInUse() throws IOException {
         DBServer dbServer = new DBServer();
         //Add first database
         dbServer.handleCommand("CREATE DATABASE databaseForUse;");
@@ -93,11 +93,32 @@ public class DatabaseTests {
         }
         assert filesList != null;
         database.loadAllTablesInFolderToDatabaseObject(filesList);
-        assertTrue(database.getTableObjectInDatabaseFromName("sheds"));
-        assertTrue(database.getTableObjectInDatabaseFromName("people"));
-
+        assertTrue(database.tableExistsInDatabase("sheds"));
+        assertTrue(database.tableExistsInDatabase("people"));
     }
 
+    @Test
+    public void testUseDatabaseLoadDatabase() throws IOException {
+        //for now, this assumes that the people folder exists. In the future, create a database and populate with tables people.tab and sheds.tab within this test via commands
+        DBServer dbServer = new DBServer();
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        //manually create and add people database object to metadata list
+        //when I have ability to create tables in databases, do that here instead from commands
+        Database peopleDatabase = new Database();
+        peopleDatabase.setDatabaseName("people");
+        databaseMetadata.addDatabaseToList(peopleDatabase);
+        dbServer.handleCommand("USE people;");
+        assertEquals(databaseMetadata.getDatabaseInUse(), "people");
+        Database databasePeople = new Database();
+        databasePeople = databasePeople.getDatabaseObjectFromName(databaseMetadata.getDatabaseInUse());
+        assertTrue(databasePeople.tableExistsInDatabase("sheds"));
+        assertTrue(databasePeople.tableExistsInDatabase("people"));
+        Table tableSheds = databasePeople.getTableObjectFromDatabaseFromName("sheds");
+        Table tablePeople = databasePeople.getTableObjectFromDatabaseFromName("people");
+        System.out.println(tableSheds);
+        //assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
+        //assertEquals(tablePeople.getTableCellValueFromDataStructure(3, 1), "Chris");
+    }
 
 
 

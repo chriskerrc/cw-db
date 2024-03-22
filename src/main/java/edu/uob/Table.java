@@ -78,6 +78,7 @@ public class Table {
     }
 
     //copied and pasted code across these two methods
+
     public void storeFileToDataStructure(String fileName) throws IOException{
         if(doesFileExist(fileName)) {
             File fileToOpen = new File(filePath + fileName);
@@ -100,23 +101,23 @@ public class Table {
 
     public Table storeNamedFileToTableObject(String fileName) throws IOException{
         if(doesFileExist(fileName)) {
-            Table table = new Table();
-            File fileToOpen = new File(filePath + fileName + fileExtension);
+            this.setTableName(fileName);
+            File fileToOpen = new File(this.filePath + fileName + this.fileExtension);
             FileReader reader = new FileReader(fileToOpen);
             BufferedReader buffReader = new BufferedReader(reader);
-            tableDataStructure = new ArrayList<>();
+            this.tableDataStructure = new ArrayList<>();
             String line;
             while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
                 String[] rowArray = line.split("\\t"); //split on tab
                 ArrayList<String> row = fileLineToRow(rowArray);
-                tableDataStructure.add(row);
+                this.tableDataStructure.add(row);
             }
-            return table;
         }
         else{
             throw new IOException("File doesn't exist");
             //create file instead
         }
+        return this;
     }
 
     public ArrayList<String> fileLineToRow(String [] rowArray) {

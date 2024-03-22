@@ -601,7 +601,7 @@ public class ParserTests {
     //Use
 
     @Test
-    public void testParserUse() {
+    public void testParserUse() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("USE");
         tokens.add("0124dfsg1");
@@ -611,7 +611,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserUseInvalidUse() {
+    public void testParserUseInvalidUse() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("US");
         tokens.add("0124dfsg1");
@@ -621,7 +621,7 @@ public class ParserTests {
     }
 
     @Test
-    public void testParserUseInvalidDatabaseName() {
+    public void testParserUseInvalidDatabaseName() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("USE");
         tokens.add("01^4dfsg1");

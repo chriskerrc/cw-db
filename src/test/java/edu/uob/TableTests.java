@@ -40,6 +40,7 @@ public class TableTests {
         table.printStorageFolderPath();
     }
 
+    //the next three tests don't work because they assumed that there was a file called people.tab in the root of the databases folder
     @Test
     public void testGetTableDataStructure() throws IOException {
         Table table = new Table();
@@ -76,8 +77,48 @@ public class TableTests {
         assertTrue(table.doesFileExist("sheds"));
     }
 
+    @Test
+    public void testSetTableName() throws IOException {
+        Table table = new Table();
+        table.setTableName("sheds");
+        assertEquals(table.getTableName(), "sheds");
+    }
+
+    @Test
+    public void testStoreNamedFileToTableObject() throws IOException {
+        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
+        Table tableSheds = new Table();
+        tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
+        assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
+        assertEquals(tableSheds.getTableCellValueFromDataStructure(2, 2), "1200");
+    }
+
+    @Test
+    public void testGetTableNameAfterLoadFileToTableObject() throws IOException {
+        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
+        Table tableSheds = new Table();
+        tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
+        assertEquals("sheds", tableSheds.getTableName());
+    }
 
 
-
-
+    //loadTableToDatabase
+    @Test
+    public void testLoadTableToDatabase() throws IOException {
+        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
+        Table tableSheds = new Table();
+        //Load table from file
+        tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
+        assertEquals("sheds", tableSheds.getTableName());
+        assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
+        assertEquals(tableSheds.getTableCellValueFromDataStructure(2, 2), "1200");
+        Database databasePeople = new Database();
+        //load table to database
+        databasePeople.loadTableToDatabase(tableSheds);
+        //check that table of this name exists in database
+        assertTrue(databasePeople.tableExistsInDatabase("sheds"));
+        //get table from database and check it has expected values
+        Table tableShedsFromDatabase = databasePeople.getTableObjectFromDatabaseFromName("sheds");
+        assertEquals(tableShedsFromDatabase.getTableCellValueFromDataStructure(1, 1), "Dorchester");
+    }
 }

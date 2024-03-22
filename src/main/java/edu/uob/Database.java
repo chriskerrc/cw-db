@@ -71,9 +71,9 @@ public class Database extends DatabaseMetadata {
     public void loadAllTablesInFolderToDatabaseObject(String [] tableNames) throws IOException {
         for (String tableName : tableNames) {
             Table table = new Table();
-            Table loadedTable = table.storeNamedFileToTableObject(tableName);
-            loadedTable.setTableName(tableName);
-            loadTableToDatabase(loadedTable);
+            table.storeNamedFileToTableObject(tableName);
+            table.setTableName(tableName);
+            loadTableToDatabase(table);
         }
     }
 /*
@@ -121,13 +121,22 @@ public class Database extends DatabaseMetadata {
         return tablesInDatabase;
     }
 
-    public boolean getTableObjectInDatabaseFromName(String tableName){
+    public boolean tableExistsInDatabase(String tableName){
         for (Table table : tablesInDatabase) {
             if (Objects.equals(table.getTableName(), tableName)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public Table getTableObjectFromDatabaseFromName(String tableName){
+        for (Table table : tablesInDatabase) {
+            if (Objects.equals(table.getTableName(), tableName)) {
+                return table;
+            }
+        }
+        return null;
     }
     //call addTableToList when creating table
     //method: have a setter method addTableToActiveDatabase that can be called from Table class to add the table to list of current tables, or remove it when deleted:

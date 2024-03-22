@@ -55,7 +55,7 @@ public class Parser {
         //add other commands
         return false;
     }
-    public boolean isUse(ArrayList<String> tokens, DatabaseMetadata databaseMetadata){
+    public boolean isUse(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){

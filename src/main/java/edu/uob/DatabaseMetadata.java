@@ -61,11 +61,14 @@ public class DatabaseMetadata {
         return database.createDatabaseDirectory(databaseName);
     }
 
-    public boolean interpretUseDatabase(String databaseName){
-        //create database objet
+    public boolean interpretUseDatabase(String databaseName) throws IOException {
         if(databaseObjectAlreadyExists(databaseName)){
             setDatabaseInUse(databaseName);
-            //load tables from file into database
+            Database database = getDatabaseObjectFromName(databaseName);
+            String[] filesList = database.getFilesInDatabaseFolder(databaseName);
+            if(filesList != null) {
+                database.loadAllTablesInFolderToDatabaseObject(filesList);
+            }
             return true;
         }
         else{

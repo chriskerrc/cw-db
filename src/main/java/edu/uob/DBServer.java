@@ -48,6 +48,7 @@ public class DBServer {
         ArrayList<String> tokens = preprocessor.getTokens();
 
         Parser p = new Parser(tokens, databaseMetadata);
+        //consider adding try catch here
         if(p.parseCommand(tokens, databaseMetadata)){ //passing tokens directly to isCommand is redundant when passing it to Parser?
             return "[OK]";
         }
