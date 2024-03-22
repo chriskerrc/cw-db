@@ -86,7 +86,14 @@ public class TableTests {
 
     @Test
     public void testStoreNamedFileToTableObject() throws IOException {
-        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
+        DBServer dbServer = new DBServer();
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        //manually create and add people database object to metadata list
+        //when I have ability to create tables in databases, do that here instead from commands
+        Database peopleDatabase = new Database();
+        peopleDatabase.setDatabaseName("people");
+        databaseMetadata.addDatabaseToList(peopleDatabase);
+        dbServer.handleCommand("USE people;");
         Table tableSheds = new Table();
         tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
         assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
@@ -95,10 +102,49 @@ public class TableTests {
 
     @Test
     public void testGetTableNameAfterLoadFileToTableObject() throws IOException {
-        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
+        DBServer dbServer = new DBServer();
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        //manually create and add people database object to metadata list
+        //when I have ability to create tables in databases, do that here instead from commands
+        Database peopleDatabase = new Database();
+        peopleDatabase.setDatabaseName("people");
+        databaseMetadata.addDatabaseToList(peopleDatabase);
+        dbServer.handleCommand("USE people;");
         Table tableSheds = new Table();
         tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
         assertEquals("sheds", tableSheds.getTableName());
     }
+
+    @Test
+    public void testCreateEmptyTableFile() throws IOException {
+        DBServer dbServer = new DBServer();
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        //manually create and add people database object to metadata list
+        //when I have ability to create tables in databases, do that here instead from commands
+        Database peopleDatabase = new Database();
+        peopleDatabase.setDatabaseName("people");
+        databaseMetadata.addDatabaseToList(peopleDatabase);
+        dbServer.handleCommand("USE people;");
+        Table table = new Table();
+        assertTrue(table.writeEmptyTableToFile("apple"));
+        assertTrue(table.deleteTableFile("apple"));
+    }
+
+    @Test
+    public void testWriteTableToFile() throws IOException {
+        DBServer dbServer = new DBServer();
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        //manually create and add people database object to metadata list
+        //when I have ability to create tables in databases, do that here instead from commands
+        Database peopleDatabase = new Database();
+        peopleDatabase.setDatabaseName("people");
+        databaseMetadata.addDatabaseToList(peopleDatabase);
+        dbServer.handleCommand("USE people;");
+        Table table = new Table();
+        table = table.storeNamedFileToTableObject("sheds");
+        assertTrue(table.writeTableToFile("shedsCopy", table));
+        //assertTrue(table.deleteTableFile("apple"));
+    }
+
 
 }

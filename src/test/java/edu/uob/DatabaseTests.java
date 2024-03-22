@@ -137,8 +137,8 @@ public class DatabaseTests {
         Table tableSheds = databasePeople.getTableObjectFromDatabaseFromName("sheds");
         Table tablePeople = databasePeople.getTableObjectFromDatabaseFromName("people");
         System.out.println(tableSheds);
-        //assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
-        //assertEquals(tablePeople.getTableCellValueFromDataStructure(3, 1), "Chris");
+        assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
+        assertEquals(tablePeople.getTableCellValueFromDataStructure(3, 1), "Chris");
     }
 
 

@@ -17,8 +17,9 @@ public class Table {
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         tableDataStructure = new ArrayList<>();
-        //hardcoding inUseFolder to "people" for now. Need to get it instead
-        filePath = storageFolderPath + File.separator + "people" + File.separator;
+        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        String databaseInUse = databaseMetadata.getDatabaseInUse();
+        filePath = storageFolderPath + File.separator + databaseInUse + File.separator;
     }
 
     /*
@@ -47,6 +48,8 @@ public class Table {
     Note that if you encounter a tab file with invalid formatting when reading in data from the filesystem, your file
     parsing method should throw an IOException. You should however ensure that this exception is subsequently caught
     by another part of your server - remember: don't let your server crash !
+
+    Do I need to be using Try around code that reads or writes to file
 
      */
 
@@ -171,15 +174,13 @@ public class Table {
     }
 
     //the following method isn't finished
-    public boolean writeTableToFile(String tableName, ArrayList<ArrayList<String>> table) throws IOException {
-        if(!doesFileExist(tableName)){
+    public boolean writeEmptyTableToFile(String tableName) throws IOException {
+        if(doesFileExist(tableName)){
             return false;
         }
-        File fileToOpen = new File(filePath + tableName + fileExtension);
-        if(!fileToOpen.createNewFile()){
-            return false;
-        }
-        return true;
+        File fileToOpen = new File(this.filePath + tableName + this.fileExtension);
+        System.out.println(filePath + tableName + fileExtension);
+        return fileToOpen.createNewFile();
     }
 
     public String getTableName(){
@@ -188,6 +189,31 @@ public class Table {
 
     public void setTableName(String newTableName){
         tableName = newTableName;
+    }
+
+    public boolean deleteTableFile(String tableName) throws IOException {
+       if(doesFileExist(tableName)){
+            File tableFile = new File(filePath + tableName + fileExtension);
+            return tableFile.delete();
+        }
+        return false; //or throw error
+    }
+
+    public boolean writeTableToFile(String tableName, Table table) throws IOException {
+        File tableFile = new File(filePath + tableName + fileExtension);
+        FileWriter writer = new FileWriter(tableFile);
+        for (ArrayList<String> row : table.tableDataStructure) {
+            for(int i = 0; i < row.size(); i++) {
+                writer.write(row.get(i));
+                writer.write("\t");
+            }
+            writer.write("\n");
+        }
+        //stop it printing a blank line
+        //do diff with given file
+        writer.flush();
+        writer.close();
+        return true;
     }
 
     //writeTableToFile
