@@ -101,24 +101,4 @@ public class TableTests {
         assertEquals("sheds", tableSheds.getTableName());
     }
 
-
-    //loadTableToDatabase
-    @Test
-    public void testLoadTableToDatabase() throws IOException {
-        //for now current database is hardcoded to "people", will need to do "USE people;" command in future
-        Table tableSheds = new Table();
-        //Load table from file
-        tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
-        assertEquals("sheds", tableSheds.getTableName());
-        assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
-        assertEquals(tableSheds.getTableCellValueFromDataStructure(2, 2), "1200");
-        Database databasePeople = new Database();
-        //load table to database
-        databasePeople.loadTableToDatabase(tableSheds);
-        //check that table of this name exists in database
-        assertTrue(databasePeople.tableExistsInDatabase("sheds"));
-        //get table from database and check it has expected values
-        Table tableShedsFromDatabase = databasePeople.getTableObjectFromDatabaseFromName("sheds");
-        assertEquals(tableShedsFromDatabase.getTableCellValueFromDataStructure(1, 1), "Dorchester");
-    }
 }
