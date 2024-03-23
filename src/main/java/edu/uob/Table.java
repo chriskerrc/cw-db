@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class Table {
 
@@ -80,46 +81,26 @@ public class Table {
         }
     }
 
-    //copied and pasted code across these two methods
-
-    public void storeFileToDataStructure(String fileName) throws IOException{
-        if(doesFileExist(fileName)) {
-            File fileToOpen = new File(filePath + fileName);
-            FileReader reader = new FileReader(fileToOpen);
-            BufferedReader buffReader = new BufferedReader(reader);
-            tableDataStructure = new ArrayList<>();
-            String line;
-            while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
-                String[] rowArray = line.split("\\t"); //split on tab
-                ArrayList<String> row = fileLineToRow(rowArray);
-                tableDataStructure.add(row);
-            }
-            System.out.println(tableDataStructure);
-        }
-        else{
-            throw new IOException("File doesn't exist");
-            //create file instead
-        }
-    }
-
     public Table storeNamedFileToTableObject(String fileName) throws IOException{
-        if(doesFileExist(fileName)) {
-            this.setTableName(fileName);
             File fileToOpen = new File(this.filePath + fileName + this.fileExtension);
-            FileReader reader = new FileReader(fileToOpen);
-            BufferedReader buffReader = new BufferedReader(reader);
-            this.tableDataStructure = new ArrayList<>();
-            String line;
-            while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
-                String[] rowArray = line.split("\\t"); //split on tab
-                ArrayList<String> row = fileLineToRow(rowArray);
-                this.tableDataStructure.add(row);
+            if(fileToOpen.exists()){
+                this.setTableName(fileName);
+                FileReader reader = new FileReader(fileToOpen);
+                BufferedReader buffReader = new BufferedReader(reader);
+                this.tableDataStructure = new ArrayList<>();
+                String line;
+                while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
+                    String[] rowArray = line.split("\\t"); //split on tab
+                    ArrayList<String> row = fileLineToRow(rowArray);
+                    this.tableDataStructure.add(row);
+                }
             }
-        }
-        else{
-            throw new IOException("File doesn't exist");
-            //create file instead
-        }
+            else{
+                throw new IOException("File doesn't exist purple raspberry");
+                //create file instead
+            }
+        //System.out.println(this.filePath + fileName + this.fileExtension);
+
         return this;
     }
 
@@ -144,6 +125,10 @@ public class Table {
         return this.tableDataStructure;
     }
 
+    public void setTableDataStructure(ArrayList<ArrayList<String>> dataStructure){
+        //
+    }
+
     public String getTableCellValueFromDataStructure(int row, int column) {
         //check it's in bounds
         ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
@@ -156,15 +141,13 @@ public class Table {
         tableDataStructure.get(row).set(column, input);
     }
 
-    public void createTableNoValues(String tableName){
-        //create table datastructure instance
-        //add ID column
-        //create file tableName.tab
-        //write data to file
+    public void createTableNoValues(String tableName) throws IOException {
+        this.tableDataStructure = this.createTableDataStructureWithNoValues();
+        this.writeTableToFile(tableName);
 
     }
 
-    public ArrayList<ArrayList<String>> createTableDataStructure(){
+    public ArrayList<ArrayList<String>> createTableDataStructureWithNoValues(){
         tableDataStructure = new ArrayList<>();
         ArrayList<String> row = new ArrayList<>();
         //add placeholder column heading to otherwise empty table
@@ -179,7 +162,6 @@ public class Table {
             return false;
         }
         File fileToOpen = new File(this.filePath + tableName + this.fileExtension);
-        System.out.println(filePath + tableName + fileExtension);
         return fileToOpen.createNewFile();
     }
 
@@ -199,18 +181,29 @@ public class Table {
         return false; //or throw error
     }
 
-    public boolean writeTableToFile(String tableName, Table table) throws IOException {
+    public boolean writeTableToFile(String tableName) throws IOException { //long method
         File tableFile = new File(filePath + tableName + fileExtension);
-        FileWriter writer = new FileWriter(tableFile);
-        for (ArrayList<String> row : table.tableDataStructure) {
-            for(int i = 0; i < row.size(); i++) {
-                writer.write(row.get(i));
-                writer.write("\t");
-            }
-            writer.write("\n");
+        if(!tableFile.createNewFile()){
+            return false;
         }
-        //stop it printing a blank line
-        //do diff with given file
+        FileWriter writer = new FileWriter(tableFile);
+        int numberOfRows = this.tableDataStructure.size();
+        int currentRow = 0;
+        for (ArrayList<String> row : this.tableDataStructure) {
+            int numberOfColumns = row.size();
+            int currentColumn = 0;
+            for (String string : row) {
+                writer.write(string);
+                currentColumn++;
+                if(currentColumn < numberOfColumns) {
+                    writer.write("\t");
+                }
+            }
+            currentRow++;
+            if(currentRow < numberOfRows) {
+                writer.write("\n");
+            }
+        }
         writer.flush();
         writer.close();
         return true;

@@ -9,6 +9,7 @@ public class Parser {
 
     public Parser(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) {
         this.tokenisedList = tokens;
+        databaseMetadata = new DatabaseMetadata();
     }
 
     //maybe use error tags for error messages? And throw errors from every small method not just from the top

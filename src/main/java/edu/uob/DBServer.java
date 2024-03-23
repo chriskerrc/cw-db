@@ -49,6 +49,7 @@ public class DBServer {
 
         Parser p = new Parser(tokens, databaseMetadata);
         //consider adding try catch here
+        //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
         if(p.parseCommand(tokens, databaseMetadata)){ //passing tokens directly to isCommand is redundant when passing it to Parser?
             return "[OK]";
         }

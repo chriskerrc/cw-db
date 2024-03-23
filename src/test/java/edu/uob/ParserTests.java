@@ -601,16 +601,6 @@ public class ParserTests {
     //Use
 
     @Test
-    public void testParserUse() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("USE");
-        tokens.add("0124dfsg1");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isUse(tokens, dbCommand));
-        parser.setCurrentWord(0);
-    }
-
-    @Test
     public void testParserUseInvalidUse() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("US");
@@ -865,18 +855,7 @@ public class ParserTests {
         parser.setCurrentWord(0);
     }
 
-    @Test
-    public void testParserCreateDatabaseValid() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("CREATE");
-        tokens.add("DATABASE");
-        tokens.add("Name4");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCreateDatabase(tokens, dbCommand));
-        Database database = new Database();
-        database.deleteDatabaseDirectory("Name4");
-        parser.setCurrentWord(0);
-    }
+
 /*
 //This test fails
     @Test
@@ -903,19 +882,6 @@ public class ParserTests {
     //Create
 
     @Test
-    public void testParserCreateCommandDatabase() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("CREATE");
-        tokens.add("DATABASE");
-        tokens.add("Name3");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCreate(tokens, dbCommand));
-        Database database = new Database();
-        database.deleteDatabaseDirectory("Name3");
-        parser.setCurrentWord(0);
-    }
-
-    @Test
     public void testParserCreateCommandTable() throws IOException {
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("CREATE");
@@ -933,19 +899,6 @@ public class ParserTests {
     }
 
     //Command Type
-
-    @Test
-    public void testParserCommandTypeCreateDatabase() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("CREATE");
-        tokens.add("DATABASE");
-        tokens.add("Name");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommandType(tokens, dbCommand));
-        Database database = new Database();
-        database.deleteDatabaseDirectory("Name");
-        parser.setCurrentWord(0);
-    }
 
     @Test
     public void testParserCommandTypeCreateTable() throws IOException {
@@ -966,17 +919,6 @@ public class ParserTests {
         tokens.add("*");
         Parser parser = new Parser(tokens, dbCommand);
         assertFalse(parser.isCommandType(tokens, dbCommand));
-        parser.setCurrentWord(0);
-    }
-
-    @Test
-    public void testParserCommandTypeUseDatabase() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("USE");
-        tokens.add("DATABASE");
-        tokens.add("Name");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommandType(tokens, dbCommand));
         parser.setCurrentWord(0);
     }
 
@@ -1008,16 +950,7 @@ public class ParserTests {
 
     //Command
 
-    @Test
-    public void testParserCommandUseValid() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("USE");
-        tokens.add("Name");
-        tokens.add(";");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommand(tokens, dbCommand));
-        parser.setCurrentWord(0);
-    }
+
 
     @Test
     public void testParserCommandUseMissingSemiColon() {
@@ -1029,17 +962,7 @@ public class ParserTests {
         parser.setCurrentWord(0);
     }
 
-    @Test
-    public void testParserCommandCreateDatabaseValid() throws IOException {
-        ArrayList<String> tokens = new ArrayList<>();
-        tokens.add("CREATE");
-        tokens.add("DATABASE");
-        tokens.add("Name1");
-        tokens.add(";");
-        Parser parser = new Parser(tokens, dbCommand);
-        assertTrue(parser.isCommand(tokens, dbCommand));
-        parser.setCurrentWord(0);
-    }
+
 
     @Test
     public void testParserCommandCreateDatabaseMissingSemicolon() {

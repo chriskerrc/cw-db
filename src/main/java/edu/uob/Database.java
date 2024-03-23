@@ -101,21 +101,26 @@ public class Database extends DatabaseMetadata {
         databaseName = newDatabaseName;
     }
 
+
     public String[] getFilesInDatabaseFolder(String databaseName){
         File directoryToOpen = new File(filePath + databaseName);
-        File[] listFiles = directoryToOpen.listFiles();
-        String[] fileNames = new String[listFiles.length]; //fix the yellow squiggly lines
-        if(listFiles != null){
+        File[] listFiles = directoryToOpen.listFiles(new FilenameFilter() {
+            public boolean accept(File directoryToOpen, String name) {
+                return name.toLowerCase().endsWith(".tab");
+            }
+        });
+        if(listFiles != null) {
+            String[] fileNames = new String[listFiles.length];
             for(int i = 0; i < listFiles.length; i++){
-                fileNames[i] = listFiles[i].getName();
+                    fileNames[i] = listFiles[i].getName();
             }
             for(int i = 0; i <fileNames.length; i++){
-                fileNames[i] = fileNames[i].replace(".tab", "");
+                    fileNames[i] = fileNames[i].replace(".tab", "");
             }
+            return fileNames;
         }
-        return fileNames;
+        return null;
     }
-
 
     public ArrayList<Table> getTablesInDatabase(){
         return tablesInDatabase;

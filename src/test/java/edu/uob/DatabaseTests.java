@@ -54,6 +54,7 @@ public class DatabaseTests {
         assertTrue(database.deleteDatabaseDirectory("databaseForList2"));
     }
 
+    //this test fails
     @Test
     public void testUseDatabaseUpdateDatabaseInUse() throws IOException {
         DBServer dbServer = new DBServer();
@@ -98,7 +99,7 @@ public class DatabaseTests {
     }
 
 
-
+//this test fails
     @Test
     public void testLoadTableToDatabase() throws IOException {
         //for now current database is hardcoded to "people", will need to do "USE people;" command in future
@@ -140,6 +141,8 @@ public class DatabaseTests {
         assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
         assertEquals(tablePeople.getTableCellValueFromDataStructure(3, 1), "Chris");
     }
+
+    //test that non .tab files are correctly filtered out when reading all files in from folder for Use Command
 
 
 
