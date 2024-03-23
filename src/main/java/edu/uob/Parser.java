@@ -34,12 +34,16 @@ public class Parser {
             if(Objects.equals(p.isCommand(tokens), "USE")){
                 return databaseManager.interpretUseDatabase();
             }
-            /*
             if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
-                //interpret create table
-                //return boolean
+                if(databaseManager.interpretCreateTable()){
+                    System.out.println("interpret table true");
+                    return true;
+                }
+                else{
+                    System.out.println("interpret table false");
+                    return false;
+                }
             }
-            */
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
                 return false;
             }
@@ -275,8 +279,10 @@ public class Parser {
 
     //<CreateTable> 	::=  "CREATE " "TABLE " [TableName] | "CREATE " "TABLE " [TableName] "(" <AttributeList> ")"
 
+    //This method is long
     public boolean isCreateTable(ArrayList<String> tokens){
         //I'm assuming space after CREATE and TABLE will be stripped out by preprocessor?
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
         }
@@ -288,15 +294,19 @@ public class Parser {
         if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
             return false;
         }
+        int currentWordIndex = getCurrentWord();
+        databaseManager.setNameTableToCreate(tokenToString(currentWordIndex));
         if(tokens.size() > 3) { //magic number
             incrementCurrentWord(tokens);
             //No attribute list
             if (!currentWordMatches(tokens, "(")){
                 decrementCurrentWord(tokens);
+                databaseManager.setIsAttributeListForCreateTable(false);
                 return true;
             }
             //Expecting attribute list
             else{
+                databaseManager.setIsAttributeListForCreateTable(true);
                 return isCreateTableAttributeList(tokens);
             }
         }

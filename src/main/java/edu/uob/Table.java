@@ -141,7 +141,6 @@ public class Table {
     public void createTableNoValues(String tableName) throws IOException {
         this.tableDataStructure = this.createTableDataStructureWithNoValues();
         this.writeTableToFile(tableName);
-
     }
 
     public ArrayList<ArrayList<String>> createTableDataStructureWithNoValues(){

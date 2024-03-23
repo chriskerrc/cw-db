@@ -15,6 +15,10 @@ public class DatabaseManager {
 
     static private String databaseToCreate;
 
+    static private boolean isAttributeListForCreateTable;
+
+    static private String tableToCreate;
+
     private DatabaseManager() {
     }
 
@@ -89,6 +93,22 @@ public class DatabaseManager {
         return databaseToCreate;
     }
 
+    public boolean getIsAttributeListForCreateTable(){
+        return isAttributeListForCreateTable;
+    }
+
+    public void setIsAttributeListForCreateTable(boolean isAttributeList){
+        isAttributeListForCreateTable = isAttributeList;
+    }
+
+    public String getNameTableToCreate(){
+        return tableToCreate;
+    }
+
+    public void setNameTableToCreate(String newTableName){
+        tableToCreate = newTableName;
+    }
+
     public void clearDatabasesList(){
         databasesList.clear();
     }
@@ -114,6 +134,28 @@ public class DatabaseManager {
         else{
             return false;
         }
+    }
+
+    public boolean interpretCreateTable() throws IOException{
+        if(databaseObjectAlreadyExists(databaseInUse)){
+            Database database = getDatabaseObjectFromName(databaseInUse);
+            if(database.tableExistsInDatabase(tableToCreate)){
+                return false;
+            }
+            Table newTable = new Table();
+            newTable.setTableName(tableToCreate);
+            if(!isAttributeListForCreateTable){
+                //this method also writes the table to file:
+                newTable.createTableNoValues(tableToCreate);
+                return true;
+            }
+            else{
+                //create table with attributes
+            }
+            database.loadTableToDatabase(newTable);
+            //newTable.writeTableToFile(tableToCreate);
+        }
+        return false;
     }
 
 }
