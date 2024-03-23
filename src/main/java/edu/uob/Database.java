@@ -5,21 +5,24 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 
-public class Database {
+public class Database extends DatabaseMetadata {
 
-    //Important: ensure I have a .mvn/wrapper folder in my github repo: maybe it will regenerate if I run mvn from command line?
-
-    //Add constructor for this class
     String databaseName;
 
     private String storageFolderPath;
     private String filePath;
 
+    private ArrayList<Table> tablesInDatabase = new ArrayList<>();
+
+    private int databaseIndex;
+
     public Database(){
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         filePath = storageFolderPath + File.separator;
+
     }
 
     public boolean doesDirectoryExist(String fileName) {
@@ -52,5 +55,97 @@ public class Database {
         }
         return true;
     }
+
+    public void setDatabaseIndex(Database database, int databaseIndex){
+        database.databaseIndex = databaseIndex;
+    }
+
+    public int getDatabaseIndex(Database database){
+        return database.databaseIndex;
+    }
+
+    public void loadTableToDatabase(Table table){
+        tablesInDatabase.add(table);
+    }
+
+    public void loadAllTablesInFolderToDatabaseObject(String [] tableNames) throws IOException {
+        for (String tableName : tableNames) {
+            Table table = new Table();
+            table.storeNamedFileToTableObject(tableName);
+            table.setTableName(tableName);
+            loadTableToDatabase(table);
+        }
+    }
+/*
+    public Table getTableFromDatabase(String tableName){
+        //
+        return table;
+    }
+*/
+    public void removeTableFromListCurrentTables(String tableName){
+        Iterator<Table> iterator = tablesInDatabase.iterator();
+        while(iterator.hasNext()){
+            Table table = iterator.next();
+            if(Objects.equals(table.getTableName(), tableName)){
+                iterator.remove();
+                break;
+            }
+        }
+    }
+
+    public String getDatabaseName(){
+        return databaseName;
+    }
+
+    public void setDatabaseName(String newDatabaseName){
+        databaseName = newDatabaseName;
+    }
+
+
+    public String[] getFilesInDatabaseFolder(String databaseName){
+        File directoryToOpen = new File(filePath + databaseName);
+        File[] listFiles = directoryToOpen.listFiles(new FilenameFilter() {
+            public boolean accept(File directoryToOpen, String name) {
+                return name.toLowerCase().endsWith(".tab");
+            }
+        });
+        if(listFiles != null) {
+            String[] fileNames = new String[listFiles.length];
+            for(int i = 0; i < listFiles.length; i++){
+                    fileNames[i] = listFiles[i].getName();
+            }
+            for(int i = 0; i <fileNames.length; i++){
+                    fileNames[i] = fileNames[i].replace(".tab", "");
+            }
+            return fileNames;
+        }
+        return null;
+    }
+
+    public ArrayList<Table> getTablesInDatabase(){
+        return tablesInDatabase;
+    }
+
+    public boolean tableExistsInDatabase(String tableName){
+        for (Table table : tablesInDatabase) {
+            if (Objects.equals(table.getTableName(), tableName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Table getTableObjectFromDatabaseFromName(String tableName){
+        for (Table table : tablesInDatabase) {
+            if (Objects.equals(table.getTableName(), tableName)) {
+                return table;
+            }
+        }
+        return null;
+    }
+    //call addTableToList when creating table
+    //method: have a setter method addTableToActiveDatabase that can be called from Table class to add the table to list of current tables, or remove it when deleted:
+            //a list storing a reference to the table object
+            //need to call this on create table
 
 }

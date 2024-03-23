@@ -1,5 +1,5 @@
 package edu.uob;
-import java.lang.reflect.Array;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -7,8 +7,9 @@ public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
 
-    public Parser(ArrayList<String> tokens) {
+    public Parser(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) {
         this.tokenisedList = tokens;
+        databaseMetadata = new DatabaseMetadata();
     }
 
     //maybe use error tags for error messages? And throw errors from every small method not just from the top
@@ -20,11 +21,11 @@ public class Parser {
     //Replace Objects.equals ... with currentWordMatches method
 
 
-    public boolean parseCommand(ArrayList<String> tokens){
-        Parser p = new Parser(tokens);
+    public boolean parseCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata){
+        Parser p = new Parser(tokens, databaseMetadata);
         try {
-            return p.isCommand(tokens);
-        } catch (RuntimeException exception){
+            return p.isCommand(tokens, databaseMetadata);
+        } catch (RuntimeException | IOException exception){
             System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
             return false;
         }
@@ -33,8 +34,8 @@ public class Parser {
     //Commands
 
 
-    public boolean isCommand(ArrayList<String> tokens){
-        if(!isCommandType(tokens)){
+    public boolean isCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
+        if(!isCommandType(tokens, databaseMetadata)){
             throw new RuntimeException("Invalid Command");
         }
         incrementCurrentWord(tokens);
@@ -43,34 +44,36 @@ public class Parser {
         }
         return true;
     }
-    public boolean isCommandType(ArrayList<String> tokens) {
+    public boolean isCommandType(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         setCurrentWord(0); //absence of this line broke parsing of USE 
-        if(isUse(tokens)){
+        if(isUse(tokens, databaseMetadata)){
             return true;
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreate(tokens)) {
+        if(isCreate(tokens, databaseMetadata)) {
             return true;
         }
         //add other commands
         return false;
     }
-    public boolean isUse(ArrayList<String> tokens){
+    public boolean isUse(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
-                return true;
+                Database database = new Database();
+                int currentWordIndex = getCurrentWord();
+                return database.interpretUseDatabase(tokenToString(currentWordIndex));
             }
         }
         return false;
     }
 
-    public boolean isCreate(ArrayList<String> tokens){
+    public boolean isCreate(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         if(isCreateTable(tokens)){
             return true;
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreateDatabase(tokens)){
+        if(isCreateDatabase(tokens, databaseMetadata)){
             return true;
         }
         return false;
@@ -293,7 +296,7 @@ public class Parser {
         return true;
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens){
+    public boolean isCreateDatabase(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
         //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
@@ -303,7 +306,11 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(tokens);
-        return isDatabaseName(tokens);
+        if(isDatabaseName(tokens)){
+            int currentWordIndex = getCurrentWord();
+            return databaseMetadata.interpretCreateDatabase(tokenToString(currentWordIndex));
+        }
+        return false;
     }
 
     //Helper methods
