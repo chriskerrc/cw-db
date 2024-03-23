@@ -143,11 +143,26 @@ public class Table {
         this.writeTableToFile(tableName);
     }
 
+    public void createTableWithValues(String tableName, ArrayList<String> values) throws IOException {
+        this.tableDataStructure = this.createTableDataStructureWithValues(values);
+        this.writeTableToFile(tableName);
+    }
+
     public ArrayList<ArrayList<String>> createTableDataStructureWithNoValues(){
-        tableDataStructure = new ArrayList<>();
+        ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
         ArrayList<String> row = new ArrayList<>();
         //add placeholder column heading to otherwise empty table
         row.add("id");
+        tableDataStructure.add(row);
+        return tableDataStructure;
+    }
+
+    public ArrayList<ArrayList<String>> createTableDataStructureWithValues(ArrayList<String> values){
+        ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
+        ArrayList<String> row = new ArrayList<>();
+        //add placeholder column heading to otherwise empty table
+        row.add("id");
+        row.addAll(values);
         tableDataStructure.add(row);
         return tableDataStructure;
     }

@@ -167,4 +167,8 @@ public class TableTests {
 
     //add a test to read in file, update value, output new file
 
+    //add test for create table with no columns (see notebook for outline)
+
+    //add test for create table with columns
+
 }

@@ -19,6 +19,8 @@ public class DatabaseManager {
 
     static private String tableToCreate;
 
+    static private ArrayList<String> attributeNamesForCreateTable;
+
     private DatabaseManager() {
     }
 
@@ -97,6 +99,14 @@ public class DatabaseManager {
         return isAttributeListForCreateTable;
     }
 
+    public ArrayList<String> getAttributeNamesForCreateTable(){
+        return attributeNamesForCreateTable;
+    }
+
+    public void setAttributeNamesForCreateTable(ArrayList<String> attributeList){
+        attributeNamesForCreateTable = attributeList;
+    }
+
     public void setIsAttributeListForCreateTable(boolean isAttributeList){
         isAttributeListForCreateTable = isAttributeList;
     }
@@ -139,7 +149,9 @@ public class DatabaseManager {
     public boolean interpretCreateTable() throws IOException{
         if(databaseObjectAlreadyExists(databaseInUse)){
             Database database = getDatabaseObjectFromName(databaseInUse);
+            ArrayList<String> values = attributeNamesForCreateTable;
             if(database.tableExistsInDatabase(tableToCreate)){
+                //this seems bugged: it's possible to create two tables with same name
                 return false;
             }
             Table newTable = new Table();
@@ -147,12 +159,15 @@ public class DatabaseManager {
             if(!isAttributeListForCreateTable){
                 //this method also writes the table to file:
                 newTable.createTableNoValues(tableToCreate);
+                database.loadTableToDatabase(newTable);
                 return true;
             }
             else{
-                //create table with attributes
+                newTable.createTableWithValues(tableToCreate, values);
+                database.loadTableToDatabase(newTable);
+                return true;
             }
-            database.loadTableToDatabase(newTable);
+
             //newTable.writeTableToFile(tableToCreate);
         }
         return false;

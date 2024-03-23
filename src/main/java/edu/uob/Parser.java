@@ -35,14 +35,7 @@ public class Parser {
                 return databaseManager.interpretUseDatabase();
             }
             if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
-                if(databaseManager.interpretCreateTable()){
-                    System.out.println("interpret table true");
-                    return true;
-                }
-                else{
-                    System.out.println("interpret table false");
-                    return false;
-                }
+                return databaseManager.interpretCreateTable();
             }
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
                 return false;
@@ -97,8 +90,7 @@ public class Parser {
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
-                int currentWordIndex = getCurrentWord();
-                String databaseName = tokenToString(currentWordIndex);
+                String databaseName = getCurrentWordString();
                 DatabaseManager databaseManager = DatabaseManager.getInstance();
                 databaseManager.setDatabaseInUse(databaseName);
                 return true;
@@ -254,8 +246,10 @@ public class Parser {
     }
 
     public boolean isAttributeList(ArrayList<String> tokens) {
+        ArrayList<String> attributeNames = new ArrayList<>();
        while(currentWord < tokens.size()) {
            if (isAttributeName(tokens)) {
+               attributeNames.add(getCurrentWordString());
                incrementCurrentWord(tokens);
                if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
                    incrementCurrentWord(tokens);
@@ -263,6 +257,8 @@ public class Parser {
                else {
                    //Only one Attribute Name (no list) so reset currentWord after look ahead
                    decrementCurrentWord(tokens);
+                   DatabaseManager databaseManager = DatabaseManager.getInstance();
+                   databaseManager.setAttributeNamesForCreateTable(attributeNames);
                    return true;
                }
            }
@@ -294,8 +290,7 @@ public class Parser {
         if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
             return false;
         }
-        int currentWordIndex = getCurrentWord();
-        databaseManager.setNameTableToCreate(tokenToString(currentWordIndex));
+        databaseManager.setNameTableToCreate(getCurrentWordString());
         if(tokens.size() > 3) { //magic number
             incrementCurrentWord(tokens);
             //No attribute list
@@ -342,9 +337,8 @@ public class Parser {
         }
         incrementCurrentWord(tokens);
         if(isDatabaseName(tokens)){
-            int currentWordIndex = getCurrentWord();
             DatabaseManager databaseManager = DatabaseManager.getInstance();
-            databaseManager.setDatabaseToCreate(tokenToString(currentWordIndex));
+            databaseManager.setDatabaseToCreate(getCurrentWordString());
             return true;
         }
         return false;
@@ -378,6 +372,11 @@ public class Parser {
 
     public int getCurrentWord(){
         return currentWord;
+    }
+
+    public String getCurrentWordString(){
+        int currentWordIndex = getCurrentWord();
+        return tokenToString(currentWordIndex);
     }
 
     private boolean currentWordMatches(ArrayList<String> tokens, String input){
