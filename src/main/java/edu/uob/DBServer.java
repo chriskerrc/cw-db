@@ -17,8 +17,6 @@ public class DBServer {
     private static final char END_OF_TRANSMISSION = 4;
     private String storageFolderPath;
 
-    private DatabaseMetadata databaseMetadata = new DatabaseMetadata();
-
     public static void main(String args[]) throws IOException {
         DBServer server = new DBServer();
         server.blockingListenOn(8888);
@@ -47,10 +45,10 @@ public class DBServer {
         Preprocessor preprocessor = new Preprocessor(command);
         ArrayList<String> tokens = preprocessor.getTokens();
 
-        Parser p = new Parser(tokens, databaseMetadata);
-        //consider adding try catch here
+        Parser p = new Parser(tokens);
+        //before submission, add try catch around handleCommand method
         //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
-        if(p.parseCommand(tokens, databaseMetadata)){ //passing tokens directly to isCommand is redundant when passing it to Parser?
+        if(p.parseCommand(tokens)){ //passing tokens directly to isCommand is redundant when passing it to Parser?
             return "[OK]";
         }
         return "[ERROR]";
@@ -92,9 +90,5 @@ public class DBServer {
 
     public String getStorageFolderPath(){
         return this.storageFolderPath;
-    }
-
-    public DatabaseMetadata getDatabaseMetadata(){
-        return this.databaseMetadata;
     }
 }

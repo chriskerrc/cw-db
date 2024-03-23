@@ -1,9 +1,6 @@
 package edu.uob;
 import java.io.*;
 import java.util.ArrayList;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
 
 public class Table {
 
@@ -18,8 +15,8 @@ public class Table {
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         tableDataStructure = new ArrayList<>();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
-        String databaseInUse = databaseMetadata.getDatabaseInUse();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        String databaseInUse = databaseManager.getDatabaseInUse();
         filePath = storageFolderPath + File.separator + databaseInUse + File.separator;
     }
 

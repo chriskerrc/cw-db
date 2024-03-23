@@ -3,8 +3,6 @@ package edu.uob;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,23 +18,28 @@ public class ParserCommandTests {
     //previously, these tests targeted individual parser commands, but I've refactored them to make them
     //more realistic responses to DB Commands
 
+    //add deletion of random database folders these tests create
+
     @Test
     public void testValidCreateDatabaseCommand() throws IOException {
         String randomName = generateRandomName();
+        //System.out.println("this is random name " + randomName);
         DBServer dbServer = new DBServer();
         String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
     @Test
     public void testValidUseCommand() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("Name");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         String response = dbServer.handleCommand("USE Name;");
         assertTrue(response.contains("[OK]"));
     }
@@ -45,12 +48,12 @@ public class ParserCommandTests {
     @Test
     public void testInvalidUseDatabaseCommand() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("Name");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         String response = dbServer.handleCommand("USE DATABASE Name");
         assertTrue(response.contains("[ERROR]"));
     }

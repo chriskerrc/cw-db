@@ -3,7 +3,6 @@ package edu.uob;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -92,12 +91,12 @@ public class TableTests {
     @Test
     public void testStoreNamedFileToTableObject() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("people");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         dbServer.handleCommand("USE people;");
         Table tableSheds = new Table();
         tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
@@ -108,12 +107,12 @@ public class TableTests {
     @Test
     public void testGetTableNameAfterLoadFileToTableObject() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("people");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         dbServer.handleCommand("USE people;");
         Table tableSheds = new Table();
         tableSheds = tableSheds.storeNamedFileToTableObject("sheds");
@@ -123,12 +122,12 @@ public class TableTests {
     @Test
     public void testCreateEmptyTableFile() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("people");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         dbServer.handleCommand("USE people;");
         Table table = new Table();
         assertTrue(table.writeEmptyTableToFile("apple"));
@@ -138,12 +137,12 @@ public class TableTests {
     @Test
     public void testWriteTableToFile() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("people");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         dbServer.handleCommand("USE people;");
         Table table = new Table();
         table = table.storeNamedFileToTableObject("sheds");
@@ -154,12 +153,12 @@ public class TableTests {
     @Test
     public void testCreateTableNoValuesAndWriteToFile() throws IOException {
         DBServer dbServer = new DBServer();
-        DatabaseMetadata databaseMetadata = dbServer.getDatabaseMetadata();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //manually create and add people database object to metadata list
         //when I have ability to create tables in databases, do that here instead from commands
         Database peopleDatabase = new Database();
         peopleDatabase.setDatabaseName("people");
-        databaseMetadata.addDatabaseToList(peopleDatabase);
+        databaseManager.addDatabaseToList(peopleDatabase);
         dbServer.handleCommand("USE people;");
         Table table = new Table();
         table.createTableNoValues("noValues");
