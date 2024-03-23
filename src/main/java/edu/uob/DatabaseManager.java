@@ -4,11 +4,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class DatabaseMetadata {
+//Singleton class to manage databases as single source of truth and contain interpreter methods
+public class DatabaseManager {
+
+    private static DatabaseManager instance = null;
 
     static private ArrayList<Database> databasesList = new ArrayList<>();
 
     static private String databaseInUse;
+
+    static private String databaseToCreate;
+
+    private DatabaseManager() {
+    }
+
+    public static DatabaseManager getInstance() {
+        if (instance == null) {
+            instance = new DatabaseManager();
+        }
+        return instance;
+    }
 
     //private int activeDatabaseIndex;
 
@@ -54,28 +69,6 @@ public class DatabaseMetadata {
     }
 
 
-    public boolean interpretCreateDatabase(String databaseName) throws IOException {
-        Database database = new Database();
-        addDatabaseToList(database);
-        database.setDatabaseName(databaseName);
-        return database.createDatabaseDirectory(databaseName);
-    }
-
-    public boolean interpretUseDatabase(String databaseName) throws IOException {
-        if(databaseObjectAlreadyExists(databaseName)){
-            setDatabaseInUse(databaseName);
-            Database database = getDatabaseObjectFromName(databaseName);
-            String[] filesList = database.getFilesInDatabaseFolder(databaseName);
-            if(filesList != null) {
-                database.loadAllTablesInFolderToDatabaseObject(filesList);
-            }
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
     public ArrayList<Database> getDatabasesList(){
         return databasesList;
     }
@@ -87,7 +80,40 @@ public class DatabaseMetadata {
     public String getDatabaseInUse(){
         return databaseInUse;
     }
+
+    public void setDatabaseToCreate(String databaseName){
+        databaseToCreate = databaseName;
+    }
+
+    public String getDatabaseToCreate(){
+        return databaseToCreate;
+    }
+
+    public void clearDatabasesList(){
+        databasesList.clear();
+    }
+
+    //Interpreter methods
+    public boolean interpretCreateDatabase() throws IOException {
+        Database database = new Database();
+        addDatabaseToList(database);
+        database.setDatabaseName(databaseToCreate);
+        return database.createDatabaseDirectory(databaseToCreate);
+    }
+
+    public boolean interpretUseDatabase() throws IOException {
+        if(databaseObjectAlreadyExists(databaseInUse)){
+            setDatabaseInUse(databaseInUse);
+            Database database = getDatabaseObjectFromName(databaseInUse);
+            String[] filesList = database.getFilesInDatabaseFolder(databaseInUse);
+            if(filesList != null) {
+                database.loadAllTablesInFolderToDatabaseObject(filesList);
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
 }
-
-
-

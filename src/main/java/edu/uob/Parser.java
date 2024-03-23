@@ -3,13 +3,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+
 public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
 
-    public Parser(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) {
+
+    public Parser(ArrayList<String> tokens) {
         this.tokenisedList = tokens;
-        databaseMetadata = new DatabaseMetadata();
     }
 
     //maybe use error tags for error messages? And throw errors from every small method not just from the top
@@ -21,63 +22,87 @@ public class Parser {
     //Replace Objects.equals ... with currentWordMatches method
 
 
-    public boolean parseCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata){
-        Parser p = new Parser(tokens, databaseMetadata);
+    //need to update return value of parseCommand method for select, because Select needs to
+    //return more than just binary [OK] or [ERROR]
+    public boolean parseCommand(ArrayList<String> tokens){
+        Parser p = new Parser(tokens);
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         try {
-            return p.isCommand(tokens, databaseMetadata);
+            if(Objects.equals(p.isCommand(tokens), "CREATE_DATABASE")){
+                return databaseManager.interpretCreateDatabase();
+            }
+            if(Objects.equals(p.isCommand(tokens), "USE")){
+                return databaseManager.interpretUseDatabase();
+            }
+            /*
+            if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
+                //interpret create table
+                //return boolean
+            }
+            */
+            if(Objects.equals(p.isCommand(tokens), "INVALID")){
+                return false;
+            }
         } catch (RuntimeException | IOException exception){
             System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
             return false;
         }
+        return false;
     }
 
     //Commands
 
 
-    public boolean isCommand(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
-        if(!isCommandType(tokens, databaseMetadata)){
+    public String isCommand(ArrayList<String> tokens) throws IOException {
+        String command = "";
+        if(Objects.equals(isCommandType(tokens), "INVALID")){
             throw new RuntimeException("Invalid Command");
+        }
+        if(Objects.equals(isCommandType(tokens), "USE")){
+            command = "USE";
+        }
+        if(Objects.equals(isCommandType(tokens), "CREATE_DATABASE")){
+            command = "CREATE_DATABASE";
+        }
+        if(Objects.equals(isCommandType(tokens), "CREATE_TABLE")){
+            command = "CREATE_TABLE";
         }
         incrementCurrentWord(tokens);
         if(!currentWordMatches(tokens, ";")){
             throw new RuntimeException("Invalid Command: missing semi-colon?");
         }
-        return true;
+        return command;
     }
-    public boolean isCommandType(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
+    public String isCommandType(ArrayList<String> tokens) throws IOException {
         setCurrentWord(0); //absence of this line broke parsing of USE 
-        if(isUse(tokens, databaseMetadata)){
-            return true;
+        if(isUse(tokens)){
+            return "USE";
         }
         setCurrentWord(0); //could replace with reset current word
-        if(isCreate(tokens, databaseMetadata)) {
-            return true;
+        if(isCreateTable(tokens)){
+            return "CREATE_TABLE";
+        }
+        setCurrentWord(0);
+        if(isCreateDatabase(tokens)){
+            return "CREATE_DATABASE";
         }
         //add other commands
-        return false;
+        return "INVALID";
     }
-    public boolean isUse(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
+    public boolean isUse(ArrayList<String> tokens) throws IOException {
         if(Objects.equals(tokens.get(currentWord), "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
-                Database database = new Database();
                 int currentWordIndex = getCurrentWord();
-                return database.interpretUseDatabase(tokenToString(currentWordIndex));
+                String databaseName = tokenToString(currentWordIndex);
+                DatabaseManager databaseManager = DatabaseManager.getInstance();
+                databaseManager.setDatabaseInUse(databaseName);
+                return true;
             }
         }
         return false;
     }
 
-    public boolean isCreate(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
-        if(isCreateTable(tokens)){
-            return true;
-        }
-        setCurrentWord(0); //could replace with reset current word
-        if(isCreateDatabase(tokens, databaseMetadata)){
-            return true;
-        }
-        return false;
-    }
 
     //Grammar rule methods
 
@@ -296,7 +321,7 @@ public class Parser {
         return true;
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens, DatabaseMetadata databaseMetadata) throws IOException {
+    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
         //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
@@ -308,7 +333,9 @@ public class Parser {
         incrementCurrentWord(tokens);
         if(isDatabaseName(tokens)){
             int currentWordIndex = getCurrentWord();
-            return databaseMetadata.interpretCreateDatabase(tokenToString(currentWordIndex));
+            DatabaseManager databaseManager = DatabaseManager.getInstance();
+            databaseManager.setDatabaseToCreate(tokenToString(currentWordIndex));
+            return true;
         }
         return false;
     }

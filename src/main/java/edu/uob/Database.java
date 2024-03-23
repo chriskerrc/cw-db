@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Objects;
 
-public class Database extends DatabaseMetadata {
+public class Database {
 
     String databaseName;
 
