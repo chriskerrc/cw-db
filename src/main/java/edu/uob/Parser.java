@@ -37,6 +37,11 @@ public class Parser {
             if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
                 return databaseManager.interpretCreateTable();
             }
+            if(Objects.equals(p.isCommand(tokens), "INSERT")){
+                // return true regardless of interpreting for now
+                return true;
+                //return databaseManager.interpretInsert();
+            }
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
                 return false;
             }
@@ -64,6 +69,9 @@ public class Parser {
         if(Objects.equals(isCommandType(tokens), "CREATE_TABLE")){
             command = "CREATE_TABLE";
         }
+        if(Objects.equals(isCommandType(tokens), "INSERT")){
+            command = "INSERT";
+        }
         incrementCurrentWord(tokens);
         if(!currentWordMatches(tokens, ";")){
             throw new RuntimeException("Invalid Command: missing semi-colon?");
@@ -83,6 +91,9 @@ public class Parser {
         if(isCreateDatabase(tokens)){
             return "CREATE_DATABASE";
         }
+        if(isInsert(tokens)){
+            return "INSERT";
+        }
         //add other commands
         return "INVALID";
     }
@@ -97,6 +108,83 @@ public class Parser {
             }
         }
         return false;
+    }
+
+    //<CreateTable> 	::=  "CREATE " "TABLE " [TableName] | "CREATE " "TABLE " [TableName] "(" <AttributeList> ")"
+
+    //This method is long
+    public boolean isCreateTable(ArrayList<String> tokens){
+        //I'm assuming space after CREATE and TABLE will be stripped out by preprocessor?
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!currentWordMatches(tokens, "CREATE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "TABLE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
+            return false;
+        }
+        databaseManager.setNameTableToCreate(getCurrentWordString());
+        if(tokens.size() > 3) { //magic number
+            incrementCurrentWord(tokens);
+            //No attribute list
+            if (!currentWordMatches(tokens, "(")){
+                decrementCurrentWord(tokens);
+                databaseManager.setIsAttributeListForCreateTable(false);
+                return true;
+            }
+            //Expecting attribute list
+            else{
+                databaseManager.setIsAttributeListForCreateTable(true);
+                return isCreateTableAttributeList(tokens);
+            }
+        }
+        else{
+            return true;
+        }
+    }
+
+    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
+        //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
+        if(!currentWordMatches(tokens, "CREATE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "DATABASE")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(isDatabaseName(tokens)){
+            DatabaseManager databaseManager = DatabaseManager.getInstance();
+            databaseManager.setDatabaseToCreate(getCurrentWordString());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isInsert(ArrayList<String> tokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!currentWordMatches(tokens, "INSERT")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "INTO")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isTableName(tokens)) {
+            return false;
+        }
+        databaseManager.setNameTableToInsertInto(getCurrentWordString());
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "VALUES")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        return isInsertValueList(tokens);
     }
 
 
@@ -119,11 +207,7 @@ public class Parser {
     }
 
     public boolean isBooleanLiteral(ArrayList<String> tokens) {
-        if (Objects.equals(tokens.get(currentWord), "TRUE") || Objects.equals(tokens.get(currentWord), "FALSE")) {
-            return true;
-        } else {
-            throw new RuntimeException("Invalid Boolean Literal");
-        }
+        return Objects.equals(tokens.get(currentWord), "TRUE") || Objects.equals(tokens.get(currentWord), "FALSE");
     }
 
     public boolean isDigit(ArrayList<String> tokens) {
@@ -151,11 +235,9 @@ public class Parser {
             }
         }
         if(tokens.get(currentWord).charAt(0) == '+' || tokens.get(currentWord).charAt(0) == '-'){
-            if(isDigitSequence(tokens, 1)){
-                return true;
-            }
+            return isDigitSequence(tokens, 1);
         }
-        throw new RuntimeException("Invalid Integer Literal");
+        return false;
     }
 
     //<Comparator>  	::=  "==" | ">" | "<" | ">=" | "<=" | "!=" | " LIKE "
@@ -269,46 +351,34 @@ public class Parser {
         return false;
     }
 
+    public boolean isValueList(ArrayList<String> tokens) {
+        ArrayList<String> valueList = new ArrayList<>();
+        while(currentWord < tokens.size()) {
+            if (isValue(tokens)) {
+                valueList.add(getCurrentWordString());
+                incrementCurrentWord(tokens);
+                if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
+                    incrementCurrentWord(tokens);
+                }
+                else {
+                    //Only one Value (no list) so reset currentWord after look ahead
+                    decrementCurrentWord(tokens);
+                    DatabaseManager databaseManager = DatabaseManager.getInstance();
+                    databaseManager.setValuesForInsertCommand(valueList);
+                    return true;
+                }
+            }
+            else{
+                return false;
+            }
+        }
+        return false;
+    }
+
     public boolean isTableName(ArrayList<String> tokens) {
         return isPlainText(tokens);
     }
 
-    //<CreateTable> 	::=  "CREATE " "TABLE " [TableName] | "CREATE " "TABLE " [TableName] "(" <AttributeList> ")"
-
-    //This method is long
-    public boolean isCreateTable(ArrayList<String> tokens){
-        //I'm assuming space after CREATE and TABLE will be stripped out by preprocessor?
-        DatabaseManager databaseManager = DatabaseManager.getInstance();
-        if(!currentWordMatches(tokens, "CREATE")){
-            return false;
-        }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "TABLE")){
-            return false;
-        }
-        incrementCurrentWord(tokens);
-        if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
-            return false;
-        }
-        databaseManager.setNameTableToCreate(getCurrentWordString());
-        if(tokens.size() > 3) { //magic number
-            incrementCurrentWord(tokens);
-            //No attribute list
-            if (!currentWordMatches(tokens, "(")){
-                decrementCurrentWord(tokens);
-                databaseManager.setIsAttributeListForCreateTable(false);
-                return true;
-            }
-            //Expecting attribute list
-            else{
-                databaseManager.setIsAttributeListForCreateTable(true);
-                return isCreateTableAttributeList(tokens);
-            }
-        }
-        else{
-            return true;
-        }
-    }
 
     public boolean isCreateTableAttributeList(ArrayList<String> tokens){
         if(!currentWordMatches(tokens, "(")){
@@ -320,28 +390,55 @@ public class Parser {
         }
         incrementCurrentWord(tokens);
         //on return from isAttributeList, current word is too high when there's two valid tokens followed by no closing bracket
-        if(!currentWordMatches(tokens, ")")){
-            return false;
-        }
-        return true;
+        return currentWordMatches(tokens, ")");
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
-        //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
-        if(!currentWordMatches(tokens, "CREATE")){
+public boolean isInsertValueList(ArrayList<String> tokens){
+    if(!currentWordMatches(tokens, "(")){
+        return false;
+    }
+    incrementCurrentWord(tokens);
+    if(!isValueList(tokens)){
+        return false;
+    }
+    incrementCurrentWord(tokens);
+    return currentWordMatches(tokens, ")");
+}
+
+    public boolean isStringLiteral(ArrayList<String> tokens) {
+        String currentWordString = getCurrentWordString();
+        String currentWordNoQuotes = removeSingleQuotesFromString(currentWordString);
+        if(currentWordNoQuotes == null){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "DATABASE")){
-            return false;
-        }
-        incrementCurrentWord(tokens);
-        if(isDatabaseName(tokens)){
-            DatabaseManager databaseManager = DatabaseManager.getInstance();
-            databaseManager.setDatabaseToCreate(getCurrentWordString());
+        if(currentWordNoQuotes.isEmpty()){
             return true;
         }
-        return false;
+        if(currentWordNoQuotes.length() == 1 && Character.isAlphabetic(currentWordNoQuotes.charAt(0))){
+            return true;
+        }
+        return currentWordNoQuotes.matches("[a-zA-Z]+");
+    }
+
+    public boolean isFloatLiteral(ArrayList<String> tokens){
+        return getCurrentWordString().matches("([-+])?\\d+\\.\\d+");
+    }
+
+    // [Value]  ::=  "'" [StringLiteral] "'" | [BooleanLiteral] | [FloatLiteral] | [IntegerLiteral] | "NULL"
+    public boolean isValue(ArrayList<String> tokens){
+        if(isBooleanLiteral(tokens)){
+            return true;
+        }
+        if(isFloatLiteral(tokens)){
+            return true;
+        }
+        if(isIntegerLiteral(tokens)){
+            return true;
+        }
+        if(currentWordMatches(tokens, "NULL")){
+            return true;
+        }
+        return isStringLiteral(tokens);
     }
 
     //Helper methods
@@ -377,6 +474,18 @@ public class Parser {
     public String getCurrentWordString(){
         int currentWordIndex = getCurrentWord();
         return tokenToString(currentWordIndex);
+    }
+
+    private String removeSingleQuotesFromString(String input){
+        if(input.isEmpty()){
+            return "";
+        }
+        if(input.length() > 2 && input.startsWith("'") && input.endsWith("'")) { //magic number
+            return input.substring(1, input.length() - 1);
+        }
+        else{
+            return null;
+        }
     }
 
     private boolean currentWordMatches(ArrayList<String> tokens, String input){

@@ -19,7 +19,11 @@ public class DatabaseManager {
 
     static private String tableToCreate;
 
+    static private String tableToInsertInto;
+
     static private ArrayList<String> attributeNamesForCreateTable;
+
+    static private ArrayList<String> valuesForInsertCommand;
 
     private DatabaseManager() {
     }
@@ -107,6 +111,11 @@ public class DatabaseManager {
         attributeNamesForCreateTable = attributeList;
     }
 
+    public void setValuesForInsertCommand(ArrayList<String> valuesList){
+        valuesForInsertCommand = valuesList;
+    }
+
+
     public void setIsAttributeListForCreateTable(boolean isAttributeList){
         isAttributeListForCreateTable = isAttributeList;
     }
@@ -117,6 +126,14 @@ public class DatabaseManager {
 
     public void setNameTableToCreate(String newTableName){
         tableToCreate = newTableName;
+    }
+
+    public String getNameTableToInsertInto(){
+        return tableToInsertInto;
+    }
+
+    public void setNameTableToInsertInto(String tableName){
+        tableToInsertInto = tableName;
     }
 
     public void clearDatabasesList(){
@@ -172,5 +189,7 @@ public class DatabaseManager {
         }
         return false;
     }
+
+    //when running tests, consider zeroing out the attributes in this class after every scenario
 
 }

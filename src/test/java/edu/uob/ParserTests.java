@@ -86,7 +86,7 @@ public class ParserTests {
     public void testParserBooleanLiteralInvalid() {
         ArrayList<String> tokens = initialiseArrayList("MAYBE");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isBooleanLiteral(tokens));
+        assertFalse(parser.isBooleanLiteral(tokens));
     }
 
     //Digit
@@ -179,7 +179,7 @@ public class ParserTests {
     public void testParserIntegerLiteralLetter() {
         ArrayList<String> tokens = initialiseArrayList("-123z");
         Parser parser = new Parser(tokens);
-        assertThrows(RuntimeException.class, ()-> parser.isIntegerLiteral(tokens));
+        assertFalse(parser.isIntegerLiteral(tokens));
     }
 
     //Comparator
@@ -1024,6 +1024,238 @@ public class ParserTests {
         tokens.add(";");
         Parser parser = new Parser(tokens);
         assertThrows(RuntimeException.class, ()-> parser.isCommand(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    // String Literal
+
+    @Test
+    public void testParserStringLiteralNullString() {
+        ArrayList<String> tokens = initialiseArrayList("");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserStringLiteralSingleCharLowercase() {
+        ArrayList<String> tokens = initialiseArrayList("'a'");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserStringLiteralSingleCharUppercase() {
+        ArrayList<String> tokens = initialiseArrayList("'A'");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserStringLiteralSingleSymbol() {
+        ArrayList<String> tokens = initialiseArrayList("'!'");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserStringLiteralString() {
+        ArrayList<String> tokens = initialiseArrayList("'Chris'");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserStringLiteralInvalidString() {
+        ArrayList<String> tokens = initialiseArrayList("'Chr1s'");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isStringLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    // Float Literal
+
+    @Test
+    public void testParserFloatLiteralUnsigned() {
+        ArrayList<String> tokens = initialiseArrayList("3.1415");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isFloatLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserFloatLiteralPlus() {
+        ArrayList<String> tokens = initialiseArrayList("+3.1415");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isFloatLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserFloatLiteralMinus() {
+        ArrayList<String> tokens = initialiseArrayList("-3.1415");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isFloatLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserFloatLiteralTwoDecimalPoints() {
+        ArrayList<String> tokens = initialiseArrayList("3.14.15");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isFloatLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserFloatLiteralNoDecimalPoints() {
+        ArrayList<String> tokens = initialiseArrayList("31415");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isFloatLiteral(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    // Value
+
+    @Test
+    public void testParserValueBooleanLiteralTrue() {
+        ArrayList<String> tokens = initialiseArrayList("TRUE");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueBooleanLiteralFalse() {
+        ArrayList<String> tokens = initialiseArrayList("FALSE");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueFloatLiteral() {
+        ArrayList<String> tokens = initialiseArrayList("+3.1415");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueIntegerLiteral() {
+        ArrayList<String> tokens = initialiseArrayList("31415");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueNull() {
+        ArrayList<String> tokens = initialiseArrayList("NULL");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueStringLiteral() {
+        ArrayList<String> tokens = initialiseArrayList("'Chris'");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueStringLiteralInvalid() {
+        ArrayList<String> tokens = initialiseArrayList("'Chr!s'");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isValue(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    // Value List
+
+    @Test
+    public void testParserValueListOneValue() {
+        ArrayList<String> tokens = initialiseArrayList("'Chris'");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueListOneValueThenSomethingElse() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("'Chris'");
+        tokens.add("NEXT");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+
+    @Test
+    public void testParserValueListTwoCommaSeparatedValues() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("'Simon'");
+        tokens.add(",");
+        tokens.add("65");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueListFourCommaSeparatedValues() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("'Sion'");
+        tokens.add(",");
+        tokens.add("55");
+        tokens.add(",");
+        tokens.add("TRUE");
+        tokens.add(",");
+        tokens.add("FALSE");
+        Parser parser = new Parser(tokens);
+        assertTrue(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueListEndsWithComma() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("'Chris'");
+        tokens.add(",");
+        tokens.add("55");
+        tokens.add(",");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueListEndsWithNonAttributeNameToken() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add("'Rob'");
+        tokens.add(",");
+        tokens.add("35");
+        tokens.add(",");
+        tokens.add("*?**");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isValueList(tokens));
+        parser.setCurrentWord(0);
+    }
+
+    @Test
+    public void testParserValueListTwoConsecutiveCommas() {
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(",");
+        tokens.add(",");
+        Parser parser = new Parser(tokens);
+        assertFalse(parser.isValueList(tokens));
         parser.setCurrentWord(0);
     }
 
