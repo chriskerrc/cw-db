@@ -12,6 +12,8 @@ public class Table {
 
     private String tableName;
 
+    static private int currentRecordID;
+
     public Table(){
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
@@ -19,6 +21,7 @@ public class Table {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         String databaseInUse = databaseManager.getDatabaseInUse();
         filePath = storageFolderPath + File.separator + databaseInUse + File.separator;
+        currentRecordID = 0;
     }
 
     /*
@@ -172,12 +175,20 @@ public class Table {
         ArrayList<ArrayList<String>> tableDataStructure = existingTable.getTableDataStructure();
         ArrayList<String> row = new ArrayList<>();
         //add ID at front of values
-        row.add(0, "1"); //for now, hardcoding all row IDs to 1
+        String newRecordID = generateRecordID();
+        row.add(0, newRecordID);
         row.addAll(values);
         tableDataStructure.add(row);
         //update table's datastructure with new row
         existingTable.tableDataStructure = tableDataStructure;
         return existingTable;
+    }
+
+    //the IDs generated will only be unique while the server is up.
+    // consider storing highest id of each table to file in root databases folder?
+    private String generateRecordID(){
+        currentRecordID++;
+        return Integer.toString(currentRecordID);
     }
 
     //the following method isn't finished

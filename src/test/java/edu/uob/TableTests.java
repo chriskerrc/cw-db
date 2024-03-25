@@ -146,7 +146,7 @@ public class TableTests {
         dbServer.handleCommand("USE people;");
         Table table = new Table();
         table = table.storeNamedFileToTableObject("sheds");
-        assertTrue(table.writeTableToFile("shedsCopy"));
+        assertTrue(table.writeTableToFile("shedsCopy", false));
         assertTrue(table.deleteTableFile("shedsCopy"));
     }
 
