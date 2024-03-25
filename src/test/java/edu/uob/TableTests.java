@@ -171,4 +171,31 @@ public class TableTests {
 
     //add test for create table with columns
 
+    //add tests for insert table rows
+
+    @Test
+    public void testWholeTableToString() throws IOException {
+        //this test keeps adding rows: beware
+        DBServer dbServer = new DBServer();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        dbServer.handleCommand("CREATE DATABASE vehicles;");
+        dbServer.handleCommand("USE vehicles;");
+        dbServer.handleCommand("CREATE TABLE planes (brand, price, jet);");
+        dbServer.handleCommand("INSERT INTO planes VALUES ('boeing', 10000, TRUE);");
+        dbServer.handleCommand("INSERT INTO planes VALUES ('airbus', 9000, FALSE);");
+        dbServer.handleCommand("INSERT INTO planes VALUES ('boeing', 8000, FALSE);");
+        Database database = databaseManager.getDatabaseObjectFromName("vehicles");
+        databaseManager.getDatabaseObjectFromName("vehicles");
+        Table table = database.getTableObjectFromDatabaseFromName("planes");
+        String tableString = table.wholeTableToString(table);
+        assertTrue(tableString.contains("'boeing'")); //row 1
+        assertTrue(tableString.contains("'airbus'")); //row 2
+        assertTrue(tableString.contains("'8000'")); //row 3
+        //need method to delete tableObject
+        //need method to delete databaseObject
+        //currently this test just keeps adding rows
+        assertTrue(table.deleteTableFile("planes"));
+        assertTrue(database.deleteDatabaseDirectory("databaseForUse"));
+    }
+
 }

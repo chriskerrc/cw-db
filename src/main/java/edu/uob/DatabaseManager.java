@@ -190,14 +190,10 @@ public class DatabaseManager {
 
     public boolean interpretInsert() throws IOException{
         if(databaseObjectAlreadyExists(databaseInUse)) {
-            System.out.println("database exists");
             Database database = getDatabaseObjectFromName(databaseInUse);
             if (database.tableExistsInDatabase(tableToInsertInto)) {
-                System.out.println("table exists in database");
                 Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
                 Table updatedTable = table.insertValuesInTable(table, valuesForInsertCommand);
-                //String value = updatedTable.getTableCellValueFromDataStructure(1,1);
-                //System.out.println("value at 1,1 " + value);
                 database.loadTableToDatabase(updatedTable);
                 return updatedTable.writeTableToFile(tableToInsertInto, true);
             }

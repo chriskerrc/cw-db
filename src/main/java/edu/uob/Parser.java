@@ -24,6 +24,8 @@ public class Parser {
 
     //need to update return value of parseCommand method for select, because Select needs to
     //return more than just binary [OK] or [ERROR]
+
+    //convert each method to private apart from the top one, and change testing strategy
     public boolean parseCommand(ArrayList<String> tokens){
         Parser p = new Parser(tokens);
         DatabaseManager databaseManager = DatabaseManager.getInstance();

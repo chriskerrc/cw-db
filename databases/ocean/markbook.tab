@@ -1,0 +1,5 @@
+id	student	mark	pass
+1	'Chris'	50	TRUE
+2	'John'	100	TRUE
+3	'Neill'	120	TRUE
+4	'Christian'	30	FALSE

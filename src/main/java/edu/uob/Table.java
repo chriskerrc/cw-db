@@ -185,7 +185,7 @@ public class Table {
     }
 
     //the IDs generated will only be unique while the server is up.
-    // consider storing highest id of each table to file in root databases folder?
+    // instead of doing this, create method to read in highest current ID from table on disk
     private String generateRecordID(){
         currentRecordID++;
         return Integer.toString(currentRecordID);
@@ -246,7 +246,17 @@ public class Table {
         return true;
     }
 
-    //writeTableToFile
-    //check value is updated
-    //write a method to increment all ages by 1 (need to convert from string to int and back again)
+    public String wholeTableToString (Table selectedTable){
+        ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ArrayList<String> row : dataStructure) {
+            for(String token : row){
+                stringBuilder.append(token);
+                stringBuilder.append(" ");
+            }
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
+    }
+
 }
