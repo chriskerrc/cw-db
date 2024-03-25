@@ -40,6 +40,10 @@ public class Parser {
             if(Objects.equals(p.isCommand(tokens), "INSERT")){
                 return databaseManager.interpretInsert();
             }
+            if(Objects.equals(p.isCommand(tokens), "SELECT")){
+                return true;
+                //return databaseManager.interpretSelect();
+            }
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
                 return false;
             }
@@ -70,6 +74,9 @@ public class Parser {
         if(Objects.equals(isCommandType(tokens), "INSERT")){
             command = "INSERT";
         }
+        if(Objects.equals(isCommandType(tokens), "SELECT")){
+            command = "SELECT";
+        }
         incrementCurrentWord(tokens);
         if(!currentWordMatches(tokens, ";")){
             throw new RuntimeException("Invalid Command: missing semi-colon?");
@@ -91,6 +98,9 @@ public class Parser {
         }
         if(isInsert(tokens)){
             return "INSERT";
+        }
+        if(isSelect(tokens)){
+            return "SELECT";
         }
         //add other commands
         return "INVALID";
@@ -183,6 +193,28 @@ public class Parser {
         }
         incrementCurrentWord(tokens);
         return isInsertValueList(tokens);
+    }
+    //<Select> ::=  "SELECT " <WildAttribList> " FROM " [TableName] | "SELECT " <WildAttribList> " FROM " [TableName] " WHERE " <Condition>
+    public boolean isSelect(ArrayList<String> tokens){
+        //simple select command for now, no "WHERE <Condition>"
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!currentWordMatches(tokens, "SELECT")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isWildAttribList(tokens)){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "FROM")){
+            return false;
+        }
+        incrementCurrentWord(tokens);
+        if(!isTableName(tokens)){
+            return false;
+        }
+        //add WHERE and Condition logic
+        return true;
     }
 
 
@@ -437,6 +469,13 @@ public boolean isInsertValueList(ArrayList<String> tokens){
             return true;
         }
         return isStringLiteral(tokens);
+    }
+
+    public boolean isWildAttribList(ArrayList<String> tokens){
+        if(isAttributeList(tokens)){
+            return true;
+        }
+        return currentWordMatches(tokens, "*");
     }
 
     //Helper methods
