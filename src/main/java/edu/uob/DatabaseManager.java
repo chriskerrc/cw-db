@@ -25,6 +25,12 @@ public class DatabaseManager {
 
     static private ArrayList<String> valuesForInsertCommand;
 
+    static private boolean selectWholeTable;
+
+    static private String selectResponse;
+
+    static private String tableToSelect;
+
     private DatabaseManager() {
     }
 
@@ -99,6 +105,14 @@ public class DatabaseManager {
         return databaseToCreate;
     }
 
+    public void setTableToSelect(String tableName){
+        tableToSelect = tableName;
+    }
+
+    public String getTableToSelect(){
+        return tableToSelect;
+    }
+
     public boolean getIsAttributeListForCreateTable(){
         return isAttributeListForCreateTable;
     }
@@ -130,6 +144,14 @@ public class DatabaseManager {
 
     public String getNameTableToInsertInto(){
         return tableToInsertInto;
+    }
+
+    public void setSelectWholeTableBoolean(boolean value){
+        selectWholeTable = value;
+    }
+
+    public boolean getSelectWholeTableBoolean(){
+        return selectWholeTable;
     }
 
     public void setNameTableToInsertInto(String tableName){
@@ -198,6 +220,23 @@ public class DatabaseManager {
                 return updatedTable.writeTableToFile(tableToInsertInto, true);
             }
         }
+        return false;
+    }
+
+    public boolean interpretSelect() throws IOException{
+        if(databaseObjectAlreadyExists(databaseInUse)) {
+            Database database = getDatabaseObjectFromName(databaseInUse);
+            if (database.tableExistsInDatabase(tableToSelect)) {
+                Table tableObjectToSelect = database.getTableObjectFromDatabaseFromName(tableToSelect);
+                if (selectWholeTable) {
+                    selectResponse = tableObjectToSelect.wholeTableToString(tableObjectToSelect);
+                }
+            }
+        }
+        //check boolean selectWholeTable
+        //if it's true, call wholeTableToString method (pass in table)
+        //set selectResponse string
+
         return false;
     }
 

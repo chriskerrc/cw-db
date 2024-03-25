@@ -215,6 +215,7 @@ public class Parser {
         if(!isTableName(tokens)){
             return false;
         }
+        databaseManager.setTableToSelect(getCurrentWordString());
         //add WHERE and Condition logic
         return true;
     }
@@ -474,10 +475,16 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     }
 
     public boolean isWildAttribList(ArrayList<String> tokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(isAttributeList(tokens)){
+            databaseManager.setSelectWholeTableBoolean(false);
             return true;
         }
-        return currentWordMatches(tokens, "*");
+        if(currentWordMatches(tokens, "*")){
+            databaseManager.setSelectWholeTableBoolean(true);
+            return true;
+        }
+        return false;
     }
 
     //Helper methods
