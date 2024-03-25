@@ -148,6 +148,7 @@ public class DatabaseManager {
         return database.createDatabaseDirectory(databaseToCreate);
     }
 
+    //after server restart, Use database returns error: suggests it's not loading files
     public boolean interpretUseDatabase() throws IOException {
         if(databaseObjectAlreadyExists(databaseInUse)){
             setDatabaseInUse(databaseInUse);
@@ -168,7 +169,6 @@ public class DatabaseManager {
             Database database = getDatabaseObjectFromName(databaseInUse);
             ArrayList<String> values = attributeNamesForCreateTable;
             if(database.tableExistsInDatabase(tableToCreate)){
-                //this seems bugged: it's possible to create two tables with same name
                 return false;
             }
             Table newTable = new Table();
@@ -176,16 +176,31 @@ public class DatabaseManager {
             if(!isAttributeListForCreateTable){
                 //this method also writes the table to file:
                 newTable.createTableNoValues(tableToCreate);
-                database.loadTableToDatabase(newTable);
-                return true;
             }
             else{
                 newTable.createTableWithValues(tableToCreate, values);
-                database.loadTableToDatabase(newTable);
-                return true;
             }
+            database.loadTableToDatabase(newTable);
+            return true;
 
             //newTable.writeTableToFile(tableToCreate);
+        }
+        return false;
+    }
+
+    public boolean interpretInsert() throws IOException{
+        if(databaseObjectAlreadyExists(databaseInUse)) {
+            System.out.println("database exists");
+            Database database = getDatabaseObjectFromName(databaseInUse);
+            if (database.tableExistsInDatabase(tableToInsertInto)) {
+                System.out.println("table exists in database");
+                Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
+                Table updatedTable = table.insertValuesInTable(table, valuesForInsertCommand);
+                //String value = updatedTable.getTableCellValueFromDataStructure(1,1);
+                //System.out.println("value at 1,1 " + value);
+                database.loadTableToDatabase(updatedTable);
+                return updatedTable.writeTableToFile(tableToInsertInto, true);
+            }
         }
         return false;
     }

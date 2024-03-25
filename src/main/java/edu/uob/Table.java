@@ -1,5 +1,6 @@
 package edu.uob;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Table {
@@ -140,12 +141,12 @@ public class Table {
 
     public void createTableNoValues(String tableName) throws IOException {
         this.tableDataStructure = this.createTableDataStructureWithNoValues();
-        this.writeTableToFile(tableName);
+        this.writeTableToFile(tableName, false);
     }
 
     public void createTableWithValues(String tableName, ArrayList<String> values) throws IOException {
         this.tableDataStructure = this.createTableDataStructureWithValues(values);
-        this.writeTableToFile(tableName);
+        this.writeTableToFile(tableName, false);
     }
 
     public ArrayList<ArrayList<String>> createTableDataStructureWithNoValues(){
@@ -165,6 +166,18 @@ public class Table {
         row.addAll(values);
         tableDataStructure.add(row);
         return tableDataStructure;
+    }
+
+    public Table insertValuesInTable(Table existingTable, ArrayList<String> values){
+        ArrayList<ArrayList<String>> tableDataStructure = existingTable.getTableDataStructure();
+        ArrayList<String> row = new ArrayList<>();
+        //add ID at front of values
+        row.add(0, "1"); //for now, hardcoding all row IDs to 1
+        row.addAll(values);
+        tableDataStructure.add(row);
+        //update table's datastructure with new row
+        existingTable.tableDataStructure = tableDataStructure;
+        return existingTable;
     }
 
     //the following method isn't finished
@@ -192,10 +205,12 @@ public class Table {
         return false; //or throw error
     }
 
-    public boolean writeTableToFile(String tableName) throws IOException { //long method
+    public boolean writeTableToFile(String tableName, boolean tableExists) throws IOException { //long method
         File tableFile = new File(filePath + tableName + fileExtension);
-        if(!tableFile.createNewFile()){
-            return false;
+        if(!tableExists) {
+            if (!tableFile.createNewFile()) {
+                return false;
+            }
         }
         FileWriter writer = new FileWriter(tableFile);
         int numberOfRows = this.tableDataStructure.size();

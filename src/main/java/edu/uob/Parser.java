@@ -38,9 +38,7 @@ public class Parser {
                 return databaseManager.interpretCreateTable();
             }
             if(Objects.equals(p.isCommand(tokens), "INSERT")){
-                // return true regardless of interpreting for now
-                return true;
-                //return databaseManager.interpretInsert();
+                return databaseManager.interpretInsert();
             }
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
                 return false;
