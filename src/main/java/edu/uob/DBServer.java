@@ -50,21 +50,23 @@ public class DBServer {
         //before submission, add try catch around handleCommand method
         //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
         //can I "hash define" strings somewhere?
-        if(Objects.equals(p.parseCommand(tokens), "CREATE_DATABASE")){ //passing tokens directly to isCommand is redundant when passing it to Parser?
+
+        String responseString = p.parseCommand(tokens);
+        if(Objects.equals(responseString, "CREATE_DATABASE")){ //passing tokens directly to isCommand is redundant when passing it to Parser?
             return "[OK]";
         }
-        if(Objects.equals(p.parseCommand(tokens), "CREATE_TABLE")){
+        if(Objects.equals(responseString, "CREATE_TABLE")){
             return "[OK]";
         }
-        if(Objects.equals(p.parseCommand(tokens), "USE")){
+        if(Objects.equals(responseString, "USE")){
             return "[OK]";
         }
-        if(Objects.equals(p.parseCommand(tokens), "INSERT")){
+        if(Objects.equals(responseString, "INSERT")){
             return "[OK]";
         }
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         String selectResponse = databaseManager.getSelectResponse();
-        if(Objects.equals(p.parseCommand(tokens), "SELECT")){
+        if(Objects.equals(responseString, "SELECT")){
             return "[OK]" + "\n" + selectResponse;
         }
         return "[ERROR]";
