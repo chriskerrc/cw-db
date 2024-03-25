@@ -2,6 +2,7 @@ package edu.uob;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 
 //Singleton class to manage databases as single source of truth and contain interpreter methods
@@ -158,8 +159,28 @@ public class DatabaseManager {
         tableToInsertInto = tableName;
     }
 
+    public String getSelectResponse(){
+        return selectResponse;
+    }
+
+    public void setSelectResponse(String responseInput){
+        selectResponse = responseInput;
+    }
+
     public void clearDatabasesList(){
         databasesList.clear();
+    }
+
+    public boolean deleteDatabaseObject(String tableName) throws IOException {
+        Iterator<Database> iterator = databasesList.iterator();
+        while(iterator.hasNext()){
+            Database database = iterator.next();
+            if (Objects.equals(database.getDatabaseName(), tableName)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     //Interpreter methods
@@ -215,9 +236,10 @@ public class DatabaseManager {
             Database database = getDatabaseObjectFromName(databaseInUse);
             if (database.tableExistsInDatabase(tableToInsertInto)) {
                 Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
-                Table updatedTable = table.insertValuesInTable(table, valuesForInsertCommand);
-                database.loadTableToDatabase(updatedTable);
-                return updatedTable.writeTableToFile(tableToInsertInto, true);
+                table.insertValuesInTable(table, valuesForInsertCommand);
+                System.out.println("data structure after insert values " + table.getTableDataStructure());
+                database.loadTableToDatabase(table);
+                return table.writeTableToFile(tableToInsertInto, true);
             }
         }
         return false;
@@ -230,15 +252,14 @@ public class DatabaseManager {
                 Table tableObjectToSelect = database.getTableObjectFromDatabaseFromName(tableToSelect);
                 if (selectWholeTable) {
                     selectResponse = tableObjectToSelect.wholeTableToString(tableObjectToSelect);
+                    return true;
                 }
             }
         }
-        //check boolean selectWholeTable
-        //if it's true, call wholeTableToString method (pass in table)
-        //set selectResponse string
-
         return false;
     }
+
+
 
     //when running tests, consider zeroing out the attributes in this class after every scenario
 

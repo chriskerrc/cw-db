@@ -179,6 +179,7 @@ public class Table {
         row.add(0, newRecordID);
         row.addAll(values);
         tableDataStructure.add(row);
+        System.out.println("data structure within insertValuesInTable method " + tableDataStructure);
         //update table's datastructure with new row
         existingTable.tableDataStructure = tableDataStructure;
         return existingTable;
@@ -247,12 +248,13 @@ public class Table {
     }
 
     public String wholeTableToString (Table selectedTable){
+        //this methods incorrectly adds a tab at the end of each line
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
         StringBuilder stringBuilder = new StringBuilder();
         for (ArrayList<String> row : dataStructure) {
             for(String token : row){
                 stringBuilder.append(token);
-                stringBuilder.append(" ");
+                stringBuilder.append("\t");
             }
             stringBuilder.append("\n");
         }

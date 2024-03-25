@@ -26,34 +26,46 @@ public class Parser {
     //return more than just binary [OK] or [ERROR]
 
     //convert each method to private apart from the top one, and change testing strategy
-    public boolean parseCommand(ArrayList<String> tokens){
+
+    //is there a simpler/less redundant way of doing this? I'm passing strings between multiple levels of functions?
+    public String parseCommand(ArrayList<String> tokens){
         Parser p = new Parser(tokens);
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         try {
             if(Objects.equals(p.isCommand(tokens), "CREATE_DATABASE")){
-                return databaseManager.interpretCreateDatabase();
+                if(databaseManager.interpretCreateDatabase()) {
+                    return "CREATE_DATABASE";
+                }
             }
             if(Objects.equals(p.isCommand(tokens), "USE")){
-                return databaseManager.interpretUseDatabase();
+                if(databaseManager.interpretUseDatabase()){
+                    return "USE";
+                }
             }
             if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
-                return databaseManager.interpretCreateTable();
+                if(databaseManager.interpretCreateTable()){
+                    return "CREATE_TABLE";
+                }
             }
             if(Objects.equals(p.isCommand(tokens), "INSERT")){
-                return databaseManager.interpretInsert();
+                if(databaseManager.interpretInsert()){
+                    return "INSERT";
+                }
             }
             if(Objects.equals(p.isCommand(tokens), "SELECT")){
-                return true;
+                if(databaseManager.interpretSelect()){
+                    return "SELECT";
+                }
                 //return databaseManager.interpretSelect();
             }
             if(Objects.equals(p.isCommand(tokens), "INVALID")){
-                return false;
+                return "INVALID";
             }
         } catch (RuntimeException | IOException exception){
             System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
-            return false;
+            return "INVALID";
         }
-        return false;
+        return "INVALID";
     }
 
     //Commands

@@ -46,6 +46,18 @@ public class Database {
         return false; //or throw error
     }
 
+    public boolean deleteTableObject(String tableName) throws IOException {
+        Iterator<Table> iterator = tablesInDatabase.iterator();
+        while(iterator.hasNext()){
+            Table table = iterator.next();
+            if (Objects.equals(table.getTableName(), tableName)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isDirectoryEmpty(String databaseName) throws IOException {
         Path directoryPath = Path.of(filePath, databaseName);
         if(doesDirectoryExist(databaseName)){

@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /** This class implements the DB server. */
 public class DBServer {
@@ -48,8 +49,23 @@ public class DBServer {
         Parser p = new Parser(tokens);
         //before submission, add try catch around handleCommand method
         //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
-        if(p.parseCommand(tokens)){ //passing tokens directly to isCommand is redundant when passing it to Parser?
+        //can I "hash define" strings somewhere?
+        if(Objects.equals(p.parseCommand(tokens), "CREATE_DATABASE")){ //passing tokens directly to isCommand is redundant when passing it to Parser?
             return "[OK]";
+        }
+        if(Objects.equals(p.parseCommand(tokens), "CREATE_TABLE")){
+            return "[OK]";
+        }
+        if(Objects.equals(p.parseCommand(tokens), "USE")){
+            return "[OK]";
+        }
+        if(Objects.equals(p.parseCommand(tokens), "INSERT")){
+            return "[OK]";
+        }
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        String selectResponse = databaseManager.getSelectResponse();
+        if(Objects.equals(p.parseCommand(tokens), "SELECT")){
+            return "[OK]" + "\n" + selectResponse;
         }
         return "[ERROR]";
     }
