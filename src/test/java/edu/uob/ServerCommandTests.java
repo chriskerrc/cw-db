@@ -1,13 +1,14 @@
 package edu.uob;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ParserCommandTests {
+public class ServerCommandTests {
 
     private String generateRandomName() {
         String randomName = "";
@@ -67,5 +68,8 @@ public class ParserCommandTests {
         String response = dbServer.handleCommand("CREATE DATABASE " + randomName);
         assertTrue(response.contains("[ERROR]"));
     }
+
+
+
 
 }

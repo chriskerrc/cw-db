@@ -228,8 +228,15 @@ public class Parser {
             return false;
         }
         databaseManager.setTableToSelect(getCurrentWordString());
-        //add WHERE and Condition logic
-        return true;
+        incrementCurrentWord(tokens);
+        if(!currentWordMatches(tokens, "WHERE")){
+            decrementCurrentWord(tokens);
+            databaseManager.setHasCondition(false);
+            return true;
+        }
+        databaseManager.setHasCondition(true);
+        incrementCurrentWord(tokens);
+        return isCondition(tokens);
     }
 
 
@@ -489,14 +496,37 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     public boolean isWildAttribList(ArrayList<String> tokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(isAttributeList(tokens)){
-            databaseManager.setSelectWholeTableBoolean(false);
+            databaseManager.setSelectAsterisk(false);
             return true;
         }
         if(currentWordMatches(tokens, "*")){
-            databaseManager.setSelectWholeTableBoolean(true);
+            databaseManager.setSelectAsterisk(true);
             return true;
         }
         return false;
+    }
+
+    //<Condition>   	::=  "(" <Condition> <BoolOperator> <Condition> ")" | <Condition> <BoolOperator> <Condition> |
+    // "(" [AttributeName] <Comparator> [Value] ")" | [AttributeName] <Comparator> [Value]
+
+    public boolean isCondition(ArrayList<String> tokens){
+        //Only works for this simple case for now: [AttributeName] <Comparator> [Value]
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!isAttributeName(tokens)){
+            return false;
+        }
+        databaseManager.setConditionAttributeName(getCurrentWordString());
+        incrementCurrentWord(tokens);
+        if(!isComparator(tokens)){
+            return false;
+        }
+        databaseManager.setConditionComparator(getCurrentWordString());
+        incrementCurrentWord(tokens);
+        if(!isValue(tokens)){
+            return false;
+        }
+        databaseManager.setConditionValue(getCurrentWordString());
+        return true;
     }
 
     //Helper methods

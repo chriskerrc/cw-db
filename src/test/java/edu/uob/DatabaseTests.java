@@ -144,6 +144,7 @@ public class DatabaseTests {
     //test that non .tab files are correctly filtered out when reading all files in from folder for Use Command
 
 
+    //IMPORTANT: running use command on database that's in file structure straight after starting server fails
 
 
 

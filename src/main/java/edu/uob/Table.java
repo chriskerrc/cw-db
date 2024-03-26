@@ -2,6 +2,7 @@ package edu.uob;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Table {
 
@@ -248,17 +249,71 @@ public class Table {
     }
 
     public String wholeTableToString (Table selectedTable){
-        //this methods incorrectly adds a tab at the end of each line
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
         StringBuilder stringBuilder = new StringBuilder();
         for (ArrayList<String> row : dataStructure) {
+            int numberOfColumns = row.size();
+            int currentColumn = 0;
             for(String token : row){
                 stringBuilder.append(token);
-                stringBuilder.append("\t");
+                if(currentColumn < numberOfColumns - 1) {
+                    stringBuilder.append("\t");
+                }
+                currentColumn++;
             }
             stringBuilder.append("\n");
         }
         return stringBuilder.toString();
     }
+
+    //replace wholeTableToString with this method:
+    public String tableRowsToString (Table selectedTable, ArrayList<Integer> rowsToInclude){
+        ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int rowIndex : rowsToInclude) {
+            if (rowIndex > 0 && rowIndex < dataStructure.size()) {
+                ArrayList<String> row = dataStructure.get(rowIndex);
+                int numberOfColumns = row.size();
+                int currentColumn = 0;
+                for (String token : row) {
+                    stringBuilder.append(token);
+                    if (currentColumn < numberOfColumns - 1) {
+                        stringBuilder.append("\t");
+                    }
+                    currentColumn++;
+                }
+                stringBuilder.append("\n");
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public int getIndexAttributeName(String attributeName) {
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> tableHeader = dataStructure.get(0);
+        for(int headerIndex = 0; headerIndex < tableHeader.size(); headerIndex++){
+            if(Objects.equals(tableHeader.get(headerIndex), attributeName)){
+                System.out.println("header index " + headerIndex);
+                return headerIndex;
+            }
+        }
+        return -1;
+    }
+
+    public ArrayList<Integer> getRowsValueIsIn(int columnIndex, String conditionValue){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<Integer> rowsToInclude = new ArrayList<>();
+        int totalRows = dataStructure.size();
+        int row = 1; //skip header row
+        while(row < totalRows){
+            if(Objects.equals(dataStructure.get(row).get(columnIndex), conditionValue)){
+                rowsToInclude.add(row);
+            }
+            row++;
+        }
+        System.out.println("rows to include " + rowsToInclude);
+        return rowsToInclude;
+    }
+
 
 }

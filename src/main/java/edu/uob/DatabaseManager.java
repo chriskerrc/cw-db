@@ -26,11 +26,18 @@ public class DatabaseManager {
 
     static private ArrayList<String> valuesForInsertCommand;
 
-    static private boolean selectWholeTable;
+    static private boolean hasAsterisk;
+
+    static private boolean hasCondition;
 
     static private String selectResponse;
 
     static private String tableToSelect;
+
+    static private String conditionAttributeName;
+
+    static private String conditionComparator;
+    static private String conditionValue;
 
     private DatabaseManager() {
     }
@@ -147,12 +154,17 @@ public class DatabaseManager {
         return tableToInsertInto;
     }
 
-    public void setSelectWholeTableBoolean(boolean value){
-        selectWholeTable = value;
+    public void setSelectAsterisk(boolean value){
+        hasAsterisk = value;
     }
 
-    public boolean getSelectWholeTableBoolean(){
-        return selectWholeTable;
+    public void setHasCondition(boolean value){
+        hasCondition = value;
+    }
+
+
+    public boolean getSelectAsterisk(){
+        return hasAsterisk;
     }
 
     public void setNameTableToInsertInto(String tableName){
@@ -169,6 +181,18 @@ public class DatabaseManager {
 
     public void clearDatabasesList(){
         databasesList.clear();
+    }
+
+    public void setConditionAttributeName(String newAttributeName){
+        conditionAttributeName = newAttributeName;
+    }
+
+    public void setConditionValue(String newConditionValue){
+        conditionValue = newConditionValue;
+    }
+
+    public void setConditionComparator(String newConditionComparator){
+        conditionComparator = newConditionComparator;
     }
 
     public boolean deleteDatabaseObject(String tableName) throws IOException {
@@ -237,7 +261,6 @@ public class DatabaseManager {
             if (database.tableExistsInDatabase(tableToInsertInto)) {
                 Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
                 table.insertValuesInTable(table, valuesForInsertCommand);
-                System.out.println("data structure after insert values " + table.getTableDataStructure());
                 database.loadTableToDatabase(table);
                 return table.writeTableToFile(tableToInsertInto, true);
             }
@@ -250,14 +273,31 @@ public class DatabaseManager {
             Database database = getDatabaseObjectFromName(databaseInUse);
             if (database.tableExistsInDatabase(tableToSelect)) {
                 Table tableObjectToSelect = database.getTableObjectFromDatabaseFromName(tableToSelect);
-                if (selectWholeTable) {
+                if (hasAsterisk && !hasCondition) {
                     selectResponse = tableObjectToSelect.wholeTableToString(tableObjectToSelect);
                     return true;
                 }
+                if (hasAsterisk && hasCondition) {
+                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(tableObjectToSelect);
+                    selectResponse = tableObjectToSelect.tableRowsToString(tableObjectToSelect, listOfRows);
+                    return true;
+                }
+                //account for case where no asterisk and yes condition e.g. "SELECT id FROM marks WHERE pass == FALSE;"
             }
         }
         return false;
     }
+
+    //"SELECT * FROM marks WHERE name == 'Simon';"
+    //display all rows from table marks where AttributeName Comparator Value
+    private ArrayList<Integer> interpretSelectAsteriskCondition(Table table) {
+        ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
+        //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
+        int columnIndex = table.getIndexAttributeName(conditionAttributeName);
+        rowsToIncludeInSelectResponse = table.getRowsValueIsIn(columnIndex, conditionValue);
+        return rowsToIncludeInSelectResponse;
+    }
+
 
 
 
