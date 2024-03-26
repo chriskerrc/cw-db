@@ -288,6 +288,18 @@ public class Table {
         return stringBuilder.toString();
     }
 
+    public ArrayList<Integer> populateListOfRowsForWholeTable (){
+        ArrayList<ArrayList<String>> dataStructure = this.getTableDataStructure();
+        int maximumRow = dataStructure.size();
+        ArrayList<Integer> listOfRows = new ArrayList<>();
+        int row = 0;
+        while(row < maximumRow){
+            listOfRows.add(row);
+            row++;
+        }
+        return listOfRows;
+    }
+
     public int getIndexAttributeName(String attributeName) {
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> tableHeader = dataStructure.get(0);

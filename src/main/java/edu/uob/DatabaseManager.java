@@ -274,13 +274,17 @@ public class DatabaseManager {
             if (database.tableExistsInDatabase(tableToSelect)) {
                 Table tableObjectToSelect = database.getTableObjectFromDatabaseFromName(tableToSelect);
                 if (hasAsterisk && !hasCondition) {
-                    selectResponse = tableObjectToSelect.wholeTableToString(tableObjectToSelect);
+                    ArrayList<Integer> listOfRows = tableObjectToSelect.populateListOfRowsForWholeTable();
+                    selectResponse = tableObjectToSelect.tableRowsToString(tableObjectToSelect, listOfRows);
                     return true;
                 }
                 if (hasAsterisk && hasCondition) {
                     ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(tableObjectToSelect);
                     selectResponse = tableObjectToSelect.tableRowsToString(tableObjectToSelect, listOfRows);
                     return true;
+                }
+                if(!hasAsterisk && hasCondition) {
+                    //
                 }
                 //account for case where no asterisk and yes condition e.g. "SELECT id FROM marks WHERE pass == FALSE;"
             }
@@ -297,6 +301,8 @@ public class DatabaseManager {
         rowsToIncludeInSelectResponse = table.getRowsValueIsIn(columnIndex, conditionValue);
         return rowsToIncludeInSelectResponse;
     }
+
+
 
 
 

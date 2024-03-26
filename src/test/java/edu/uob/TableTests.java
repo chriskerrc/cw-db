@@ -3,6 +3,7 @@ package edu.uob;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -186,8 +187,8 @@ public class TableTests {
         Database database = databaseManager.getDatabaseObjectFromName("vehicles");
         databaseManager.getDatabaseObjectFromName("vehicles");
         Table table = database.getTableObjectFromDatabaseFromName("planes");
-        String tableString = table.wholeTableToString(table);
-        System.out.println(tableString);
+        ArrayList<Integer> listOfRows = table.populateListOfRowsForWholeTable();
+        String tableString = table.tableRowsToString(table, listOfRows);
         assertTrue(tableString.contains("'boeing'")); //row 1
         assertTrue(tableString.contains("'airbus'")); //row 2
         assertTrue(tableString.contains("8000")); //row 3

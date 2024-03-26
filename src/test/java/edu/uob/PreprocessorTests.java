@@ -17,4 +17,22 @@ public class PreprocessorTests {
         String expected = "[INSERT, INTO, people, VALUES, (, 'Simon Lock', ,, 35, ,, 'simon@bristol.ac.uk', ,, 1.8, ), ;]";
         assertEquals(processed, expected);
     }
+
+    @Test
+    public void testProcessorSelectComparatorEquals() {
+        String query = "  SELECT  *  FROM people   WHERE name == 'Simon'; ";
+        Preprocessor preprocessor = new Preprocessor(query);
+        String processed = preprocessor.tokens.toString();
+        String expected = "[SELECT, *, FROM, people, WHERE, name, ==, 'Simon', ;]";
+        assertEquals(processed, expected);
+    }
+
+    @Test
+    public void testProcessorSelectComparatorGreaterThanOrEqualTo() {
+        String query = "  SELECT  *  FROM people   WHERE age >= 40; ";
+        Preprocessor preprocessor = new Preprocessor(query);
+        String processed = preprocessor.tokens.toString();
+        String expected = "[SELECT, *, FROM, people, WHERE, age, >=, 40, ;]";
+        assertEquals(processed, expected);
+    }
 }
