@@ -180,7 +180,7 @@ public class Table {
         row.add(0, newRecordID);
         row.addAll(values);
         tableDataStructure.add(row);
-        System.out.println("data structure within insertValuesInTable method " + tableDataStructure);
+        //System.out.println("data structure within insertValuesInTable method " + tableDataStructure);
         //update table's datastructure with new row
         existingTable.tableDataStructure = tableDataStructure;
         return existingTable;
@@ -268,10 +268,11 @@ public class Table {
 
     //replace wholeTableToString with this method:
     public String tableRowsToString (Table selectedTable, ArrayList<Integer> rowsToInclude){
+        rowsToInclude.add(0, 0); //always include header row at start of list
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
         StringBuilder stringBuilder = new StringBuilder();
         for(int rowIndex : rowsToInclude) {
-            if (rowIndex > 0 && rowIndex < dataStructure.size()) {
+            if (rowIndex >= 0 && rowIndex < dataStructure.size()) {
                 ArrayList<String> row = dataStructure.get(rowIndex);
                 int numberOfColumns = row.size();
                 int currentColumn = 0;
@@ -292,7 +293,7 @@ public class Table {
         ArrayList<ArrayList<String>> dataStructure = this.getTableDataStructure();
         int maximumRow = dataStructure.size();
         ArrayList<Integer> listOfRows = new ArrayList<>();
-        int row = 0;
+        int row = 1; //skip 0, because this is always added by tableRowsToString
         while(row < maximumRow){
             listOfRows.add(row);
             row++;
@@ -305,7 +306,6 @@ public class Table {
         ArrayList<String> tableHeader = dataStructure.get(0);
         for(int headerIndex = 0; headerIndex < tableHeader.size(); headerIndex++){
             if(Objects.equals(tableHeader.get(headerIndex), attributeName)){
-                System.out.println("header index " + headerIndex);
                 return headerIndex;
             }
         }
@@ -323,7 +323,6 @@ public class Table {
             }
             row++;
         }
-        System.out.println("rows to include " + rowsToInclude);
         return rowsToInclude;
     }
 

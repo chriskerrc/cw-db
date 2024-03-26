@@ -8,7 +8,7 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExtraDBTests {
+public class DBTests {
 
     private DBServer server;
 
@@ -38,10 +38,14 @@ public class ExtraDBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, TRUE);");
         String response = sendCommandToServer("SELECT * FROM marks WHERE name == 'Simon';");
+        System.out.println(response);
+        assertTrue(response.contains("id"));
+        assertTrue(response.contains("name"));
         assertTrue(response.contains("'Simon'"));
         assertTrue(response.contains("65"));
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("50"));
+        //need an after each method to delete database directory with table files in it
     }
 
     @Test
@@ -53,10 +57,15 @@ public class ExtraDBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, TRUE);");
         String response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+        assertTrue(response.contains("id"));
+        assertTrue(response.contains("name"));
         assertTrue(response.contains("'Simon'"));
         assertTrue(response.contains("65"));
         assertTrue(response.contains("'Chris'"));
         assertTrue(response.contains("50"));
+        //need an after each method to delete database directory with table files in it
+
     }
 
 

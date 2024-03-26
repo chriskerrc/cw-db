@@ -136,7 +136,7 @@ public class DatabaseTests {
         assertTrue(databasePeople.tableExistsInDatabase("people"));
         Table tableSheds = databasePeople.getTableObjectFromDatabaseFromName("sheds");
         Table tablePeople = databasePeople.getTableObjectFromDatabaseFromName("people");
-        System.out.println(tableSheds);
+        //System.out.println(tableSheds);
         assertEquals(tableSheds.getTableCellValueFromDataStructure(1, 1), "Dorchester");
         assertEquals(tablePeople.getTableCellValueFromDataStructure(3, 1), "Chris");
     }
