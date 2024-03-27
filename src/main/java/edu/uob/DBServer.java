@@ -48,10 +48,7 @@ public class DBServer {
             ArrayList<String> tokens = preprocessor.getTokens();
 
             Parser p = new Parser(tokens);
-            //before submission, add try catch around handleCommand method
-            //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
             //can I "hash define" strings somewhere?
-
             String responseString = p.parseCommand(tokens);
             if (Objects.equals(responseString, "CREATE_DATABASE")) { //passing tokens directly to isCommand is redundant when passing it to Parser?
                 return "[OK]";
@@ -72,7 +69,7 @@ public class DBServer {
             }
             return "Failed to handle command";
         } catch (Exception exception) {
-            return "[ERROR] " + exception.getMessage();
+            return "[ERROR]: " + exception.getMessage();
         }
     }
 
