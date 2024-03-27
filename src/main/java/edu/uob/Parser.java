@@ -120,7 +120,7 @@ public class Parser {
         return "INVALID";
     }
     public boolean isUse(ArrayList<String> tokens) throws IOException {
-        if(Objects.equals(tokens.get(currentWord), "USE")){
+        if(currentWordMatches(tokens, "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
                 String databaseName = getCurrentWordString();
@@ -243,7 +243,7 @@ public class Parser {
     //Grammar rule methods
 
     public boolean isBoolOperator(ArrayList<String> tokens) {
-        if (Objects.equals(tokens.get(currentWord), "AND") || Objects.equals(tokens.get(currentWord), "OR")) {
+        if (currentWordMatches(tokens, "AND") || currentWordMatches(tokens, "OR")) {
             return true;
         } else {
             throw new RuntimeException("Invalid Bool Operator");
@@ -251,7 +251,7 @@ public class Parser {
     }
 
     public boolean isAlterationType(ArrayList<String> tokens) {
-        if (Objects.equals(tokens.get(currentWord), "ADD") || Objects.equals(tokens.get(currentWord), "DROP")) {
+        if (currentWordMatches(tokens, "ADD") || currentWordMatches(tokens, "DROP")) {
             return true;
         } else {
             throw new RuntimeException("Invalid Alteration Type");
@@ -259,7 +259,7 @@ public class Parser {
     }
 
     public boolean isBooleanLiteral(ArrayList<String> tokens) {
-        return Objects.equals(tokens.get(currentWord), "TRUE") || Objects.equals(tokens.get(currentWord), "FALSE");
+        return currentWordMatches(tokens, "TRUE") || currentWordMatches(tokens, "FALSE");
     }
 
     public boolean isDigit(ArrayList<String> tokens) {
@@ -580,7 +580,8 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     }
 
     private boolean currentWordMatches(ArrayList<String> tokens, String input){
-        return Objects.equals(tokens.get(currentWord), input);
+        //case-insensitive match
+        return tokens.get(currentWord).equalsIgnoreCase(input);
     }
 
 

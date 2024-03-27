@@ -251,6 +251,25 @@ public class DBTests {
     }
 
 
+    @Test
+    public void testQueryKeywordsCaseInsensitive() throws IOException {
+        String randomName = generateRandomName();
+        String response = sendCommandToServer("create database " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("use " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("create table marks (name, mark, pass);");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("insert into marks values ('Chris', 38, FALSE);");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("select id from marks where name == 'Chris';");
+        assertTrue(response.contains("[OK]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
 
 
 }
