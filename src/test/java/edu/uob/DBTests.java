@@ -114,18 +114,122 @@ public class DBTests {
         String singleLine = response.replace("\n"," ").trim();
         // Split the line on the space character
         String[] tokens = singleLine.split(" ");
-        // Check that the very last token is a number (which should be the ID of the entry)
         String lastToken = tokens[tokens.length-1];
-        try {
-            Integer.parseInt(lastToken);
-        } catch (NumberFormatException nfe) {
-            fail("The last token returned by `SELECT id FROM marks WHERE name == 'Simon';` should have been an integer ID, but was " + lastToken);
-        }
+        String penultimateToken = tokens[tokens.length-2];
+        assertEquals(3, Integer.parseInt(lastToken));
+        assertEquals(2, Integer.parseInt(penultimateToken));
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
+
+    @Test
+    public void testQueryNonexistentDatabase() throws IOException {
+        String randomName = generateRandomName();
+        String response = sendCommandToServer("USE " + randomName + ";");
+        assertTrue(response.contains("[ERROR]"));
+    }
+
+    @Test
+    public void testQueryNonexistentTable() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        String response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
+        assertTrue(response.contains("[ERROR]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testQueryNonexistentColumn() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
+        String response = sendCommandToServer("SELECT colour FROM marks WHERE name == 'Chris';");
+        assertTrue(response.contains("[ERROR]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testQueryCreateDatabaseNameAlreadyExists() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        assertTrue(response.contains("[ERROR]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testQueryCreateTableNameAlreadyExists() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        String response = sendCommandToServer("CREATE TABLE marks;");
+        assertTrue(response.contains("[ERROR]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testSelectAsteriskQueryReturnsValuesInOrderStored() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Simon', 50, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
+        String response = sendCommandToServer("SELECT * FROM marks;");
+        // Convert multi-lined responses into just a single line
+        String singleLine = response.replace("\n"," ").trim();
+        // Split the line on the tab character
+        String[] tokens = singleLine.split("\t"); //changed this to split on tabs (example test split on spaces)
+        String lastToken = tokens[tokens.length-1];
+        String penultimateToken = tokens[tokens.length-2];
+        String secondColumnHeader = tokens[2];
+        assertEquals("TRUE", lastToken);
+        assertEquals("70", penultimateToken);
+        assertEquals("mark", secondColumnHeader);
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testQueryCreateTableDuplicateAttributes() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        //duplicate attribute with same case
+        String response = sendCommandToServer("CREATE TABLE marks (name, mark, pass, mark);");
+        assertTrue(response.contains("[ERROR]"));
+        //duplicate attribute lowercase/uppercase
+        response = sendCommandToServer("CREATE TABLE marks (name, pass, PASS, mark);");
+        assertTrue(response.contains("[ERROR]"));
+        //duplicate attribute mixed case
+        response = sendCommandToServer("CREATE TABLE marks (name, Pass, pAsS, mark);");
+        assertTrue(response.contains("[ERROR]"));
+        response = sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        assertTrue(response.contains("[OK]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+
 
 
 }

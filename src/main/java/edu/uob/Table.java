@@ -307,7 +307,7 @@ public class Table {
         return -1;
     }
 
-    //reduce repeated code across these two methods
+    //reduce repeated code across these two methods (hard to do this without triply nested statements but take the hit)
     public ArrayList<Integer> getRowsValueIsIn(int columnIndex, String conditionValue){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();

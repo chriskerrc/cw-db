@@ -1,9 +1,7 @@
 package edu.uob;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 
 //Singleton class to manage databases as single source of truth and contain interpreter methods
 public class DatabaseManager {
@@ -242,6 +240,9 @@ public class DatabaseManager {
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         ArrayList<String> values = attributeNamesForCreateTable;
+        if(attributesDuplicated(values)){
+            return false;
+        }
         if(database.tableExistsInDatabase(tableToCreate)){
             return false;
         }
@@ -289,8 +290,7 @@ public class DatabaseManager {
             return true;
         }
         if(!hasAsterisk && hasCondition) {
-            handleSelectCommandNoAsteriskCondition(selectedTableObject);
-            return true;
+            return handleSelectCommandNoAsteriskCondition(selectedTableObject);
         }
         return false;
     }
@@ -331,11 +331,22 @@ public class DatabaseManager {
         selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
     }
 
-    private void handleSelectCommandNoAsteriskCondition(Table selectedTableObject) {
+    private boolean handleSelectCommandNoAsteriskCondition(Table selectedTableObject) {
         //this code assumes only one attribute name to search for, but the grammar allows for a list
         int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
+        if(columnIndex == -1){
+            return false;
+        }
         ArrayList<Integer> listOfRows = interpretSelectCondition(selectedTableObject);
         selectResponse = selectedTableObject.valuesInColumnToString(selectedTableObject, listOfRows, columnIndex);
+        return true;
+    }
+
+    private boolean attributesDuplicated(ArrayList<String> attributeList){
+        attributeList.replaceAll(String::toLowerCase);
+        Set<String> set = new HashSet<>(attributeList);
+        //if the Set is smaller than the ArrayList, there are duplicates in the ArrayList
+        return set.size() < attributeList.size();
     }
 
 
