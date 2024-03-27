@@ -39,6 +39,8 @@ public class DatabaseManager {
     static private String conditionComparator;
     static private String conditionValue;
 
+    static private String selectAttribute; //in "SELECT id FROM tableName WHERE ..." this is the "id"
+
     private DatabaseManager() {
     }
 
@@ -107,6 +109,10 @@ public class DatabaseManager {
 
     public void setDatabaseToCreate(String databaseName){
         databaseToCreate = databaseName;
+    }
+
+    public void setSelectAttribute(String attribute){
+        selectAttribute = attribute;
     }
 
     public String getDatabaseToCreate(){
@@ -272,19 +278,23 @@ public class DatabaseManager {
         if(databaseObjectAlreadyExists(databaseInUse)) {
             Database database = getDatabaseObjectFromName(databaseInUse);
             if (database.tableExistsInDatabase(tableToSelect)) {
-                Table tableObjectToSelect = database.getTableObjectFromDatabaseFromName(tableToSelect);
+                Table selectedTableObject = database.getTableObjectFromDatabaseFromName(tableToSelect);
                 if (hasAsterisk && !hasCondition) {
-                    ArrayList<Integer> listOfRows = tableObjectToSelect.populateListOfRowsForWholeTable();
-                    selectResponse = tableObjectToSelect.tableRowsToString(tableObjectToSelect, listOfRows);
+                    ArrayList<Integer> listOfRows = selectedTableObject.populateListOfRowsForWholeTable();
+                    selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
                     return true;
                 }
                 if (hasAsterisk && hasCondition) {
-                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(tableObjectToSelect);
-                    selectResponse = tableObjectToSelect.tableRowsToString(tableObjectToSelect, listOfRows);
+                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(selectedTableObject);
+                    selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
                     return true;
                 }
                 if(!hasAsterisk && hasCondition) {
-                    //
+                    //this code assumes only one attribute name to search for, but the grammar allows for a list
+                    int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
+                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(selectedTableObject);
+                    selectResponse = selectedTableObject.valuesInColumnToString(selectedTableObject, listOfRows, columnIndex);
+                    return true;
                 }
                 //account for case where no asterisk and yes condition e.g. "SELECT id FROM marks WHERE pass == FALSE;"
             }
@@ -295,6 +305,14 @@ public class DatabaseManager {
     //"SELECT * FROM marks WHERE name == 'Simon';"
     //display all rows from table marks where AttributeName Comparator Value
     private ArrayList<Integer> interpretSelectAsteriskCondition(Table table) {
+        ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
+        //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
+        int columnIndex = table.getIndexAttributeName(conditionAttributeName);
+        rowsToIncludeInSelectResponse = table.getRowsValueIsIn(columnIndex, conditionValue);
+        return rowsToIncludeInSelectResponse;
+    }
+
+    private ArrayList<Integer> interpretSelectAttributeListCondition(Table table) {
         ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
         //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
         int columnIndex = table.getIndexAttributeName(conditionAttributeName);

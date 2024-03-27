@@ -248,25 +248,6 @@ public class Table {
         return true;
     }
 
-    public String wholeTableToString (Table selectedTable){
-        ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
-        StringBuilder stringBuilder = new StringBuilder();
-        for (ArrayList<String> row : dataStructure) {
-            int numberOfColumns = row.size();
-            int currentColumn = 0;
-            for(String token : row){
-                stringBuilder.append(token);
-                if(currentColumn < numberOfColumns - 1) {
-                    stringBuilder.append("\t");
-                }
-                currentColumn++;
-            }
-            stringBuilder.append("\n");
-        }
-        return stringBuilder.toString();
-    }
-
-    //replace wholeTableToString with this method:
     public String tableRowsToString (Table selectedTable, ArrayList<Integer> rowsToInclude){
         rowsToInclude.add(0, 0); //always include header row at start of list
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
@@ -283,6 +264,20 @@ public class Table {
                     }
                     currentColumn++;
                 }
+                stringBuilder.append("\n");
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public String valuesInColumnToString (Table selectedTable, ArrayList<Integer> rowsToInclude, int columnIndex){
+        rowsToInclude.add(0, 0); //always include header row at start of list
+        ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int rowIndex : rowsToInclude) {
+            if (rowIndex >= 0 && rowIndex < dataStructure.size()) {
+                ArrayList<String> row = dataStructure.get(rowIndex);
+                stringBuilder.append(row.get(columnIndex));
                 stringBuilder.append("\n");
             }
         }

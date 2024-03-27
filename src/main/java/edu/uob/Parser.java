@@ -497,6 +497,9 @@ public boolean isInsertValueList(ArrayList<String> tokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(isAttributeList(tokens)){
             databaseManager.setSelectAsterisk(false);
+            //this code assumes only one AttributeName, but won't work if it's a list (grammar allows list)
+            //if I got a list from isAttributeList, would I need to tell the program when this method was called as a result of a Select command?
+            databaseManager.setSelectAttribute(getCurrentWordString());
             return true;
         }
         if(currentWordMatches(tokens, "*")){
