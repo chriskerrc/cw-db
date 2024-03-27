@@ -336,6 +336,12 @@ public class Table {
         return rowsToInclude;
     }
 
+    public int getNumberColumnsTable(){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> columnHeaderRow = dataStructure.get(0);
+        return columnHeaderRow.size();
+    }
+
 
 
 }

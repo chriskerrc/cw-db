@@ -229,6 +229,27 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    @Test
+    public void testQueryCreateInsertColumnMismatch() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        //Try to insert too few values
+        String response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', FALSE);");
+        assertTrue(response.contains("[ERROR]"));
+        //Try to insert too many values
+        response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, FALSE, 60);");
+        assertTrue(response.contains("[ERROR]"));
+        //Try to insert correct number of values
+        response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, FALSE);");
+        assertTrue(response.contains("[OK]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
 
 
 

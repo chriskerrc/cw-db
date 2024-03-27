@@ -263,13 +263,17 @@ public class DatabaseManager {
             return false;
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
-        if (database.tableExistsInDatabase(tableToInsertInto)) {
-            Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
-            table.insertValuesInTable(table, valuesForInsertCommand);
-            database.loadTableToDatabase(table);
-            return table.writeTableToFile(tableToInsertInto, true);
+        if (!database.tableExistsInDatabase(tableToInsertInto)) {
+            return false;
         }
-        return false;
+        Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
+        int numberOfColumns = table.getNumberColumnsTable();
+        if(numberOfColumns != valuesForInsertCommand.size() + 1){ //add 1 to account for id column
+           return false;
+        }
+        table.insertValuesInTable(table, valuesForInsertCommand);
+        database.loadTableToDatabase(table);
+        return table.writeTableToFile(tableToInsertInto, true);
     }
 
     public boolean interpretSelect() throws IOException{
