@@ -270,6 +270,40 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //these tests return error Invalid command
+    @Test
+    public void testDatabaseNameIsNotReserved() throws IOException {
+        String response = sendCommandToServer("CREATE DATABASE INSERT;");
+        assertTrue(response.contains("[ERROR]"));
+    }
+
+    @Test
+    public void testTableNameIsNotReserved() throws IOException {
+        String randomName = generateRandomName();
+        String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("use " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("CREATE TABLE true (name, mark, pass);");
+        assertTrue(response.contains("[ERROR]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testAttributeNameIsNotReserved() throws IOException {
+        String randomName = generateRandomName();
+        String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("use " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("CREATE TABLE marks (name, mark, null);");
+        assertTrue(response.contains("[ERROR]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+
 
 
 }

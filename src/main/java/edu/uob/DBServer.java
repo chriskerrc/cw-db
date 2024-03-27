@@ -43,33 +43,38 @@ public class DBServer {
     * <p>This method handles all incoming DB commands and carries out the required actions.
     */
     public String handleCommand(String command) {
-        Preprocessor preprocessor = new Preprocessor(command);
-        ArrayList<String> tokens = preprocessor.getTokens();
+        try {
+            Preprocessor preprocessor = new Preprocessor(command);
+            ArrayList<String> tokens = preprocessor.getTokens();
 
-        Parser p = new Parser(tokens);
-        //before submission, add try catch around handleCommand method
-        //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
-        //can I "hash define" strings somewhere?
+            Parser p = new Parser(tokens);
+            //before submission, add try catch around handleCommand method
+            //important: at the moment, when command is wrong, DBServer emits Errors: stop this!
+            //can I "hash define" strings somewhere?
 
-        String responseString = p.parseCommand(tokens);
-        if(Objects.equals(responseString, "CREATE_DATABASE")){ //passing tokens directly to isCommand is redundant when passing it to Parser?
-            return "[OK]";
+            String responseString = p.parseCommand(tokens);
+            if (Objects.equals(responseString, "CREATE_DATABASE")) { //passing tokens directly to isCommand is redundant when passing it to Parser?
+                return "[OK]";
+            }
+            if (Objects.equals(responseString, "CREATE_TABLE")) {
+                return "[OK]";
+            }
+            if (Objects.equals(responseString, "USE")) {
+                return "[OK]";
+            }
+            if (Objects.equals(responseString, "INSERT")) {
+                return "[OK]";
+            }
+            DatabaseManager databaseManager = DatabaseManager.getInstance();
+            String selectResponse = databaseManager.getSelectResponse();
+            if (Objects.equals(responseString, "SELECT")) {
+                return "[OK]" + "\n" + selectResponse;
+            }
+            return "[ERROR]";
         }
-        if(Objects.equals(responseString, "CREATE_TABLE")){
-            return "[OK]";
+        catch (Exception exception) {
+            return "[ERROR]";
         }
-        if(Objects.equals(responseString, "USE")){
-            return "[OK]";
-        }
-        if(Objects.equals(responseString, "INSERT")){
-            return "[OK]";
-        }
-        DatabaseManager databaseManager = DatabaseManager.getInstance();
-        String selectResponse = databaseManager.getSelectResponse();
-        if(Objects.equals(responseString, "SELECT")){
-            return "[OK]" + "\n" + selectResponse;
-        }
-        return "[ERROR]";
     }
 
     //  === Methods below handle networking aspects of the project - you will not need to change these ! ===

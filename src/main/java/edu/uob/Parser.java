@@ -1,13 +1,14 @@
 package edu.uob;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 
 public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
-
 
     public Parser(ArrayList<String> tokens) {
         this.tokenisedList = tokens;
@@ -372,10 +373,16 @@ public class Parser {
     }
 
     public boolean isDatabaseName(ArrayList<String> tokens) {
+        if(currentWordIsReserved(tokens)){
+            return false;
+        }
         return isPlainText(tokens);
     }
 
     public boolean isAttributeName(ArrayList<String> tokens) {
+        if(currentWordIsReserved(tokens)){
+            return false;
+        }
         return isPlainText(tokens);
     }
 
@@ -428,6 +435,9 @@ public class Parser {
     }
 
     public boolean isTableName(ArrayList<String> tokens) {
+        if(currentWordIsReserved(tokens)){
+            return false;
+        }
         return isPlainText(tokens);
     }
 
@@ -580,12 +590,15 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     }
 
     private boolean currentWordMatches(ArrayList<String> tokens, String input){
-        //case-insensitive match
         return tokens.get(currentWord).equalsIgnoreCase(input);
     }
 
-
-
-
+    //I don't know if it's OK to break up long lines like this
+    private boolean currentWordIsReserved(ArrayList<String> tokens) {
+        Set<String> reservedWords = new HashSet<>(Set.of("CREATE", "TABLE", "DATABASE", "INSERT", "INTO", "SELECT",
+                "FROM", "TRUE", "FALSE", "NULL", "WHERE", "DROP", "ALTER", "UPDATE", "DELETE", "JOIN", "VALUES",
+                "ADD", "AND", "OR", "LIKE"));
+        return reservedWords.contains(tokens.get(currentWord).toUpperCase());
+    }
 
 }

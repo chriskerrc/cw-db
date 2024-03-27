@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +34,7 @@ public class ExampleDBTests {
     // A basic test that creates a database, creates a table, inserts some test data, then queries it.
     // It then checks the response to see that a couple of the entries in the table are returned as expected
     @Test
-    public void testBasicCreateAndQuery() {
+    public void testBasicCreateAndQuery() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -50,12 +48,17 @@ public class ExampleDBTests {
         assertFalse(response.contains("[ERROR]"), "A valid query was made, however an [ERROR] tag was returned");
         assertTrue(response.contains("Simon"), "An attempt was made to add Simon to the table, but they were not returned by SELECT *");
         assertTrue(response.contains("Chris"), "An attempt was made to add Chris to the table, but they were not returned by SELECT *");
+        //clean up
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
     // A test to make sure that querying returns a valid ID (this test also implicitly checks the "==" condition)
     // (these IDs are used to create relations between tables, so it is essential that suitable IDs are being generated and returned !)
     @Test
-    public void testQueryID() {
+    public void testQueryID() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -73,11 +76,16 @@ public class ExampleDBTests {
         } catch (NumberFormatException nfe) {
             fail("The last token returned by `SELECT id FROM marks WHERE name == 'Simon';` should have been an integer ID, but was " + lastToken);
         }
+        //clean up
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
     // A test to make sure that databases can be reopened after server restart
     @Test
-    public void testTablePersistsAfterRestart() {
+    public void testTablePersistsAfterRestart() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -88,11 +96,16 @@ public class ExampleDBTests {
         sendCommandToServer("USE " + randomName + ";");
         String response = sendCommandToServer("SELECT * FROM marks;");
         assertTrue(response.contains("Simon"), "Simon was added to a table and the server restarted - but Simon was not returned by SELECT *");
+        //clean up
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
     // Test to make sure that the [ERROR] tag is returned in the case of an error (and NOT the [OK] tag)
     @Test
-    public void testForErrorTag() {
+    public void testForErrorTag() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -101,6 +114,11 @@ public class ExampleDBTests {
         String response = sendCommandToServer("SELECT * FROM libraryfines;");
         assertTrue(response.contains("[ERROR]"), "An attempt was made to access a non-existent table, however an [ERROR] tag was not returned");
         assertFalse(response.contains("[OK]"), "An attempt was made to access a non-existent table, however an [OK] tag was returned");
+        //clean up
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
 }
