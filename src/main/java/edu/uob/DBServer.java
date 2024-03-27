@@ -70,10 +70,9 @@ public class DBServer {
             if (Objects.equals(responseString, "SELECT")) {
                 return "[OK]" + "\n" + selectResponse;
             }
-            return "[ERROR]";
-        }
-        catch (Exception exception) {
-            return "[ERROR]";
+            return "Failed to handle command";
+        } catch (Exception exception) {
+            return "[ERROR] " + exception.getMessage();
         }
     }
 

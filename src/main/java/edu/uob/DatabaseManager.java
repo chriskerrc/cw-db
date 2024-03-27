@@ -213,6 +213,9 @@ public class DatabaseManager {
 
     //Interpreter methods
     public boolean interpretCreateDatabase() throws IOException {
+        if(databaseObjectAlreadyExists(databaseToCreate)) {
+            throw new RuntimeException("Trying to create a database that already exists?");
+        }
         Database database = new Database();
         addDatabaseToList(database);
         database.setDatabaseName(databaseToCreate);
@@ -222,7 +225,7 @@ public class DatabaseManager {
     //after server restart, Use database returns error: suggests it's not loading files
     public boolean interpretUseDatabase() throws IOException {
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            return false;
+            throw new RuntimeException("Database doesn't exist? Try creating it");
         }
         setDatabaseInUse(databaseInUse);
         Database database = getDatabaseObjectFromName(databaseInUse);
@@ -231,20 +234,20 @@ public class DatabaseManager {
             database.loadAllTablesInFolderToDatabaseObject(filesList);
             return true;
         }
-        return false;
+        throw new RuntimeException("Failed to load database");
     }
 
     public boolean interpretCreateTable() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            return false;
+            throw new RuntimeException("Database doesn't exist? Try USE command");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         ArrayList<String> values = attributeNamesForCreateTable;
         if(attributesDuplicated(values)){
-            return false;
+            throw new RuntimeException("Column headers are duplicated?");
         }
         if(database.tableExistsInDatabase(tableToCreate)){
-            return false;
+            throw new RuntimeException("Trying to create a table that already exists?");
         }
         Table newTable = new Table();
         newTable.setTableName(tableToCreate);
@@ -260,16 +263,16 @@ public class DatabaseManager {
 
     public boolean interpretInsert() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            return false;
+            throw new RuntimeException("Database doesn't exist? Try USE command");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToInsertInto)) {
-            return false;
+            throw new RuntimeException("Trying to insert values into a table that doesn't exist?");
         }
         Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
         int numberOfColumns = table.getNumberColumnsTable();
         if(numberOfColumns != valuesForInsertCommand.size() + 1){ //add 1 to account for id column
-           return false;
+            throw new RuntimeException("Attempting to insert wrong number of values?");
         }
         table.insertValuesInTable(table, valuesForInsertCommand);
         database.loadTableToDatabase(table);
@@ -278,11 +281,11 @@ public class DatabaseManager {
 
     public boolean interpretSelect() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            return false;
+            throw new RuntimeException("Database doesn't exist: try USE command?");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToSelect)) {
-            return false;
+            throw new RuntimeException("Selected table doesn't exist");
         }
         Table selectedTableObject = database.getTableObjectFromDatabaseFromName(tableToSelect);
         if (hasAsterisk && !hasCondition) {
@@ -339,7 +342,7 @@ public class DatabaseManager {
         //this code assumes only one attribute name to search for, but the grammar allows for a list
         int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
         if(columnIndex == -1){
-            return false;
+            throw new RuntimeException("Attribute not in table");
         }
         ArrayList<Integer> listOfRows = interpretSelectCondition(selectedTableObject);
         selectResponse = selectedTableObject.valuesInColumnToString(selectedTableObject, listOfRows, columnIndex);

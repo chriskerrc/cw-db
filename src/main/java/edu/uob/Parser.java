@@ -29,53 +29,49 @@ public class Parser {
     //convert each method to private apart from the top one, and change testing strategy
 
     //is there a simpler/less redundant way of doing this? I'm passing strings between multiple levels of functions?
-    public String parseCommand(ArrayList<String> tokens){
+    public String parseCommand(ArrayList<String> tokens) throws Exception{
         Parser p = new Parser(tokens);
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         try {
-            if(Objects.equals(p.isCommand(tokens), "CREATE_DATABASE")){
-                if(databaseManager.interpretCreateDatabase()) {
+            if (Objects.equals(p.isCommand(tokens), "CREATE_DATABASE")) {
+                if (databaseManager.interpretCreateDatabase()) {
                     return "CREATE_DATABASE";
                 }
             }
-            if(Objects.equals(p.isCommand(tokens), "USE")){
-                if(databaseManager.interpretUseDatabase()){
+            if (Objects.equals(p.isCommand(tokens), "USE")) {
+                if (databaseManager.interpretUseDatabase()) {
                     return "USE";
                 }
             }
-            if(Objects.equals(p.isCommand(tokens), "CREATE_TABLE")){
-                if(databaseManager.interpretCreateTable()){
+            if (Objects.equals(p.isCommand(tokens), "CREATE_TABLE")) {
+                if (databaseManager.interpretCreateTable()) {
                     return "CREATE_TABLE";
                 }
             }
-            if(Objects.equals(p.isCommand(tokens), "INSERT")){
-                if(databaseManager.interpretInsert()){
+            if (Objects.equals(p.isCommand(tokens), "INSERT")) {
+                if (databaseManager.interpretInsert()) {
                     return "INSERT";
                 }
             }
-            if(Objects.equals(p.isCommand(tokens), "SELECT")){
-                if(databaseManager.interpretSelect()){
+            if (Objects.equals(p.isCommand(tokens), "SELECT")) {
+                if (databaseManager.interpretSelect()) {
                     return "SELECT";
                 }
-                //return databaseManager.interpretSelect();
+                throw new RuntimeException("No matching command found");
             }
-            if(Objects.equals(p.isCommand(tokens), "INVALID")){
-                return "INVALID";
-            }
-        } catch (RuntimeException | IOException exception){
-            System.err.println("Error: " + exception.getMessage()); //not sure if this is right thing to do
-            return "INVALID";
+            throw new RuntimeException("Failed to interpret");
+        } catch (Exception exception) {
+            throw new Exception(exception.getMessage());
         }
-        return "INVALID";
     }
 
     //Commands
 
 
-    public String isCommand(ArrayList<String> tokens) throws IOException {
+    public String isCommand(ArrayList<String> tokens) throws Exception {
         String command = "";
         if(Objects.equals(isCommandType(tokens), "INVALID")){
-            throw new RuntimeException("Invalid Command");
+            throw new RuntimeException("Failed to parse");
         }
         if(Objects.equals(isCommandType(tokens), "USE")){
             command = "USE";
@@ -92,9 +88,15 @@ public class Parser {
         if(Objects.equals(isCommandType(tokens), "SELECT")){
             command = "SELECT";
         }
+        if (currentWord >= tokens.size()) {
+            throw new Exception("Invalid Command: missing command arguments");
+        }
         incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, ";")){
-            throw new RuntimeException("Invalid Command: missing semi-colon?");
+        if (currentWord >= tokens.size()) {
+            throw new Exception("Invalid Command: missing semi-colon or arguments?");
+        }
+        if (!currentWordMatches(tokens, ";")){
+            throw new Exception("Invalid Command: missing semi-colon or arguments?");
         }
         return command;
     }
