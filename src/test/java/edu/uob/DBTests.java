@@ -45,8 +45,36 @@ public class DBTests {
         assertTrue(response.contains("65"));
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("50"));
-        //need an after each method to delete database directory with table files in it
+        //make this after each?
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
+
+    @Test
+    public void testSelectAsteriskWhereAttributeDoesNotEqualValue() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE name != 'Simon';");
+        System.out.println(response);
+        assertTrue(response.contains("id"));
+        assertTrue(response.contains("name"));
+        assertTrue(response.contains("'Chris'"));
+        assertTrue(response.contains("38"));
+        assertTrue(response.contains("'Finn'"));
+        assertTrue(response.contains("70"));
+        assertFalse(response.contains("'Simon'"));
+        assertFalse(response.contains("65"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));    }
 
     @Test
     public void testSelectAsteriskNoCondition() throws IOException {
@@ -64,8 +92,39 @@ public class DBTests {
         assertTrue(response.contains("65"));
         assertTrue(response.contains("'Chris'"));
         assertTrue(response.contains("50"));
-        //need an after each method to delete database directory with table files in it
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
 
+    }
+
+    @Test
+    public void testQueryIDDoesNotEqualMultipleResults() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Simon', 50, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
+        String response = sendCommandToServer("SELECT id FROM marks WHERE name != 'Chris';");
+        System.out.println(response);
+        // Convert multi-lined responses into just a single line
+        String singleLine = response.replace("\n"," ").trim();
+        // Split the line on the space character
+        String[] tokens = singleLine.split(" ");
+        // Check that the very last token is a number (which should be the ID of the entry)
+        String lastToken = tokens[tokens.length-1];
+        try {
+            Integer.parseInt(lastToken);
+        } catch (NumberFormatException nfe) {
+            fail("The last token returned by `SELECT id FROM marks WHERE name == 'Simon';` should have been an integer ID, but was " + lastToken);
+        }
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
 

@@ -223,95 +223,95 @@ public class DatabaseManager {
 
     //after server restart, Use database returns error: suggests it's not loading files
     public boolean interpretUseDatabase() throws IOException {
-        if(databaseObjectAlreadyExists(databaseInUse)){
-            setDatabaseInUse(databaseInUse);
-            Database database = getDatabaseObjectFromName(databaseInUse);
-            String[] filesList = database.getFilesInDatabaseFolder(databaseInUse);
-            if(filesList != null) {
-                database.loadAllTablesInFolderToDatabaseObject(filesList);
-            }
-            return true;
-        }
-        else{
+        if(!databaseObjectAlreadyExists(databaseInUse)) {
             return false;
         }
-    }
-
-    public boolean interpretCreateTable() throws IOException{
-        if(databaseObjectAlreadyExists(databaseInUse)){
-            Database database = getDatabaseObjectFromName(databaseInUse);
-            ArrayList<String> values = attributeNamesForCreateTable;
-            if(database.tableExistsInDatabase(tableToCreate)){
-                return false;
-            }
-            Table newTable = new Table();
-            newTable.setTableName(tableToCreate);
-            if(!isAttributeListForCreateTable){
-                //this method also writes the table to file:
-                newTable.createTableNoValues(tableToCreate);
-            }
-            else{
-                newTable.createTableWithValues(tableToCreate, values);
-            }
-            database.loadTableToDatabase(newTable);
+        setDatabaseInUse(databaseInUse);
+        Database database = getDatabaseObjectFromName(databaseInUse);
+        String[] filesList = database.getFilesInDatabaseFolder(databaseInUse);
+        if(filesList != null) {
+            database.loadAllTablesInFolderToDatabaseObject(filesList);
             return true;
-
-            //newTable.writeTableToFile(tableToCreate);
         }
         return false;
     }
 
+    public boolean interpretCreateTable() throws IOException{
+        if(!databaseObjectAlreadyExists(databaseInUse)) {
+            return false;
+        }
+        Database database = getDatabaseObjectFromName(databaseInUse);
+        ArrayList<String> values = attributeNamesForCreateTable;
+        if(database.tableExistsInDatabase(tableToCreate)){
+            return false;
+        }
+        Table newTable = new Table();
+        newTable.setTableName(tableToCreate);
+        if(!isAttributeListForCreateTable){
+            newTable.createTableNoValues(tableToCreate); //this method also writes the table to file:
+        }
+        else{
+            newTable.createTableWithValues(tableToCreate, values);
+        }
+        database.loadTableToDatabase(newTable);
+        return true;
+    }
+
     public boolean interpretInsert() throws IOException{
-        if(databaseObjectAlreadyExists(databaseInUse)) {
-            Database database = getDatabaseObjectFromName(databaseInUse);
-            if (database.tableExistsInDatabase(tableToInsertInto)) {
-                Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
-                table.insertValuesInTable(table, valuesForInsertCommand);
-                database.loadTableToDatabase(table);
-                return table.writeTableToFile(tableToInsertInto, true);
-            }
+        if(!databaseObjectAlreadyExists(databaseInUse)) {
+            return false;
+        }
+        Database database = getDatabaseObjectFromName(databaseInUse);
+        if (database.tableExistsInDatabase(tableToInsertInto)) {
+            Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
+            table.insertValuesInTable(table, valuesForInsertCommand);
+            database.loadTableToDatabase(table);
+            return table.writeTableToFile(tableToInsertInto, true);
         }
         return false;
     }
 
     public boolean interpretSelect() throws IOException{
-        if(databaseObjectAlreadyExists(databaseInUse)) {
-            Database database = getDatabaseObjectFromName(databaseInUse);
-            if (database.tableExistsInDatabase(tableToSelect)) {
-                Table selectedTableObject = database.getTableObjectFromDatabaseFromName(tableToSelect);
-                if (hasAsterisk && !hasCondition) {
-                    ArrayList<Integer> listOfRows = selectedTableObject.populateListOfRowsForWholeTable();
-                    selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
-                    return true;
-                }
-                if (hasAsterisk && hasCondition) {
-                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(selectedTableObject);
-                    selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
-                    return true;
-                }
-                if(!hasAsterisk && hasCondition) {
-                    //this code assumes only one attribute name to search for, but the grammar allows for a list
-                    int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
-                    ArrayList<Integer> listOfRows = interpretSelectAsteriskCondition(selectedTableObject);
-                    selectResponse = selectedTableObject.valuesInColumnToString(selectedTableObject, listOfRows, columnIndex);
-                    return true;
-                }
-                //account for case where no asterisk and yes condition e.g. "SELECT id FROM marks WHERE pass == FALSE;"
-            }
+        if(!databaseObjectAlreadyExists(databaseInUse)) {
+            return false;
+        }
+        Database database = getDatabaseObjectFromName(databaseInUse);
+        if (!database.tableExistsInDatabase(tableToSelect)) {
+            return false;
+        }
+        Table selectedTableObject = database.getTableObjectFromDatabaseFromName(tableToSelect);
+        if (hasAsterisk && !hasCondition) {
+            handleSelectCommandAsteriskNoCondition(selectedTableObject);
+            return true;
+        }
+        if (hasAsterisk && hasCondition) {
+            handleSelectCommandAsteriskCondition(selectedTableObject);
+            return true;
+        }
+        if(!hasAsterisk && hasCondition) {
+            handleSelectCommandNoAsteriskCondition(selectedTableObject);
+            return true;
         }
         return false;
     }
 
     //"SELECT * FROM marks WHERE name == 'Simon';"
     //display all rows from table marks where AttributeName Comparator Value
-    private ArrayList<Integer> interpretSelectAsteriskCondition(Table table) {
+    private ArrayList<Integer> interpretSelectCondition(Table table) {
         ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
-        //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
         int columnIndex = table.getIndexAttributeName(conditionAttributeName);
-        rowsToIncludeInSelectResponse = table.getRowsValueIsIn(columnIndex, conditionValue);
+        ArrayList<Integer> rowsValueIsIn = table.getRowsValueIsIn(columnIndex, conditionValue);
+        if(Objects.equals(conditionComparator, "==")) {
+            rowsToIncludeInSelectResponse = rowsValueIsIn;
+        }
+        if(Objects.equals(conditionComparator, "!=")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueIsNotIn(rowsValueIsIn);
+        }
+        //add other comparator branches
         return rowsToIncludeInSelectResponse;
     }
 
+    //this method isn't currently used
     private ArrayList<Integer> interpretSelectAttributeListCondition(Table table) {
         ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
         //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
@@ -320,9 +320,23 @@ public class DatabaseManager {
         return rowsToIncludeInSelectResponse;
     }
 
+    //wrapper methods
+    private void handleSelectCommandAsteriskNoCondition(Table selectedTableObject) {
+        ArrayList<Integer> listOfRows = selectedTableObject.populateListOfRowsForWholeTable();
+        selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
+    }
 
+    private void handleSelectCommandAsteriskCondition(Table selectedTableObject) {
+        ArrayList<Integer> listOfRows = interpretSelectCondition(selectedTableObject);
+        selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
+    }
 
-
+    private void handleSelectCommandNoAsteriskCondition(Table selectedTableObject) {
+        //this code assumes only one attribute name to search for, but the grammar allows for a list
+        int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
+        ArrayList<Integer> listOfRows = interpretSelectCondition(selectedTableObject);
+        selectResponse = selectedTableObject.valuesInColumnToString(selectedTableObject, listOfRows, columnIndex);
+    }
 
 
     //when running tests, consider zeroing out the attributes in this class after every scenario

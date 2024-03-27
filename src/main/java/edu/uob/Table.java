@@ -307,6 +307,7 @@ public class Table {
         return -1;
     }
 
+    //reduce repeated code across these two methods
     public ArrayList<Integer> getRowsValueIsIn(int columnIndex, String conditionValue){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();
@@ -320,6 +321,21 @@ public class Table {
         }
         return rowsToInclude;
     }
+
+    public ArrayList<Integer> getRowsValueIsNotIn(ArrayList<Integer> rowsValueIsIn){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<Integer> rowsToInclude = new ArrayList<>();
+        int totalRows = dataStructure.size();
+        int row = 1; //skip header row
+        while(row < totalRows){
+            if(!rowsValueIsIn.contains(row)){
+                rowsToInclude.add(row);
+            }
+            row++;
+        }
+        return rowsToInclude;
+    }
+
 
 
 }
