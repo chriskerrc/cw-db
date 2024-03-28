@@ -338,6 +338,44 @@ public class Table {
         return rowsToInclude;
     }
 
+    public ArrayList<Integer> getRowsValueGreaterOrLessThan(int columnIndex) {
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        String conditionValue = databaseManager.getConditionValue();
+       // String conditionAttributeName = databaseManager.getConditionAttributeName();
+        String conditionComparator = databaseManager.getConditionComparator();
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<Integer> rowsToInclude = new ArrayList<>();
+        int totalRows = dataStructure.size();
+        int row = 1; //skip header row
+        while (row < totalRows) {
+            if (Objects.equals(conditionComparator, ">")) {
+                if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) > Integer.parseInt(conditionValue)) {
+                    System.out.println("test value " + Integer.parseInt(dataStructure.get(row).get(columnIndex)));
+                    System.out.println("condition value " + Integer.parseInt(conditionValue));
+                    rowsToInclude.add(row);
+                }
+            }
+            if (Objects.equals(conditionComparator, "<")) {
+                if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) < Integer.parseInt(conditionValue)) {
+                    rowsToInclude.add(row);
+                }
+            }
+            if (Objects.equals(conditionComparator, ">=")) {
+                if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) >= Integer.parseInt(conditionValue)) {
+                    rowsToInclude.add(row);
+                }
+            }
+            if (Objects.equals(conditionComparator, "<=")) {
+                if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) <= Integer.parseInt(conditionValue)) {
+                    rowsToInclude.add(row);
+                }
+            }
+            row++;
+        }
+        return rowsToInclude;
+    }
+
+
     public int getNumberColumnsTable(){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> columnHeaderRow = dataStructure.get(0);

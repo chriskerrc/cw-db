@@ -303,6 +303,7 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //the following two tests should work
     @Test
     public void testDatabaseNamesAreCaseInsensitive() throws IOException {
         String randomName = generateRandomName();
@@ -418,7 +419,40 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //check program compiles on command line and merge to main
+    @Test
+    public void testSelectComparators() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT name FROM marks WHERE mark>60;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        assertFalse(response.contains("'Fred'"));
+        assertFalse(response.contains("'Bob'"));
+        response = sendCommandToServer("SELECT name FROM marks WHERE mark<60;");
+        assertTrue(response.contains("[OK]"));
+        assertFalse(response.contains("'Chris'"));
+        assertTrue(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        response = sendCommandToServer("SELECT name FROM marks WHERE mark>=40;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        assertFalse(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        response = sendCommandToServer("SELECT name FROM marks WHERE mark<=40;");
+        assertTrue(response.contains("[OK]"));
+        assertFalse(response.contains("'Chris'"));
+        assertTrue(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
 
 
 

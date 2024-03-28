@@ -317,7 +317,19 @@ public class DatabaseManager {
         if(Objects.equals(conditionComparator, "!=")) {
             rowsToIncludeInSelectResponse = table.getRowsValueIsNotIn(rowsValueIsIn);
         }
-        //add other comparator branches
+        if(Objects.equals(conditionComparator, ">")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
+        }
+        if(Objects.equals(conditionComparator, "<")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
+        }
+        if(Objects.equals(conditionComparator, ">=")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
+        }
+        if(Objects.equals(conditionComparator, "<=")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
+        }
+        //add LIKE
         return rowsToIncludeInSelectResponse;
     }
 
@@ -357,6 +369,18 @@ public class DatabaseManager {
         Set<String> set = new HashSet<>(attributeList);
         //if the Set is smaller than the ArrayList, there are duplicates in the ArrayList
         return set.size() < attributeList.size();
+    }
+
+    public String getConditionValue() {
+        return conditionValue;
+    }
+
+    public String getConditionAttributeName() {
+        return conditionAttributeName;
+    }
+
+    public String getConditionComparator() {
+        return conditionComparator;
     }
 
 

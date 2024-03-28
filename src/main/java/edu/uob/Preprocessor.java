@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 public class Preprocessor {
 
-    String[] specialCharacters = {"(",")",",",";"};
+    String[] specialCharacters = {"(",")",",",";",">","<"};
     ArrayList<String> tokens = new ArrayList<String>();
 
     public Preprocessor(String query) {
@@ -36,13 +36,21 @@ public class Preprocessor {
         // Add in some extra padding spaces around the "special characters"
         // so we can be sure that they are separated by AT LEAST one space (possibly more)
         for (String specialCharacter : specialCharacters) {
-            input = input.replace(specialCharacter, " " + specialCharacter + " ");
+                input = input.replace(specialCharacter, " " + specialCharacter + " ");
         }
+
+       // input = input.replace(temporaryToken, ">=");
         // Remove all double spaces (the previous replacements may had added some)
         // This is "blind" replacement - replacing if they exist, doing nothing if they don't
         while (input.contains("  ")) input = input.replaceAll("  ", " ");
         // Again, remove any whitespace from the beginning and end that might have been introduced
         input = input.trim();
+        //fix comparators
+        input = input.replace("> =", ">=");
+        input = input.replace("< =", "<=");
+        //add a space after >= and <= where they're not already followed by a space
+        input = input.replaceAll(">=(?! )", ">= ");
+        input = input.replaceAll("<=(?! )", "<= ");
         // Finally split on the space char (since there will now ALWAYS be a space between tokens)
         return input.split(" ");
     }
