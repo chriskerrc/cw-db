@@ -16,8 +16,6 @@ public class Database {
 
     private ArrayList<Table> tablesInDatabase = new ArrayList<>();
 
-    private int databaseIndex;
-
     public Database(){
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
@@ -84,14 +82,6 @@ public class Database {
         return false;
     }
 
-    public void setDatabaseIndex(Database database, int databaseIndex){
-        database.databaseIndex = databaseIndex;
-    }
-
-    public int getDatabaseIndex(Database database){
-        return database.databaseIndex;
-    }
-
     public void loadTableToDatabase(Table table){
         tablesInDatabase.add(table);
     }
@@ -104,22 +94,6 @@ public class Database {
             loadTableToDatabase(table);
         }
     }
-/*
-    public Table getTableFromDatabase(String tableName){
-        //
-        return table;
-    }
-*/
-    public void removeTableFromListCurrentTables(String tableName){
-        Iterator<Table> iterator = tablesInDatabase.iterator();
-        while(iterator.hasNext()){
-            Table table = iterator.next();
-            if(Objects.equals(table.getTableName(), tableName)){
-                iterator.remove();
-                break;
-            }
-        }
-    }
 
     public String getDatabaseName(){
         return databaseName;
@@ -128,7 +102,6 @@ public class Database {
     public void setDatabaseName(String newDatabaseName){
         databaseName = newDatabaseName;
     }
-
 
     public String[] getFilesInDatabaseFolder(String databaseName){
         String lowercaseDatabaseName = databaseName.toLowerCase();
@@ -149,10 +122,6 @@ public class Database {
             return fileNames;
         }
         return null;
-    }
-
-    public ArrayList<Table> getTablesInDatabase(){
-        return tablesInDatabase;
     }
 
     public boolean tableExistsInDatabase(String tableName){

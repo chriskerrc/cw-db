@@ -45,7 +45,7 @@ public class Preprocessor {
         while (input.contains("  ")) input = input.replaceAll("  ", " ");
         // Again, remove any whitespace from the beginning and end that might have been introduced
         input = input.trim();
-        //fix comparators
+        //Ensure composite comparator are kept together
         input = input.replace("> =", ">=");
         input = input.replace("< =", "<=");
         //add a space after >= and <= where they're not already followed by a space

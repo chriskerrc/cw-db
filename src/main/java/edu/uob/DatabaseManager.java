@@ -55,15 +55,6 @@ public class DatabaseManager {
         databasesList.add(database);
         return databasesList.indexOf(database);
     }
-/*
-//I don't think it's necessary to store "active database" index, should be enough to search by name
-    public Database getActiveDatabase(int activeDatabaseIndex){
-        return databasesList.get(activeDatabaseIndex);
-    }
-*/
-    public int generateNewDatabaseIndex(){
-        return databasesList.size(); //check that this provides the correct index (avoid off by one error)
-    }
 
     public Database getDatabaseObjectFromName(String databaseName){
         for (Database database : databasesList) {
@@ -92,11 +83,6 @@ public class DatabaseManager {
         return false;
     }
 
-
-    public ArrayList<Database> getDatabasesList(){
-        return databasesList;
-    }
-
     public void setDatabaseInUse(String databaseName){
         databaseInUse = databaseName;
     }
@@ -113,24 +99,8 @@ public class DatabaseManager {
         selectAttribute = attribute;
     }
 
-    public String getDatabaseToCreate(){
-        return databaseToCreate;
-    }
-
     public void setTableToSelect(String tableName){
         tableToSelect = tableName;
-    }
-
-    public String getTableToSelect(){
-        return tableToSelect;
-    }
-
-    public boolean getIsAttributeListForCreateTable(){
-        return isAttributeListForCreateTable;
-    }
-
-    public ArrayList<String> getAttributeNamesForCreateTable(){
-        return attributeNamesForCreateTable;
     }
 
     public void setAttributeNamesForCreateTable(ArrayList<String> attributeList){
@@ -146,16 +116,8 @@ public class DatabaseManager {
         isAttributeListForCreateTable = isAttributeList;
     }
 
-    public String getNameTableToCreate(){
-        return tableToCreate;
-    }
-
     public void setNameTableToCreate(String newTableName){
         tableToCreate = newTableName;
-    }
-
-    public String getNameTableToInsertInto(){
-        return tableToInsertInto;
     }
 
     public void setSelectAsterisk(boolean value){
@@ -166,21 +128,12 @@ public class DatabaseManager {
         hasCondition = value;
     }
 
-
-    public boolean getSelectAsterisk(){
-        return hasAsterisk;
-    }
-
     public void setNameTableToInsertInto(String tableName){
         tableToInsertInto = tableName;
     }
 
     public String getSelectResponse(){
         return selectResponse;
-    }
-
-    public void setSelectResponse(String responseInput){
-        selectResponse = responseInput;
     }
 
     public void clearDatabasesList(){
@@ -333,14 +286,6 @@ public class DatabaseManager {
         return rowsToIncludeInSelectResponse;
     }
 
-    //this method isn't currently used
-    private ArrayList<Integer> interpretSelectAttributeListCondition(Table table) {
-        ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
-        //for now just doing == case (need logic to switch between these cases, based on conditionComparator)
-        int columnIndex = table.getIndexAttributeName(conditionAttributeName);
-        rowsToIncludeInSelectResponse = table.getRowsValueIsIn(columnIndex, conditionValue);
-        return rowsToIncludeInSelectResponse;
-    }
 
     //wrapper methods
     private void handleSelectCommandAsteriskNoCondition(Table selectedTableObject) {
@@ -373,10 +318,6 @@ public class DatabaseManager {
 
     public String getConditionValue() {
         return conditionValue;
-    }
-
-    public String getConditionAttributeName() {
-        return conditionAttributeName;
     }
 
     public String getConditionComparator() {

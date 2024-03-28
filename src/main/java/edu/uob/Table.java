@@ -66,23 +66,6 @@ public class Table {
         return fileToOpen.exists();
     }
 
-    public void readFileToConsole(String fileName) throws IOException {
-        if(doesFileExist(fileName)) {
-            File fileToOpen = new File(filePath + fileName);
-            FileReader reader = new FileReader(fileToOpen);
-            BufferedReader buffReader = new BufferedReader(reader);
-            String line;
-            while ((line = buffReader.readLine()) != null) {
-                System.out.println(line);
-            }
-            buffReader.close();
-        }
-        else{
-            throw new IOException("File doesn't exist");
-            //create file instead
-        }
-    }
-
     public Table storeNamedFileToTableObject(String fileName) throws IOException{
             File fileToOpen = new File(this.filePath + fileName + this.fileExtension);
             if(fileToOpen.exists()){
@@ -101,7 +84,6 @@ public class Table {
                 throw new IOException("File doesn't exist purple raspberry");
                 //create file instead
             }
-        //System.out.println(this.filePath + fileName + this.fileExtension);
 
         return this;
     }
@@ -117,30 +99,16 @@ public class Table {
         return row;
     }
 
-    //need somewhere to store current table names
-    public void incrementAgeInExampleTableInDataStructure(){
-
-    }
 
     public ArrayList<ArrayList<String>> getTableDataStructure(){
         //System.out.println(this.table);
         return this.tableDataStructure;
     }
 
-    public void setTableDataStructure(ArrayList<ArrayList<String>> dataStructure){
-        //
-    }
-
     public String getTableCellValueFromDataStructure(int row, int column) {
         //check it's in bounds
         ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
         return tableDataStructure.get(row).get(column);
-    }
-
-    public void setTableCellValueInDataStructure(int row, int column, String input){
-        //check it's in bounds
-        ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
-        tableDataStructure.get(row).set(column, input);
     }
 
     public void createTableNoValues(String tableName) throws IOException {
@@ -397,19 +365,6 @@ public class Table {
         }
         return token.contains(conditionValue);
     }
-
-    private String removeSingleQuotesFromString(String input){
-        if(input.isEmpty()){
-            return "";
-        }
-        if(input.length() > 2 && input.startsWith("'") && input.endsWith("'")) { //magic number
-            return input.substring(1, input.length() - 1);
-        }
-        else{
-            return null;
-        }
-    }
-
 
     public int getNumberColumnsTable(){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
