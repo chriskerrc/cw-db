@@ -219,7 +219,8 @@ public class Table {
     }
 
     public boolean writeTableToFile(String tableName, boolean tableExists) throws IOException { //long method
-        File tableFile = new File(filePath + tableName + fileExtension);
+        String lowercaseTableName = tableName.toLowerCase();
+        File tableFile = new File(filePath + lowercaseTableName + fileExtension);
         if(!tableExists) {
             if (!tableFile.createNewFile()) {
                 return false;
@@ -341,7 +342,6 @@ public class Table {
     public ArrayList<Integer> getRowsValueGreaterOrLessThan(int columnIndex) {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         String conditionValue = databaseManager.getConditionValue();
-       // String conditionAttributeName = databaseManager.getConditionAttributeName();
         String conditionComparator = databaseManager.getConditionComparator();
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();
@@ -373,6 +373,41 @@ public class Table {
             row++;
         }
         return rowsToInclude;
+    }
+
+    public ArrayList<Integer> getRowsValueLike(int columnIndex){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<Integer> rowsToInclude = new ArrayList<>();
+        int totalRows = dataStructure.size();
+        int row = 1; //skip header row
+        while(row < totalRows){
+            if(stringContainsCharacter(dataStructure.get(row).get(columnIndex))){
+                rowsToInclude.add(row);
+            }
+            row++;
+        }
+        return rowsToInclude;
+    }
+
+    public boolean stringContainsCharacter(String token) {
+    DatabaseManager databaseManager = DatabaseManager.getInstance();
+    String conditionValue = databaseManager.getConditionValue();
+        if(conditionValue.length() > 2 && conditionValue.startsWith("'") && conditionValue.endsWith("'")) { //magic number
+            conditionValue =  conditionValue.substring(1, conditionValue.length() - 1);
+        }
+        return token.contains(conditionValue);
+    }
+
+    private String removeSingleQuotesFromString(String input){
+        if(input.isEmpty()){
+            return "";
+        }
+        if(input.length() > 2 && input.startsWith("'") && input.endsWith("'")) { //magic number
+            return input.substring(1, input.length() - 1);
+        }
+        else{
+            return null;
+        }
     }
 
 

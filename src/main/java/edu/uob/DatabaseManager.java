@@ -305,8 +305,6 @@ public class DatabaseManager {
         return false;
     }
 
-    //"SELECT * FROM marks WHERE name == 'Simon';"
-    //display all rows from table marks where AttributeName Comparator Value
     private ArrayList<Integer> interpretSelectCondition(Table table) {
         ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
         int columnIndex = table.getIndexAttributeName(conditionAttributeName);
@@ -329,7 +327,9 @@ public class DatabaseManager {
         if(Objects.equals(conditionComparator, "<=")) {
             rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
         }
-        //add LIKE
+        if(Objects.equals(conditionComparator, "LIKE")) {
+            rowsToIncludeInSelectResponse = table.getRowsValueLike(columnIndex);
+        }
         return rowsToIncludeInSelectResponse;
     }
 

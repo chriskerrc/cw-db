@@ -303,7 +303,6 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //the following two tests should work
     @Test
     public void testDatabaseNamesAreCaseInsensitive() throws IOException {
         String randomName = generateRandomName();
@@ -319,11 +318,12 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory("cars"));
     }
 
+    //the following test should work
     @Test
     public void testTableNamesAreCaseInsensitive() throws IOException {
         String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE DATABASE markbook;");
+        sendCommandToServer("USE markbook;");
         sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
         //try to create table with same name but different case
         String response = sendCommandToServer("CREATE TABLE MaRkS;");
@@ -339,7 +339,7 @@ public class DBTests {
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));
+        assertTrue(database.deleteDatabaseDirectory("markbook"));
     }
 
     //this test fails: seems to be reading directory name as uppercase (not sure why)
@@ -420,7 +420,7 @@ public class DBTests {
     }
 
     @Test
-    public void testSelectComparators() throws IOException {
+    public void testSelectAttributeComparators() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -448,6 +448,109 @@ public class DBTests {
         assertFalse(response.contains("'Chris'"));
         assertTrue(response.contains("'Fred'"));
         assertTrue(response.contains("'Bob'"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testSelectAsteriskComparators() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE mark>60;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        assertTrue(response.contains("61"));
+        assertTrue(response.contains("TRUE"));
+        assertTrue(response.contains("1"));
+        assertFalse(response.contains("'Fred'"));
+        assertFalse(response.contains("'Bob'"));
+        response = sendCommandToServer("SELECT * FROM marks WHERE mark<60;");
+        assertTrue(response.contains("[OK]"));
+        assertFalse(response.contains("'Chris'"));
+        assertTrue(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        assertTrue(response.contains("30"));
+        assertTrue(response.contains("40"));
+        assertTrue(response.contains("FALSE"));
+        assertTrue(response.contains("2"));
+        assertTrue(response.contains("3"));
+        response = sendCommandToServer("SELECT * FROM marks WHERE mark>=40;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        assertFalse(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        assertTrue(response.contains("61"));
+        assertTrue(response.contains("TRUE"));
+        assertTrue(response.contains("1"));
+        assertTrue(response.contains("40"));
+        assertTrue(response.contains("FALSE"));
+        response = sendCommandToServer("SELECT * FROM marks WHERE mark<=40;");
+        assertTrue(response.contains("[OK]"));
+        assertFalse(response.contains("'Chris'"));
+        assertTrue(response.contains("'Fred'"));
+        assertTrue(response.contains("'Bob'"));
+        assertTrue(response.contains("30"));
+        assertTrue(response.contains("40"));
+        assertTrue(response.contains("FALSE"));
+        assertTrue(response.contains("2"));
+        assertTrue(response.contains("3"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testSelectAsteriskLike() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'i';");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("61"));
+        assertTrue(response.contains("TRUE"));
+        assertTrue(response.contains("'Chris'"));
+        response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'o';");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("40"));
+        assertTrue(response.contains("FALSE"));
+        assertTrue(response.contains("'Bob'"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testSelectAttributeLike() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT mark FROM marks WHERE name LIKE 'i';");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("61"));
+        assertFalse(response.contains("TRUE"));
+        assertFalse(response.contains("'Chris'"));
+        response = sendCommandToServer("SELECT mark FROM marks WHERE name LIKE 'o';");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("40"));
+        assertFalse(response.contains("FALSE"));
+        assertFalse(response.contains("'Bob'"));
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();

@@ -40,13 +40,15 @@ public class Database {
     }
 
     public boolean deleteDatabaseDirectory(String databaseName) throws IOException {
-        if(isDirectoryEmpty(databaseName)){
-            File databaseFolder = new File(filePath + databaseName);
+        String lowercaseDatabaseName = databaseName.toLowerCase();
+        if(isDirectoryEmpty(lowercaseDatabaseName)){
+            File databaseFolder = new File(filePath + lowercaseDatabaseName);
             return databaseFolder.delete();
 
         }
         return false; //or throw error
     }
+
 
     public boolean deleteTableObject(String tableName) throws IOException {
         Iterator<Table> iterator = tablesInDatabase.iterator();
@@ -129,7 +131,8 @@ public class Database {
 
 
     public String[] getFilesInDatabaseFolder(String databaseName){
-        File directoryToOpen = new File(filePath + databaseName);
+        String lowercaseDatabaseName = databaseName.toLowerCase();
+        File directoryToOpen = new File(filePath + lowercaseDatabaseName);
         File[] listFiles = directoryToOpen.listFiles(new FilenameFilter() {
             public boolean accept(File directoryToOpen, String name) {
                 return name.toLowerCase().endsWith(".tab");
