@@ -396,7 +396,6 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //to do: this test fails
     @Test
     public void testColumnNameCaseIsPreservedWhenStored() throws IOException {
         String randomName = generateRandomName();

@@ -106,9 +106,14 @@ public class Table {
     }
 
     public String getTableCellValueFromDataStructure(int row, int column) {
-        //check it's in bounds
         ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
-        return tableDataStructure.get(row).get(column);
+        if(row >= 0 && row < tableDataStructure.size()){
+            ArrayList<String> rowList = tableDataStructure.get(row);
+            if(column >= 0 && column < rowList.size()){
+                return rowList.get(column);
+            }
+        }
+        return null;
     }
 
     public void createTableNoValues(String tableName) throws IOException {
@@ -271,7 +276,7 @@ public class Table {
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> tableHeader = dataStructure.get(0);
         for(int headerIndex = 0; headerIndex < tableHeader.size(); headerIndex++){
-            if(Objects.equals(tableHeader.get(headerIndex), attributeName)){
+            if(tableHeader.get(headerIndex).equalsIgnoreCase(attributeName)){
                 return headerIndex;
             }
         }

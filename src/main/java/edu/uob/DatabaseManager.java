@@ -195,8 +195,10 @@ public class DatabaseManager {
             throw new RuntimeException("Database doesn't exist? Try USE command");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
-        ArrayList<String> values = attributeNamesForCreateTable;
-        if(attributesDuplicated(values)){
+        ArrayList<String> valuesList = attributeNamesForCreateTable;
+        ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
+
+        if(attributesDuplicated(valuesList)){
             throw new RuntimeException("Column headers are duplicated?");
         }
         if(database.tableExistsInDatabase(tableToCreate)){
@@ -208,7 +210,7 @@ public class DatabaseManager {
             newTable.createTableNoValues(tableToCreate); //this method also writes the table to file:
         }
         else{
-            newTable.createTableWithValues(tableToCreate, values);
+            newTable.createTableWithValues(tableToCreate, valuesPreserveCase);
         }
         database.loadTableToDatabase(newTable);
         return true;
