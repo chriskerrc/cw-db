@@ -341,18 +341,18 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //this test fails: seems to be reading directory name as uppercase (not sure why)
     @Test
     public void testDatabaseNameSavedToFileAsLowercase() throws IOException {
-        String randomName = generateRandomName();
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         //create table with uppercase name
         sendCommandToServer("CREATE DATABASE UPPERCASE;");
-        //method to check that file is lowercase: to do
-
-        //make this after each?
-        Database database = new Database();
+        Database database = databaseManager.getDatabaseObjectFromName("UPPERCASE");
+        assertTrue(database.databaseDirectoryIsSavedAsLowercase("UPPERCASE"));
         assertTrue(database.deleteDatabaseDirectory("uppercase"));
     }
 
+    //to do: this test is unfinished
     @Test
     public void testTableNameSavedToFileAsLowercase() throws IOException {
         String randomName = generateRandomName();
@@ -370,6 +370,7 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //to do: this test fails
     @Test
     public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
         String randomName = generateRandomName();
@@ -394,6 +395,7 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //to do: this test fails
     @Test
     public void testColumnNameCaseIsPreservedWhenStored() throws IOException {
         String randomName = generateRandomName();
@@ -416,6 +418,7 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    //check program compiles on command line and merge to main
 
 
 

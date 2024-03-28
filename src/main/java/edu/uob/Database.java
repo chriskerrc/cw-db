@@ -26,12 +26,14 @@ public class Database {
     }
 
     public boolean doesDirectoryExist(String fileName) {
-        File fileToOpen = new File(filePath + databaseName);
+        String lowercaseDatabaseName = fileName.toLowerCase();
+        File fileToOpen = new File(filePath + lowercaseDatabaseName);
         return fileToOpen.exists();
     }
     public boolean createDatabaseDirectory(String databaseName){
         if(!doesDirectoryExist(databaseName)){
-            File databaseFolder = new File(filePath + databaseName);
+            String databaseNameLowercase = databaseName.toLowerCase();
+            File databaseFolder = new File(filePath + databaseNameLowercase);
             return databaseFolder.mkdir();
         }
         return false; //or throw error
@@ -66,6 +68,18 @@ public class Database {
             }//catch exception
         }
         return true;
+    }
+
+    public boolean databaseDirectoryIsSavedAsLowercase(String databaseName) throws IOException {
+        Path directoryPath = Path.of(filePath, databaseName);
+        if(doesDirectoryExist(databaseName)){
+            String directoryName = directoryPath.getFileName().toString();
+            System.out.println("directory Name " + directoryName);
+            String directoryNameToLowercase = directoryName.toLowerCase();
+            System.out.println("directory Name to lowercase " + directoryNameToLowercase);
+            return directoryName.equals(directoryNameToLowercase);
+        }
+        return false;
     }
 
     public void setDatabaseIndex(Database database, int databaseIndex){
