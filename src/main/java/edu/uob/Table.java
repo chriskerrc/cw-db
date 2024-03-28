@@ -248,6 +248,8 @@ public class Table {
         return true;
     }
 
+    //these two methods seem to add an extra blank line at the end of string: something to do with \n
+    //deeply nested method
     public String tableRowsToString (Table selectedTable, ArrayList<Integer> rowsToInclude){
         rowsToInclude.add(0, 0); //always include header row at start of list
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;

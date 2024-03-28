@@ -67,9 +67,10 @@ public class DBServer {
             if (Objects.equals(responseString, "SELECT")) {
                 return "[OK]" + "\n" + selectResponse;
             }
-            return "Failed to handle command";
-        } catch (Exception exception) {
-            return "[ERROR]: " + exception.getMessage();
+            //not sure if I need the error in this return statement: test to see what happens
+            return "[ERROR]: Failed to handle command";
+        } catch (Throwable throwable) {
+            return "[ERROR]: " + throwable.getMessage();
         }
     }
 

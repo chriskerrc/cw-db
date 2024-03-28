@@ -303,6 +303,119 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
+    @Test
+    public void testDatabaseNamesAreCaseInsensitive() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE cars;");
+        //try to use database of same name but different case
+        String response = sendCommandToServer("USE CaRs;");
+        assertTrue(response.contains("[OK]"));
+        //try to create database with the same name but different case
+        response = sendCommandToServer("CREATE DATABASE CARS;");
+        assertTrue(response.contains("[ERROR]"));
+        //make this after each?
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory("cars"));
+    }
+
+    @Test
+    public void testTableNamesAreCaseInsensitive() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        //try to create table with same name but different case
+        String response = sendCommandToServer("CREATE TABLE MaRkS;");
+        assertTrue(response.contains("[ERROR]"));
+        //insert into same table name, but with different case
+        response = sendCommandToServer("INSERT INTO mArKs VALUES ('chris', 50, TRUE);");
+        assertTrue(response.contains("[OK]"));
+        //select same table name, but with different case
+        response = sendCommandToServer("SELECT * FROM MARKS;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("50"));
+        //make this after each?
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testDatabaseNameSavedToFileAsLowercase() throws IOException {
+        String randomName = generateRandomName();
+        //create table with uppercase name
+        sendCommandToServer("CREATE DATABASE UPPERCASE;");
+        //method to check that file is lowercase: to do
+
+        //make this after each?
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory("uppercase"));
+    }
+
+    @Test
+    public void testTableNameSavedToFileAsLowercase() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        //create table with uppercase name
+        sendCommandToServer("CREATE TABLE MARKS (name, mark, pass);");
+
+        //method to check that file is lowercase: to do
+
+        //make this after each?
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        //create table with camelCase attribute names
+        sendCommandToServer("CREATE TABLE marks (studentName, studentMark, studentPasses);");
+        sendCommandToServer("INSERT INTO marks VALUES ('chris', 60, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('bob', 34, FALSE);");
+        //select with all lowercase column name
+        String response = sendCommandToServer("SELECT studentname FROM marks WHERE id == 1");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        //select with all uppercase column name
+        response = sendCommandToServer("SELECT STUDENTMARK FROM marks WHERE name == 'bob'");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("34"));
+        //make this after each?
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testColumnNameCaseIsPreservedWhenStored() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        //create table with camelCase attribute names
+        sendCommandToServer("CREATE TABLE marks (studentName, studentMark, studentPasses);");
+        sendCommandToServer("INSERT INTO marks VALUES ('chris', 60, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('bob', 34, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("[OK]"));
+        //check that case is preserved
+        assertTrue(response.contains("studentName"));
+        assertTrue(response.contains("studentMark"));
+        assertTrue(response.contains("studentPasses"));
+        //make this after each?
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
 
 
 

@@ -140,7 +140,7 @@ public class Database {
 
     public boolean tableExistsInDatabase(String tableName){
         for (Table table : tablesInDatabase) {
-            if (Objects.equals(table.getTableName(), tableName)) {
+            if (table.getTableName().equalsIgnoreCase(tableName)) {
                 return true;
             }
         }
@@ -149,7 +149,7 @@ public class Database {
 
     public Table getTableObjectFromDatabaseFromName(String tableName){
         for (Table table : tablesInDatabase) {
-            if (Objects.equals(table.getTableName(), tableName)) {
+            if (table.getTableName().equalsIgnoreCase(tableName)) {
                 return table;
             }
         }

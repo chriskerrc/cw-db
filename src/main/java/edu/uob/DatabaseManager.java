@@ -67,7 +67,7 @@ public class DatabaseManager {
 
     public Database getDatabaseObjectFromName(String databaseName){
         for (Database database : databasesList) {
-            if (Objects.equals(database.getDatabaseName(), databaseName)) {
+            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
                 return database;
             }
         }
@@ -85,7 +85,7 @@ public class DatabaseManager {
 
     public boolean databaseObjectAlreadyExists(String databaseName){
         for (Database database : databasesList) {
-            if (Objects.equals(database.getDatabaseName(), databaseName)) {
+            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
                 return true;
             }
         }
@@ -270,6 +270,9 @@ public class DatabaseManager {
             throw new RuntimeException("Trying to insert values into a table that doesn't exist?");
         }
         Table table = database.getTableObjectFromDatabaseFromName(tableToInsertInto);
+        if(table == null){
+            throw new RuntimeException("Table doesn't exist?");
+        }
         int numberOfColumns = table.getNumberColumnsTable();
         if(numberOfColumns != valuesForInsertCommand.size() + 1){ //add 1 to account for id column
             throw new RuntimeException("Attempting to insert wrong number of values?");
