@@ -318,7 +318,6 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory("cars"));
     }
 
-    //the following test should work
     @Test
     public void testTableNamesAreCaseInsensitive() throws IOException {
         String randomName = generateRandomName();
@@ -550,6 +549,126 @@ public class DBTests {
         assertTrue(response.contains("40"));
         assertFalse(response.contains("FALSE"));
         assertFalse(response.contains("'Bob'"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testSelectWithoutSemicolon() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'i'");
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("semi-colon"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    //This test fails
+    @Test
+    public void testSelectTableNotExist() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM crew WHERE name LIKE 'i'");
+        System.out.println(response);
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("table")); //message refers to missing semi-colon
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    //this test fails
+    @Test
+    public void testSelectAttributeNotInTable() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT height FROM marks WHERE name LIKE 'i'");
+        System.out.println(response);
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("attribute")); //message refers to missing semi-colon
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    //should not ERROR, just return column header row with no data
+    @Test
+    public void testSelectValidQueryNoMatches() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'z'");
+        System.out.println(response);
+        assertTrue(response.contains("[OK]")); //just return column header row with no data
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    //this test fails
+    @Test
+    public void testSelectCompareDifferentDataTypes() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE name>60;");
+        System.out.println(response);
+        assertTrue(response.contains("[OK]"));
+        //should return blank results
+
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    // SELECT * FROM marks WHERE (pass == FALSE)
+
+    @Test
+    public void testSelectBracketedCondition() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE (mark>60);");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("'Chris'"));
+        assertTrue(response.contains("61"));
+        assertTrue(response.contains("TRUE"));
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();

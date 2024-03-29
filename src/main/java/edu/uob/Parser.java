@@ -527,6 +527,11 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     public boolean isCondition(ArrayList<String> tokens){
         //Only works for this simple case for now: [AttributeName] <Comparator> [Value]
         DatabaseManager databaseManager = DatabaseManager.getInstance();
+        boolean isBracketedCondition = false;
+        if(currentWordMatches(tokens,"(")){
+            incrementCurrentWord(tokens);
+            isBracketedCondition = true;
+        }
         if(!isAttributeName(tokens)){
             return false;
         }
@@ -541,7 +546,11 @@ public boolean isInsertValueList(ArrayList<String> tokens){
             return false;
         }
         databaseManager.setConditionValue(getCurrentWordString());
-        return true;
+        if(!isBracketedCondition) {
+            return true;
+        }
+        incrementCurrentWord(tokens);
+        return currentWordMatches(tokens, ")");
     }
 
     //Helper methods
