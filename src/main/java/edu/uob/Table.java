@@ -56,11 +56,6 @@ public class Table {
 
      */
 
-    public void printStorageFolderPath(){
-        System.out.println(this.storageFolderPath);
-    }
-
-
     public boolean doesFileExist(String fileName) {
         File fileToOpen = new File(filePath + fileName + fileExtension);
         return fileToOpen.exists();
@@ -321,10 +316,9 @@ public class Table {
         int totalRows = dataStructure.size();
         int row = 1; //skip header row
         while (row < totalRows) {
+            try{ //try catch number format exceptions
             if (Objects.equals(conditionComparator, ">")) {
                 if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) > Integer.parseInt(conditionValue)) {
-                    System.out.println("test value " + Integer.parseInt(dataStructure.get(row).get(columnIndex)));
-                    System.out.println("condition value " + Integer.parseInt(conditionValue));
                     rowsToInclude.add(row);
                 }
             }
@@ -342,6 +336,9 @@ public class Table {
                 if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) <= Integer.parseInt(conditionValue)) {
                     rowsToInclude.add(row);
                 }
+            }
+            } catch (NumberFormatException exception) {
+                return new ArrayList<>(); //return empty ArrayList so no data rows included in response
             }
             row++;
         }

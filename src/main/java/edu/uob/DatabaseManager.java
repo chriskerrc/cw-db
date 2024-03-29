@@ -303,6 +303,7 @@ public class DatabaseManager {
     private boolean handleSelectCommandNoAsteriskCondition(Table selectedTableObject) {
         //this code assumes only one attribute name to search for, but the grammar allows for a list
         int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
+        System.out.println(columnIndex);
         if(columnIndex == -1){
             throw new RuntimeException("Attribute not in table");
         }

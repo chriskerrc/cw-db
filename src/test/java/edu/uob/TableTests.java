@@ -37,12 +37,6 @@ public class TableTests {
         table.storeFileToDataStructure(fileName);
     }
 */
-    //temporary method
-    @Test
-    public void testPrintStorageFolderPath(){
-        Table table = new Table();
-        table.printStorageFolderPath();
-    }
 
     //the next three tests don't work because they assumed that there was a file called people.tab in the root of the databases folder
     /*
