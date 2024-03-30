@@ -14,19 +14,6 @@ public class Parser {
         this.tokenisedList = tokens;
     }
 
-    //maybe use error tags for error messages? And throw errors from every small method not just from the top
-    //ensure that arbitrary additional whitespace is handled
-
-    //I need to catch these runtime exceptions somewhere so they're not passed onto the user
-    //Could I use for each to avoid repeated line "String currentToken ..."
-
-    //Replace Objects.equals ... with currentWordMatches method
-
-
-    //need to update return value of parseCommand method for select, because Select needs to
-    //return more than just binary [OK] or [ERROR]
-
-    //convert each method to private apart from the top one, and change testing strategy
 
     //is there a simpler/less redundant way of doing this? I'm passing strings between multiple levels of functions?
     public String parseCommand(ArrayList<String> tokens) throws Exception{
@@ -59,7 +46,7 @@ public class Parser {
                 }
                 throw new RuntimeException("No matching command found");
             }
-            throw new RuntimeException("Failed to interpret");
+            throw new RuntimeException("Failed to parse");
         } catch (Exception exception) {
             throw new Exception(exception.getMessage());
         }
@@ -100,7 +87,7 @@ public class Parser {
         }
         return command;
     }
-    public String isCommandType(ArrayList<String> tokens) throws IOException {
+    private String isCommandType(ArrayList<String> tokens) throws IOException {
         setCurrentWord(0); //absence of this line broke parsing of USE 
         if(isUse(tokens)){
             return "USE";
@@ -122,7 +109,7 @@ public class Parser {
         //add other commands
         return "INVALID";
     }
-    public boolean isUse(ArrayList<String> tokens) throws IOException {
+    private boolean isUse(ArrayList<String> tokens) throws IOException {
         if(currentWordMatches(tokens, "USE")){
             incrementCurrentWord(tokens);
             if(isDatabaseName(tokens)){
@@ -138,7 +125,7 @@ public class Parser {
     //<CreateTable> 	::=  "CREATE " "TABLE " [TableName] | "CREATE " "TABLE " [TableName] "(" <AttributeList> ")"
 
     //This method is long
-    public boolean isCreateTable(ArrayList<String> tokens){
+    private boolean isCreateTable(ArrayList<String> tokens){
         //I'm assuming space after CREATE and TABLE will be stripped out by preprocessor?
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!currentWordMatches(tokens, "CREATE")){
@@ -172,7 +159,7 @@ public class Parser {
         }
     }
 
-    public boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
+    private boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
         //I'm assuming space after CREATE and DATABASE will be stripped out by preprocessor?
         if(!currentWordMatches(tokens, "CREATE")){
             return false;
@@ -190,7 +177,7 @@ public class Parser {
         return false;
     }
 
-    public boolean isInsert(ArrayList<String> tokens){
+    private boolean isInsert(ArrayList<String> tokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!currentWordMatches(tokens, "INSERT")){
             return false;
@@ -212,7 +199,7 @@ public class Parser {
         return isInsertValueList(tokens);
     }
     //<Select> ::=  "SELECT " <WildAttribList> " FROM " [TableName] | "SELECT " <WildAttribList> " FROM " [TableName] " WHERE " <Condition>
-    public boolean isSelect(ArrayList<String> tokens){
+    private boolean isSelect(ArrayList<String> tokens){
         //simple select command for now, no "WHERE <Condition>"
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!currentWordMatches(tokens, "SELECT")){
@@ -245,7 +232,7 @@ public class Parser {
 
     //Grammar rule methods
 
-    public boolean isBoolOperator(ArrayList<String> tokens) {
+    private boolean isBoolOperator(ArrayList<String> tokens) {
         if (currentWordMatches(tokens, "AND") || currentWordMatches(tokens, "OR")) {
             return true;
         } else {
@@ -253,7 +240,7 @@ public class Parser {
         }
     }
 
-    public boolean isAlterationType(ArrayList<String> tokens) {
+    private boolean isAlterationType(ArrayList<String> tokens) {
         if (currentWordMatches(tokens, "ADD") || currentWordMatches(tokens, "DROP")) {
             return true;
         } else {
@@ -261,11 +248,11 @@ public class Parser {
         }
     }
 
-    public boolean isBooleanLiteral(ArrayList<String> tokens) {
+    private boolean isBooleanLiteral(ArrayList<String> tokens) {
         return currentWordMatches(tokens, "TRUE") || currentWordMatches(tokens, "FALSE");
     }
 
-    public boolean isDigit(ArrayList<String> tokens) {
+    private boolean isDigit(ArrayList<String> tokens) {
         if (tokens.get(currentWord).length() != 1) {
             return false;
         }
@@ -273,7 +260,7 @@ public class Parser {
         return Character.isDigit(c);
     }
 
-    public boolean isDigitSequence(ArrayList<String> tokens, int startCharacter){
+    private boolean isDigitSequence(ArrayList<String> tokens, int startCharacter){
         int tokenLength = tokens.get(currentWord).length();
         for(int i = startCharacter; i < tokenLength; i++){
             if(!Character.isDigit(tokens.get(currentWord).charAt(i))){
@@ -283,7 +270,7 @@ public class Parser {
         return true;
     }
 
-    public boolean isIntegerLiteral(ArrayList<String> tokens){
+    private boolean isIntegerLiteral(ArrayList<String> tokens){
         if(Character.isDigit(tokens.get(currentWord).charAt(0))){
             if(isDigitSequence(tokens, 0)) {
                 return true;
@@ -297,7 +284,7 @@ public class Parser {
 
     //<Comparator>  	::=  "==" | ">" | "<" | ">=" | "<=" | "!=" | " LIKE "
 
-    public boolean isComparator(ArrayList<String> tokens) {
+    private boolean isComparator(ArrayList<String> tokens) {
         if (currentWordMatches(tokens, "==")) {
             return true;
         }
@@ -325,7 +312,7 @@ public class Parser {
         }
     }
 
-    public boolean isUppercase(ArrayList<String> tokens) {
+    private boolean isUppercase(ArrayList<String> tokens) {
         if (tokens.get(currentWord).length() != 1) {
             return false;
         }
@@ -333,7 +320,7 @@ public class Parser {
         return Character.isUpperCase(c);
     }
 
-    public boolean isLowercase(ArrayList<String> tokens) {
+    private boolean isLowercase(ArrayList<String> tokens) {
         if (tokens.get(currentWord).length() != 1) {
             return false;
         }
@@ -341,18 +328,18 @@ public class Parser {
         return Character.isLowerCase(c);
     }
 
-    public boolean isLetter(ArrayList<String> tokens) {
+    private boolean isLetter(ArrayList<String> tokens) {
         return isLowercase(tokens) || isUppercase(tokens);
     }
 
-    public boolean isSymbol(ArrayList<String> tokens) {
+    private boolean isSymbol(ArrayList<String> tokens) {
         if (tokens.get(currentWord).length() != 1) {
             return false;
         }
         return tokens.get(currentWord).matches(".*[!#$%&()*+,-./:;>=<?@\\[\\]^_`{}~].*");
     }
 
-    public boolean isCharLiteral(ArrayList<String> tokens){
+    private boolean isCharLiteral(ArrayList<String> tokens){
         char c = tokens.get(currentWord).charAt(0);
         if(isDigit(tokens) || isLetter(tokens) || isSymbol(tokens) || c == ' '){
             return true;
@@ -362,7 +349,7 @@ public class Parser {
 
     //couldn't think of an easy way to make the isPlainText method recursive
 
-    public boolean isPlainText(ArrayList<String> tokens) {
+    private boolean isPlainText(ArrayList<String> tokens) {
         int tokenLength = tokens.get(currentWord).length();
         String currentToken = tokens.get(currentWord);
         for (int i = 0; i < tokenLength; i++) {
@@ -374,21 +361,21 @@ public class Parser {
         return true;
     }
 
-    public boolean isDatabaseName(ArrayList<String> tokens) {
+    private boolean isDatabaseName(ArrayList<String> tokens) {
         if(currentWordIsReserved(tokens)){
             return false;
         }
         return isPlainText(tokens);
     }
 
-    public boolean isAttributeName(ArrayList<String> tokens) {
+    private boolean isAttributeName(ArrayList<String> tokens) {
         if(currentWordIsReserved(tokens)){
             return false;
         }
         return isPlainText(tokens);
     }
 
-    public boolean isAttributeList(ArrayList<String> tokens) {
+    private boolean isAttributeList(ArrayList<String> tokens) {
         ArrayList<String> attributeNames = new ArrayList<>();
        while(currentWord < tokens.size()) {
            if (isAttributeName(tokens)) {
@@ -412,7 +399,7 @@ public class Parser {
         return false;
     }
 
-    public boolean isValueList(ArrayList<String> tokens) {
+    private boolean isValueList(ArrayList<String> tokens) {
         ArrayList<String> valueList = new ArrayList<>();
         while(currentWord < tokens.size()) {
             if (isValue(tokens)) {
@@ -436,7 +423,7 @@ public class Parser {
         return false;
     }
 
-    public boolean isTableName(ArrayList<String> tokens) {
+    private boolean isTableName(ArrayList<String> tokens) {
         if(currentWordIsReserved(tokens)){
             return false;
         }
@@ -444,7 +431,7 @@ public class Parser {
     }
 
 
-    public boolean isCreateTableAttributeList(ArrayList<String> tokens){
+    private boolean isCreateTableAttributeList(ArrayList<String> tokens){
         if(!currentWordMatches(tokens, "(")){
             return false;
         }
@@ -457,7 +444,7 @@ public class Parser {
         return currentWordMatches(tokens, ")");
     }
 
-public boolean isInsertValueList(ArrayList<String> tokens){
+    private boolean isInsertValueList(ArrayList<String> tokens){
     if(!currentWordMatches(tokens, "(")){
         return false;
     }
@@ -469,7 +456,7 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     return currentWordMatches(tokens, ")");
 }
 
-    public boolean isStringLiteral(ArrayList<String> tokens) {
+    private boolean isStringLiteral(ArrayList<String> tokens) {
         String currentWordString = getCurrentWordString();
         String currentWordNoQuotes = removeSingleQuotesFromString(currentWordString);
         if(currentWordNoQuotes == null){
@@ -484,12 +471,12 @@ public boolean isInsertValueList(ArrayList<String> tokens){
         return currentWordNoQuotes.matches("[a-zA-Z]+");
     }
 
-    public boolean isFloatLiteral(ArrayList<String> tokens){
+    private boolean isFloatLiteral(ArrayList<String> tokens){
         return getCurrentWordString().matches("([-+])?\\d+\\.\\d+");
     }
 
     // [Value]  ::=  "'" [StringLiteral] "'" | [BooleanLiteral] | [FloatLiteral] | [IntegerLiteral] | "NULL"
-    public boolean isValue(ArrayList<String> tokens){
+    private boolean isValue(ArrayList<String> tokens){
         if(isBooleanLiteral(tokens)){
             return true;
         }
@@ -505,7 +492,7 @@ public boolean isInsertValueList(ArrayList<String> tokens){
         return isStringLiteral(tokens);
     }
 
-    public boolean isWildAttribList(ArrayList<String> tokens){
+    private boolean isWildAttribList(ArrayList<String> tokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(isAttributeList(tokens)){
             databaseManager.setSelectAsterisk(false);
@@ -524,7 +511,7 @@ public boolean isInsertValueList(ArrayList<String> tokens){
     //<Condition>   	::=  "(" <Condition> <BoolOperator> <Condition> ")" | <Condition> <BoolOperator> <Condition> |
     // "(" [AttributeName] <Comparator> [Value] ")" | [AttributeName] <Comparator> [Value]
 
-    public boolean isCondition(ArrayList<String> tokens){
+    private boolean isCondition(ArrayList<String> tokens){
         //Only works for this simple case for now: [AttributeName] <Comparator> [Value]
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         boolean isBracketedCondition = false;
@@ -555,11 +542,11 @@ public boolean isInsertValueList(ArrayList<String> tokens){
 
     //Helper methods
 
-    public String tokenToString(int tokenIndex) {
+    private String tokenToString(int tokenIndex) {
         return tokenisedList.get(tokenIndex);
     }
 
-    public void setCurrentWord(int wordIndex){
+    private void setCurrentWord(int wordIndex){
         currentWord = wordIndex;
     }
 
@@ -579,11 +566,11 @@ public boolean isInsertValueList(ArrayList<String> tokens){
         throw new RuntimeException("Reached 0th token");
     }
 
-    public int getCurrentWord(){
+    private int getCurrentWord(){
         return currentWord;
     }
 
-    public String getCurrentWordString(){
+    private String getCurrentWordString(){
         int currentWordIndex = getCurrentWord();
         return tokenToString(currentWordIndex);
     }

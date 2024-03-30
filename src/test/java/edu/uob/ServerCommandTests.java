@@ -16,6 +16,8 @@ public class ServerCommandTests {
         return randomName;
     }
 
+    //merge these tests with DBTests
+
     //previously, these tests targeted individual parser commands, but I've refactored them to make them
     //more realistic responses to DB Commands
 
