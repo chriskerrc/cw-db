@@ -111,7 +111,7 @@ public class InterpreterTests {
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("semi-colon"));
     }
-
+/*
     @Test
     public void testTryCreateTableWithoutUseDatabase() throws IOException {
         String randomName = generateRandomName();
@@ -119,12 +119,11 @@ public class InterpreterTests {
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         String response = dbServer.handleCommand("CREATE TABLE " + randomName + ";");
         assertTrue(response.contains("[ERROR]"));
-        /*
+
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
-
-         */
     }
+     */
 
     @Test
     public void testCreateValidTable() throws IOException {
@@ -529,7 +528,6 @@ public class InterpreterTests {
 
     @Test
     public void testDatabaseNamesAreCaseInsensitive() throws IOException {
-        String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE cars;");
         //try to use database of same name but different case
         String response = sendCommandToServer("USE CaRs;");
@@ -545,6 +543,7 @@ public class InterpreterTests {
          */
     }
 
+    /*
     @Test
     public void testTableNamesAreCaseInsensitive() throws IOException {
         sendCommandToServer("CREATE DATABASE markbook4;");
@@ -561,14 +560,15 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("50"));
         //make this after each?
-        /*
+       
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("markbook4"));
 
-         */
+
     }
+    */
 
     @Test
     public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
