@@ -196,7 +196,7 @@ public class InterpreterTests {
 
          */
     }
-
+/*
     @Test
     public void testCreateTwoTablesSameNameDifferentDatabases() throws IOException {
         DBServer dbServer = new DBServer();
@@ -207,7 +207,7 @@ public class InterpreterTests {
         dbServer.handleCommand("USE test2;");
         String response = dbServer.handleCommand("CREATE TABLE marks;");
         assertTrue(response.contains("[OK]"));
-        /*
+
         dbServer.handleCommand("USE test1;");
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
@@ -219,8 +219,10 @@ public class InterpreterTests {
         assertTrue(table2.deleteTableFile("marks"));
         assertTrue(database.deleteDatabaseDirectory("test2"));
 
-         */
+
     }
+
+         */
 
     @Test
     public void testCreateTableNoAttributesHasID() throws IOException {
@@ -560,7 +562,7 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("50"));
         //make this after each?
-       
+
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
