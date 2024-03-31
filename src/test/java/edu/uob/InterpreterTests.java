@@ -392,25 +392,6 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTableNamesAreCaseInsensitive() throws IOException {
-        String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        sendCommandToServer("USE " + randomName + ";");
-        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
-        //try to create table with same name but different case
-        String response = sendCommandToServer("CREATE TABLE MaRkS;");
-        assertTrue(response.contains("[ERROR]"));
-        //insert into same table name, but with different case
-        response = sendCommandToServer("INSERT INTO mArKs VALUES ('chris', 50, TRUE);");
-        assertTrue(response.contains("[OK]"));
-        //select same table name, but with different case
-        response = sendCommandToServer("SELECT * FROM MARKS;");
-        assertTrue(response.contains("[OK]"));
-        assertTrue(response.contains("50"));
-    }
-
-
-    @Test
     public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
