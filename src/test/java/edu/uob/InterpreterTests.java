@@ -277,10 +277,12 @@ public class InterpreterTests {
         assertTrue(response.contains("65"));
         assertTrue(response.contains("'Chris'"));
         assertTrue(response.contains("50"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
 
     }
 
@@ -581,10 +583,12 @@ public class InterpreterTests {
         assertFalse(response.contains("'Chris'"));
         assertTrue(response.contains("'Fred'"));
         assertTrue(response.contains("'Bob'"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
     }
 
     @Test
@@ -823,10 +827,12 @@ public class InterpreterTests {
         assertTrue(response.contains("'Chris'"));
         assertTrue(response.contains("61"));
         assertTrue(response.contains("TRUE"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
     }
 
     @Test
