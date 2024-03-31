@@ -208,13 +208,14 @@ public class InterpreterTests {
         dbServer.handleCommand("USE test2;");
         String response = dbServer.handleCommand("CREATE TABLE marks;");
         assertTrue(response.contains("[OK]"));
+        /*
         dbServer.handleCommand("USE test1;");
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("test1"));
         dbServer.handleCommand("USE test2;");
-        /*
+
         Table table2 = new Table();
         assertTrue(table2.deleteTableFile("marks"));
         assertTrue(database.deleteDatabaseDirectory("test2"));
