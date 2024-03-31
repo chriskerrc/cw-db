@@ -64,20 +64,9 @@ public class Table {
 
 
     public ArrayList<ArrayList<String>> getTableDataStructure(){
-        //System.out.println(this.table);
         return this.tableDataStructure;
     }
 
-    public String getTableCellValueFromDataStructure(int row, int column) {
-        ArrayList<ArrayList<String>> tableDataStructure = getTableDataStructure();
-        if(row >= 0 && row < tableDataStructure.size()){
-            ArrayList<String> rowList = tableDataStructure.get(row);
-            if(column >= 0 && column < rowList.size()){
-                return rowList.get(column);
-            }
-        }
-        return null;
-    }
 
     public void createTableNoValues(String tableName) throws IOException {
         this.tableDataStructure = this.createTableDataStructureWithNoValues();

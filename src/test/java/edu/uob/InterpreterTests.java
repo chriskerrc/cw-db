@@ -1,10 +1,13 @@
 package edu.uob;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,6 +18,28 @@ public class InterpreterTests {
     @BeforeEach
     public void setup() {
         server = new DBServer();
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        String storageFolderPath = server.getStorageFolderPath();
+        cleanDatabasesFolder(storageFolderPath);
+    }
+    
+    private void cleanDatabasesFolder(String path) {
+        File folder = new File(path);
+        if (folder.exists() && folder.isDirectory()) {
+            cleanDatabaseSubfolders(folder);
+        }
+    }
+
+    private void cleanDatabaseSubfolders(File folder) {
+        for (File file : Objects.requireNonNull(folder.listFiles())) {
+            if (file.isDirectory()) {
+                cleanDatabaseSubfolders(file);
+            }
+            file.delete();
+        }
     }
 
     // Random name generator - useful for testing "bare earth" queries (i.e. where tables don't previously exist)
