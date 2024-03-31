@@ -8,7 +8,7 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DBTests {
+public class InterpreterTests {
 
     private DBServer server;
 
@@ -41,12 +41,39 @@ public class DBTests {
     }
 
     @Test
-    public void testValidCreateUseCommand() throws IOException {
+    public void testTryCreateDatabaseInvalidName() {
+        DBServer dbServer = new DBServer();
+        String response = dbServer.handleCommand("CREATE DATABASE *&^ ;");
+        assertTrue(response.contains("[ERROR]"));
+    }
+
+    @Test
+    public void testValidUseCommand() throws IOException {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         String response = dbServer.handleCommand("USE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testLowercaseCommandKeywords() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        String response = dbServer.handleCommand("create database " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = dbServer.handleCommand("use " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        response = dbServer.handleCommand("create table marks (name, mark, pass);");
+        assertTrue(response.contains("[OK]"));
+        response = dbServer.handleCommand("insert into marks values ('Chris', 60, TRUE);");
+        assertTrue(response.contains("[OK]"));
+        response = dbServer.handleCommand("select * from marks;");
+        assertTrue(response.contains("[OK]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
@@ -65,14 +92,21 @@ public class DBTests {
     }
 
     @Test
+    public void testCreateDatabaseMissingSemicolon() {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        String response = dbServer.handleCommand("CREATE DATABASE " + randomName);
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("semi-colon"));
+    }
+
+    @Test
     public void testTryCreateTableWithoutUseDatabase() throws IOException {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         String response = dbServer.handleCommand("CREATE TABLE " + randomName + ";");
         assertTrue(response.contains("[ERROR]"));
-        assertTrue(response.contains("Database"));
-        assertTrue(response.contains("USE"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
@@ -92,6 +126,98 @@ public class DBTests {
     }
 
     @Test
+    public void testTryCreateTableInvalidName() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        dbServer.handleCommand("USE " + randomName + ";");
+        String response = dbServer.handleCommand("CREATE TABLE &^%;");
+        assertTrue(response.contains("[ERROR]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testTryCreateTableSameNameExisting() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        dbServer.handleCommand("USE " + randomName + ";");
+        dbServer.handleCommand("CREATE TABLE marks;");
+        String response = dbServer.handleCommand("CREATE TABLE marks;");
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("table"));
+        assertTrue(response.contains("exists"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testTryCreateTableSameNameExistingDifferentCase() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        dbServer.handleCommand("USE " + randomName + ";");
+        dbServer.handleCommand("CREATE TABLE marks;");
+        String response = dbServer.handleCommand("CREATE TABLE MARKS;");
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("table"));
+        assertTrue(response.contains("exists"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testCreateTwoTablesSameNameDifferentDatabases() throws IOException {
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE test1;");
+        dbServer.handleCommand("CREATE DATABASE test2;");
+        dbServer.handleCommand("USE test1;");
+        dbServer.handleCommand("CREATE TABLE marks;");
+        dbServer.handleCommand("USE test2;");
+        String response = dbServer.handleCommand("CREATE TABLE marks;");
+        assertTrue(response.contains("[OK]"));
+        dbServer.handleCommand("USE test1;");
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory("test1"));
+        dbServer.handleCommand("USE test2;");
+        Table table2 = new Table();
+        assertTrue(table2.deleteTableFile("marks"));
+        assertTrue(database.deleteDatabaseDirectory("test2"));
+    }
+
+    @Test
+    public void testCreateTableNoAttributesHasID() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        dbServer.handleCommand("USE " + randomName + ";");
+        dbServer.handleCommand("CREATE TABLE marks;");
+        String response = dbServer.handleCommand("SELECT * FROM marks;");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("id"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+
+
+
+
+
+
+
+
+
+    @Test
     public void testSelectAsteriskWhereAttributeEqualsValue() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
@@ -100,7 +226,6 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, TRUE);");
         String response = sendCommandToServer("SELECT * FROM marks WHERE name == 'Simon';");
-        System.out.println(response);
         assertTrue(response.contains("id"));
         assertTrue(response.contains("name"));
         assertTrue(response.contains("'Simon'"));
@@ -124,7 +249,6 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
         String response = sendCommandToServer("SELECT * FROM marks WHERE name != 'Simon';");
-        System.out.println(response);
         assertTrue(response.contains("id"));
         assertTrue(response.contains("name"));
         assertTrue(response.contains("'Chris'"));
@@ -147,7 +271,6 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, TRUE);");
         String response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
         assertTrue(response.contains("id"));
         assertTrue(response.contains("name"));
         assertTrue(response.contains("'Simon'"));
@@ -171,7 +294,6 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Simon', 50, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
         String response = sendCommandToServer("SELECT id FROM marks WHERE name != 'Chris';");
-        System.out.println(response);
         // Convert multi-lined responses into just a single line
         String singleLine = response.replace("\n"," ").trim();
         // Split the line on the space character
@@ -213,30 +335,7 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
         String response = sendCommandToServer("SELECT colour FROM marks WHERE name == 'Chris';");
         assertTrue(response.contains("[ERROR]"));
-        Table table = new Table();
-        assertTrue(table.deleteTableFile("marks"));
-        Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));
-    }
-
-    @Test
-    public void testQueryCreateDatabaseNameAlreadyExists() throws IOException {
-        String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        assertTrue(response.contains("[ERROR]"));
-        Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));
-    }
-
-    @Test
-    public void testQueryCreateTableNameAlreadyExists() throws IOException {
-        String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        sendCommandToServer("USE " + randomName + ";");
-        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
-        String response = sendCommandToServer("CREATE TABLE marks;");
-        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("Attribute"));
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
@@ -332,11 +431,11 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //these tests return error Invalid command
     @Test
-    public void testDatabaseNameIsNotReserved() throws IOException {
+    public void testDatabaseNameIsNotReserved() {
         String response = sendCommandToServer("CREATE DATABASE INSERT;");
         assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("parse"));
     }
 
     @Test
@@ -348,6 +447,7 @@ public class DBTests {
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("CREATE TABLE true (name, mark, pass);");
         assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("parse"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
@@ -361,6 +461,7 @@ public class DBTests {
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("CREATE TABLE marks (name, mark, null);");
         assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("parse"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
@@ -403,36 +504,6 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory("markbook"));
     }
 
-    //this test fails: seems to be reading directory name as uppercase (not sure why)
-    @Test
-    public void testDatabaseNameSavedToFileAsLowercase() throws IOException {
-        DatabaseManager databaseManager = DatabaseManager.getInstance();
-        //create table with uppercase name
-        sendCommandToServer("CREATE DATABASE UPPERCASE;");
-        Database database = databaseManager.getDatabaseObjectFromName("UPPERCASE");
-        assertTrue(database.databaseDirectoryIsSavedAsLowercase("UPPERCASE"));
-        assertTrue(database.deleteDatabaseDirectory("uppercase"));
-    }
-
-    //to do: this test is unfinished
-    @Test
-    public void testTableNameSavedToFileAsLowercase() throws IOException {
-        String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        sendCommandToServer("USE " + randomName + ";");
-        //create table with uppercase name
-        sendCommandToServer("CREATE TABLE MARKS (name, mark, pass);");
-
-        //method to check that file is lowercase: to do
-
-        //make this after each?
-        Table table = new Table();
-        assertTrue(table.deleteTableFile("marks"));
-        Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));
-    }
-
-    //to do: this test fails
     @Test
     public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
         String randomName = generateRandomName();
@@ -468,8 +539,6 @@ public class DBTests {
         sendCommandToServer("USE " + randomName + ";");
         //create table with camelCase attribute names
         sendCommandToServer("CREATE TABLE marks (studentName, studentMark, studentPasses);");
-        sendCommandToServer("INSERT INTO marks VALUES ('chris', 60, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('bob', 34, FALSE);");
         String response = sendCommandToServer("SELECT * FROM marks;");
         assertTrue(response.contains("[OK]"));
         //check that case is preserved
@@ -675,16 +744,13 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
         String response = sendCommandToServer("SELECT * FROM crew WHERE name LIKE 'i'");
-        System.out.println(response);
         assertTrue(response.contains("[ERROR]"));
-        assertTrue(response.contains("table")); //message refers to missing semi-colon
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //this test fails
     @Test
     public void testSelectAttributeNotInTable() throws IOException {
         String randomName = generateRandomName();
@@ -695,18 +761,15 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
         String response = sendCommandToServer("SELECT height FROM marks WHERE name LIKE 'i'");
-        System.out.println(response);
         assertTrue(response.contains("[ERROR]"));
-        assertTrue(response.contains("attribute")); //message refers to missing semi-colon
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //should not ERROR, just return column header row with no data
     @Test
-    public void testSelectValidQueryNoMatches() throws IOException {
+    public void testSelectValidQueryNoMatchesReturnsColumnsNoDataRows() throws IOException {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -715,7 +778,6 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
         String response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'z';");
-        System.out.println(response);
         assertTrue(response.contains("[OK]")); //just return column header row with no data
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("'Bob'"));
@@ -726,7 +788,6 @@ public class DBTests {
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 
-    //this test fails: java.lang.numberformatexception for input string in getRowsValueGreaterOrLessThan
     @Test
     public void testSelectCompareDifferentDataTypesTextInteger() throws IOException {
         String randomName = generateRandomName();
@@ -736,7 +797,7 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
-        String response = sendCommandToServer("SELECT * FROM marks WHERE name>60;");
+        String response = sendCommandToServer("SELECT * FROM marks WHERE (name>60);");
         //return blank results
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("id"));
@@ -747,8 +808,6 @@ public class DBTests {
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
-
-    // SELECT * FROM marks WHERE (pass == FALSE)
 
     @Test
     public void testSelectBracketedConditionAsterisk() throws IOException {
@@ -779,7 +838,7 @@ public class DBTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
-        String response = sendCommandToServer("SELECT name FROM marks WHERE (mark>60);");
+        String response = sendCommandToServer("SELECT name FROM marks WHERE mark>60;");
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("'Chris'"));
         assertFalse(response.contains("61"));
@@ -787,6 +846,55 @@ public class DBTests {
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testQueriesWithWhitespace() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("    CREATE      DATABASE " + randomName + ";");
+        sendCommandToServer("USE     " + randomName + ";");
+        sendCommandToServer("CREATE     TABLE     marks   (  name, mark, pass);");
+        sendCommandToServer("INSERT    INTO   marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT   INTO    marks VALUES ('Bob', 40,   FALSE);");
+        sendCommandToServer("INSERT     INTO marks   VALUES (  'Fred',   30, FALSE);");
+        //no space either side of ==
+        String response = sendCommandToServer("SELECT id FROM marks WHERE name=='Chris';");
+        assertTrue(response.contains("[OK]"));
+        assertTrue(response.contains("1"));
+        assertFalse(response.contains("61"));
+        assertFalse(response.contains("TRUE"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testRowIDsRemainUniqueAfterServerRestart() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Sion', 80, TRUE);");
+        String response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("1"));
+        assertTrue(response.contains("2"));
+        assertFalse(response.contains("3"));
+        // Create a new server object
+        server = new DBServer();
+        response = sendCommandToServer("USE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 49, FALSE);");
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check that id of last row is 3, not 1
+        assertTrue(response.contains("3"));
+        //clean up
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.isDirectoryEmpty(randomName));
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
 

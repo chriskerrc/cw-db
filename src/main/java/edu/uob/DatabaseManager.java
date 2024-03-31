@@ -175,7 +175,6 @@ public class DatabaseManager {
         return database.createDatabaseDirectory(databaseToCreate);
     }
 
-    //after server restart, Use database returns error: suggests it's not loading files
     public boolean interpretUseDatabase() throws IOException {
         if(!databaseObjectAlreadyExists(databaseInUse)) {
             throw new RuntimeException("Database doesn't exist? Try creating it");
@@ -205,10 +204,11 @@ public class DatabaseManager {
         }
         else{
             ArrayList<String> valuesList = attributeNamesForCreateTable;
+            ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
+            //preserve case of values before attributesDuplicated method called
             if(attributesDuplicated(valuesList)){
                 throw new RuntimeException("Column headers are duplicated?");
             }
-            ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
             newTable.createTableWithValues(tableToCreate, valuesPreserveCase);
         }
         database.loadTableToDatabase(newTable);
@@ -227,6 +227,7 @@ public class DatabaseManager {
         if(table == null){
             throw new RuntimeException("Table doesn't exist?");
         }
+        updateHighestIDFromTableOnFIle(table);
         int numberOfColumns = table.getNumberColumnsTable();
         if(numberOfColumns != valuesForInsertCommand.size() + 1){ //add 1 to account for id column
             throw new RuntimeException("Attempting to insert wrong number of values?");
@@ -302,7 +303,6 @@ public class DatabaseManager {
     private boolean handleSelectCommandNoAsteriskCondition(Table selectedTableObject) {
         //this code assumes only one attribute name to search for, but the grammar allows for a list
         int columnIndex = selectedTableObject.getIndexAttributeName(selectAttribute);
-        System.out.println(columnIndex);
         if(columnIndex == -1){
             throw new RuntimeException("Attribute not in table");
         }
@@ -324,6 +324,13 @@ public class DatabaseManager {
 
     public String getConditionComparator() {
         return conditionComparator;
+    }
+
+    private void updateHighestIDFromTableOnFIle(Table tableToInsetInto) throws IOException {
+        Table tableFromFile = new Table();
+        tableFromFile = tableFromFile.storeNamedFileToTableObject(tableToInsertInto);
+        int highestCurrentID = tableFromFile.getCurrentHighestID();
+        tableToInsetInto.setCurrentRecordID(highestCurrentID);
     }
 
 
