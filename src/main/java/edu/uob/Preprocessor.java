@@ -45,12 +45,17 @@ public class Preprocessor {
         while (input.contains("  ")) input = input.replaceAll("  ", " ");
         // Again, remove any whitespace from the beginning and end that might have been introduced
         input = input.trim();
-        //Ensure composite comparator are kept together
+        //Ensure composite comparator characters are kept together
         input = input.replace("> =", ">=");
         input = input.replace("< =", "<=");
+        input = input.replace("! =", "!=");
+        input = input.replace("= =", "==");
         //add a space after >= and <= where they're not already followed by a space
         input = input.replaceAll(">=(?! )", ">= ");
         input = input.replaceAll("<=(?! )", "<= ");
+        //add a space before and after == and != where they're not already surrounded by a spaces
+        input = input.replaceAll("(?<! )==(?! )", " == ");
+        input = input.replaceAll("(?<! )!=(?! )", " != ");
         // Finally split on the space char (since there will now ALWAYS be a space between tokens)
         return input.split(" ");
     }

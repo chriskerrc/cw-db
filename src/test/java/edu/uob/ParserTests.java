@@ -219,11 +219,338 @@ public class ParserTests {
 
     @Test
     public void testParseInsertValidValues() throws Exception {
-        //
-
+        //commas in value list
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES ('Chris' 34 TRUE;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES ('Chris', 34 TRUE;");
+        });
+        //missing single quotes string literal
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES ('Chris;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES (Chris;");
+        });
+        //bool: misspelled
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES (TRU);");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES (FALS);");
+        });
+        //float value
+        String response = sendCommandToParser("INSERT INTO test VALUES (3.1415);");
+        assertTrue(response.contains("INSERT"));
+        response = sendCommandToParser("INSERT INTO test VALUES (+3.1415);");
+        assertTrue(response.contains("INSERT"));
+        response = sendCommandToParser("INSERT INTO test VALUES (-3.1415);");
+        assertTrue(response.contains("INSERT"));
+        //float: multiple decimal points
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES (3.14.15);");
+        });
+        //integer literal
+        response = sendCommandToParser("INSERT INTO test VALUES (31415);");
+        assertTrue(response.contains("INSERT"));
+        response = sendCommandToParser("INSERT INTO test VALUES (3);");
+        assertTrue(response.contains("INSERT"));
+        response = sendCommandToParser("INSERT INTO test VALUES (+31415);");
+        assertTrue(response.contains("INSERT"));
+        response = sendCommandToParser("INSERT INTO test VALUES (-31415);");
+        assertTrue(response.contains("INSERT"));
+        //NULL
+        response = sendCommandToParser("INSERT INTO test VALUES (NULL);");
+        assertTrue(response.contains("INSERT"));
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("INSERT INTO test VALUES (NUL);");
+        });
     }
 
-    //select
+    //"SELECT * FROM " [TableName]
+    @Test
+    public void testParseSelectAsteriskNoCondition() throws Exception {
+        String response = sendCommandToParser("SELECT * FROM test;");
+        assertTrue(response.contains("SELECT"));
+        //lowercase keywords
+        response = sendCommandToParser("select * from test;");
+        assertTrue(response.contains("SELECT"));
+        //uppercase table name
+        response = sendCommandToParser("SELECT * FROM TEST;");
+        assertTrue(response.contains("SELECT"));
+        //number in table name
+        response = sendCommandToParser("SELECT * FROM te5t;");
+        assertTrue(response.contains("SELECT"));
+        //missing semi-colon
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test");
+        });
+        //misspelled keywords
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELEC * FRO test;");
+        });
+        //invalid table name
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM te&t;");
+        });
+        //table name is reserved word
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM create;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM select;");
+        });
+    }
 
+    @Test
+    public void testParseSelectAttributeNoCondition() throws Exception {
+        String response = sendCommandToParser("SELECT name FROM test;");
+        assertTrue(response.contains("SELECT"));
+        //lowercase keywords
+        response = sendCommandToParser("select name from test;");
+        assertTrue(response.contains("SELECT"));
+        //uppercase table name
+        response = sendCommandToParser("SELECT name FROM TEST;");
+        assertTrue(response.contains("SELECT"));
+        //number in table name
+        response = sendCommandToParser("SELECT name FROM te5t;");
+        assertTrue(response.contains("SELECT"));
+        //missing semi-colon
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM test");
+        });
+        //camelCase attributeName
+        response = sendCommandToParser("SELECT studentName FROM te5t;");
+        assertTrue(response.contains("SELECT"));
+        //attribute name is reserved keyword
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT select FROM test;");
+        });
+        //attribute name is invalid (punctuation)
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name* FROM test;");
+        });
+        //misspelled keywords
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELEC name FRO test;");
+        });
+        //invalid table name
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM te&t;");
+        });
+        //table name is reserved word
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM create;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM select;");
+        });
+    }
 
+    @Test
+    public void testParseSelectAsteriskCondition() throws Exception {
+        String response = sendCommandToParser("SELECT * FROM test WHERE id>5;");
+        assertTrue(response.contains("SELECT"));
+        //lowercase WHERE
+        response = sendCommandToParser("SELECT * FROM test where id>5;");
+        assertTrue(response.contains("SELECT"));
+        //misspelled WHERE
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test WHER Name <= 5;");
+        });
+        //comparators without spaces
+        response = sendCommandToParser("SELECT * FROM test where id<5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id==5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id!=5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id>=5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id<=5;");
+        assertTrue(response.contains("SELECT"));
+        //comparators with spaces
+        response = sendCommandToParser("SELECT * FROM test where id < 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id == 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id != 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id >= 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id <= 5;");
+        assertTrue(response.contains("SELECT"));
+        //LIKE
+        response = sendCommandToParser("SELECT * FROM test where id LIKE 'i';");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where id LIKE 'ion';");
+        assertTrue(response.contains("SELECT"));
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where Name LIKE i;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where Name LIKE 'i;");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where Name LIKE i';");
+        });
+        //value is string literal
+        response = sendCommandToParser("SELECT * FROM test where id <= 'Chris';");
+        assertTrue(response.contains("SELECT"));
+        //invalid AttributeName
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where N@me <= 5;");
+        });
+    }
+
+    @Test
+    public void testParseSelectAsteriskConditionBrackets() throws Exception {
+        String response = sendCommandToParser("SELECT * FROM test WHERE (id>5);");
+        assertTrue(response.contains("SELECT"));
+        //lowercase WHERE
+        response = sendCommandToParser("SELECT * FROM test where (id>5);");
+        assertTrue(response.contains("SELECT"));
+        //comparators without spaces
+        response = sendCommandToParser("SELECT * FROM test where (id<5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id==5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id!=5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id>=5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id<=5);");
+        assertTrue(response.contains("SELECT"));
+        //comparators with spaces
+        response = sendCommandToParser("SELECT * FROM test where (id < 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id == 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id != 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id >= 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id <= 5);");
+        assertTrue(response.contains("SELECT"));
+        //LIKE
+        response = sendCommandToParser("SELECT * FROM test where (id LIKE 'i');");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT * FROM test where (id LIKE 'ion');");
+        assertTrue(response.contains("SELECT"));
+        //value is string literal
+        response = sendCommandToParser("SELECT * FROM test where (id <= 'Chris');");
+        assertTrue(response.contains("SELECT"));
+        //invalid AttributeName
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where (N@me <= 5);");
+        });
+        //one bracket
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where Name <= 5);");
+        });
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT * FROM test where (Name <= 5;");
+        });
+    }
+
+    @Test
+    public void testParseSelectAttributeCondition() throws Exception {
+        String response = sendCommandToParser("SELECT name FROM test WHERE id>5;");
+        assertTrue(response.contains("SELECT"));
+        //lowercase WHERE
+        response = sendCommandToParser("SELECT name FROM test where id>5;");
+        assertTrue(response.contains("SELECT"));
+        //comparators without spaces
+        response = sendCommandToParser("SELECT name FROM test where id<5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id==5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id!=5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id>=5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id<=5;");
+        assertTrue(response.contains("SELECT"));
+        //comparators with spaces
+        response = sendCommandToParser("SELECT name FROM test where id < 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id == 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id != 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id >= 5;");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id <= 5;");
+        assertTrue(response.contains("SELECT"));
+        //LIKE
+        response = sendCommandToParser("SELECT name FROM test where id LIKE 'i';");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where id LIKE 'ion';");
+        assertTrue(response.contains("SELECT"));
+        //value is string literal
+        response = sendCommandToParser("SELECT name FROM test where id <= 'Chris';");
+        assertTrue(response.contains("SELECT"));
+        //invalid AttributeName in condition
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM test where N@me <= 5;");
+        });
+        //invalid AttributeName after SELECT
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT n@me FROM test where Name <= 5;");
+        });
+        //camelCase AttributeName after SELECT
+        response = sendCommandToParser("SELECT studentName FROM test where id <= 'Chris';");
+        assertTrue(response.contains("SELECT"));
+    }
+
+    @Test
+        public void testParseSelectAttributeConditionBrackets() throws Exception {
+        String response = sendCommandToParser("SELECT name FROM test WHERE (id>5);");
+        assertTrue(response.contains("SELECT"));
+        //lowercase WHERE
+        response = sendCommandToParser("SELECT name FROM test where (id>5);");
+        assertTrue(response.contains("SELECT"));
+        //comparators without spaces
+        response = sendCommandToParser("SELECT name FROM test where (id<5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id==5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id!=5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id>=5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id<=5);");
+        assertTrue(response.contains("SELECT"));
+        //comparators with spaces
+        response = sendCommandToParser("SELECT name FROM test where (id < 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id == 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id != 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id >= 5);");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id <= 5);");
+        assertTrue(response.contains("SELECT"));
+        //LIKE
+        response = sendCommandToParser("SELECT name FROM test where (id LIKE 'i');");
+        assertTrue(response.contains("SELECT"));
+        response = sendCommandToParser("SELECT name FROM test where (id LIKE 'ion');");
+        assertTrue(response.contains("SELECT"));
+        //value is string literal
+        response = sendCommandToParser("SELECT name FROM test where (id <= 'Chris');");
+        assertTrue(response.contains("SELECT"));
+        //invalid AttributeName in condition
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT name FROM test where (N@me <= 5);");
+        });
+        //invalid AttributeName after SELECT
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("SELECT n@me FROM test where (Name <= 5);");
+        });
+        //camelCase AttributeName after SELECT
+        response = sendCommandToParser("SELECT studentName FROM test where (id <= 'Chris');");
+        assertTrue(response.contains("SELECT"));
+    }
 }
