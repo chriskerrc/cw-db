@@ -29,6 +29,68 @@ public class DBTests {
         return assertTimeoutPreemptively(Duration.ofMillis(1000), () -> { return server.handleCommand(command);},
                 "Server took too long to respond (probably stuck in an infinite loop)");
     }
+
+    @Test
+    public void testValidCreateDatabaseCommand() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testValidCreateUseCommand() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        String response = dbServer.handleCommand("USE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testTryCreateDatabaseWithSameNameExisting() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("database"));
+        assertTrue(response.contains("exists"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testTryCreateTableWithoutUseDatabase() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        String response = dbServer.handleCommand("CREATE TABLE " + randomName + ";");
+        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("Database"));
+        assertTrue(response.contains("USE"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
+    @Test
+    public void testCreateValidTable() throws IOException {
+        String randomName = generateRandomName();
+        DBServer dbServer = new DBServer();
+        dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
+        dbServer.handleCommand("USE " + randomName + ";");
+        String response = dbServer.handleCommand("CREATE TABLE marks;");
+        assertTrue(response.contains("[OK]"));
+        Table table = new Table();
+        assertTrue(table.deleteTableFile("marks"));
+        Database database = new Database();
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+    }
+
     @Test
     public void testSelectAsteriskWhereAttributeEqualsValue() throws IOException {
         String randomName = generateRandomName();

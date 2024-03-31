@@ -192,15 +192,9 @@ public class DatabaseManager {
 
     public boolean interpretCreateTable() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist? Try USE command");
+            throw new RuntimeException("Database doesn't exist or not in USE?");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
-        ArrayList<String> valuesList = attributeNamesForCreateTable;
-        ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
-
-        if(attributesDuplicated(valuesList)){
-            throw new RuntimeException("Column headers are duplicated?");
-        }
         if(database.tableExistsInDatabase(tableToCreate)){
             throw new RuntimeException("Trying to create a table that already exists?");
         }
@@ -210,6 +204,11 @@ public class DatabaseManager {
             newTable.createTableNoValues(tableToCreate); //this method also writes the table to file:
         }
         else{
+            ArrayList<String> valuesList = attributeNamesForCreateTable;
+            if(attributesDuplicated(valuesList)){
+                throw new RuntimeException("Column headers are duplicated?");
+            }
+            ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
             newTable.createTableWithValues(tableToCreate, valuesPreserveCase);
         }
         database.loadTableToDatabase(newTable);
@@ -218,7 +217,7 @@ public class DatabaseManager {
 
     public boolean interpretInsert() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist? Try USE command");
+            throw new RuntimeException("Database doesn't exist or not in USE?");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToInsertInto)) {
@@ -239,7 +238,7 @@ public class DatabaseManager {
 
     public boolean interpretSelect() throws IOException{
         if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist: try USE command?");
+            throw new RuntimeException("Database doesn't exist or not in USE?");
         }
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToSelect)) {

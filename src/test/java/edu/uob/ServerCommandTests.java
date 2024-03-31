@@ -23,16 +23,7 @@ public class ServerCommandTests {
 
     //add deletion of random database folders these tests create
 
-    @Test
-    public void testValidCreateDatabaseCommand() throws IOException {
-        String randomName = generateRandomName();
-        //System.out.println("this is random name " + randomName);
-        DBServer dbServer = new DBServer();
-        String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
-        assertTrue(response.contains("[OK]"));
-        Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));
-    }
+
 
     @Test
     public void testValidUseCommand() throws IOException {
