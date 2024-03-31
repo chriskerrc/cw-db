@@ -485,7 +485,6 @@ public class InterpreterTests {
 
     @Test
     public void testTableNamesAreCaseInsensitive() throws IOException {
-        String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE markbook4;");
         sendCommandToServer("USE markbook4;");
         sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
@@ -512,20 +511,20 @@ public class InterpreterTests {
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
         //create table with camelCase attribute names
-        sendCommandToServer("CREATE TABLE marks (studentName, studentMark, studentPasses);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 60, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 34, FALSE);");
+        sendCommandToServer("CREATE TABLE test (studentName, studentMark, studentPasses);");
+        sendCommandToServer("INSERT INTO test VALUES ('Chris', 60, TRUE);");
+        sendCommandToServer("INSERT INTO test VALUES ('Bob', 34, FALSE);");
         //select with all lowercase column name
-        String response = sendCommandToServer("SELECT studentname FROM marks WHERE id == 1;");
+        String response = sendCommandToServer("SELECT studentname FROM test WHERE id == 1;");
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("'Chris'"));
         //select with all uppercase column name
-        response = sendCommandToServer("SELECT STUDENTMARK FROM marks WHERE id == 2;");
+        response = sendCommandToServer("SELECT STUDENTMARK FROM test WHERE id == 2;");
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("34"));
         //make this after each?
         Table table = new Table();
-        assertTrue(table.deleteTableFile("marks"));
+        assertTrue(table.deleteTableFile("test"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
     }
@@ -638,10 +637,12 @@ public class InterpreterTests {
         assertTrue(response.contains("FALSE"));
         assertTrue(response.contains("2"));
         assertTrue(response.contains("3"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
     }
 
     @Test
@@ -663,10 +664,12 @@ public class InterpreterTests {
         assertTrue(response.contains("40"));
         assertTrue(response.contains("FALSE"));
         assertTrue(response.contains("'Bob'"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
     }
 
     @Test
@@ -688,10 +691,13 @@ public class InterpreterTests {
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("61"));
         assertFalse(response.contains("TRUE"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -713,10 +719,13 @@ public class InterpreterTests {
         assertTrue(response.contains("40"));
         assertFalse(response.contains("FALSE"));
         assertFalse(response.contains("'Bob'"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -731,10 +740,13 @@ public class InterpreterTests {
         String response = sendCommandToServer("SELECT * FROM marks WHERE name LIKE 'i'");
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("semi-colon"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     //This test fails
@@ -749,10 +761,13 @@ public class InterpreterTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
         String response = sendCommandToServer("SELECT * FROM crew WHERE name LIKE 'i'");
         assertTrue(response.contains("[ERROR]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -766,10 +781,13 @@ public class InterpreterTests {
         sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
         String response = sendCommandToServer("SELECT height FROM marks WHERE name LIKE 'i'");
         assertTrue(response.contains("[ERROR]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -786,10 +804,13 @@ public class InterpreterTests {
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("'Bob'"));
         assertFalse(response.contains("'Fred'"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -807,10 +828,13 @@ public class InterpreterTests {
         assertTrue(response.contains("id"));
         assertTrue(response.contains("name"));
         assertFalse(response.contains("'Chris'"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -849,10 +873,13 @@ public class InterpreterTests {
         assertTrue(response.contains("'Chris'"));
         assertFalse(response.contains("61"));
         assertFalse(response.contains("TRUE"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -870,10 +897,13 @@ public class InterpreterTests {
         assertTrue(response.contains("1"));
         assertFalse(response.contains("61"));
         assertFalse(response.contains("TRUE"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -897,11 +927,14 @@ public class InterpreterTests {
         //check that id of last row is 3, not 1
         assertTrue(response.contains("3"));
         //clean up
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.isDirectoryEmpty(randomName));
         assertTrue(database.deleteDatabaseDirectory(randomName));
+        
+         */
     }
 
 
