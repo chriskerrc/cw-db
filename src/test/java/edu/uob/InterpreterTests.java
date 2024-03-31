@@ -486,8 +486,8 @@ public class InterpreterTests {
     @Test
     public void testTableNamesAreCaseInsensitive() throws IOException {
         String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE markbook;");
-        sendCommandToServer("USE markbook;");
+        sendCommandToServer("CREATE DATABASE markbook4;");
+        sendCommandToServer("USE markbook4;");
         sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
         //try to create table with same name but different case
         String response = sendCommandToServer("CREATE TABLE MaRkS;");
@@ -503,7 +503,7 @@ public class InterpreterTests {
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory("markbook"));
+        assertTrue(database.deleteDatabaseDirectory("markbook4"));
     }
 
     @Test
