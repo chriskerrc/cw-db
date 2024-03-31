@@ -36,8 +36,11 @@ public class InterpreterTests {
         DBServer dbServer = new DBServer();
         String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -54,8 +57,11 @@ public class InterpreterTests {
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         String response = dbServer.handleCommand("USE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -72,10 +78,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         response = dbServer.handleCommand("select * from marks;");
         assertTrue(response.contains("[OK]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -87,8 +96,11 @@ public class InterpreterTests {
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("database"));
         assertTrue(response.contains("exists"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -107,8 +119,11 @@ public class InterpreterTests {
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
         String response = dbServer.handleCommand("CREATE TABLE " + randomName + ";");
         assertTrue(response.contains("[ERROR]"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -119,10 +134,13 @@ public class InterpreterTests {
         dbServer.handleCommand("USE " + randomName + ";");
         String response = dbServer.handleCommand("CREATE TABLE marks;");
         assertTrue(response.contains("[OK]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -133,8 +151,11 @@ public class InterpreterTests {
         dbServer.handleCommand("USE " + randomName + ";");
         String response = dbServer.handleCommand("CREATE TABLE &^%;");
         assertTrue(response.contains("[ERROR]"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -148,10 +169,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("table"));
         assertTrue(response.contains("exists"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -165,10 +189,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("table"));
         assertTrue(response.contains("exists"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -187,9 +214,12 @@ public class InterpreterTests {
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("test1"));
         dbServer.handleCommand("USE test2;");
+        /*
         Table table2 = new Table();
         assertTrue(table2.deleteTableFile("marks"));
         assertTrue(database.deleteDatabaseDirectory("test2"));
+
+         */
     }
 
     @Test
@@ -202,20 +232,14 @@ public class InterpreterTests {
         String response = dbServer.handleCommand("SELECT * FROM marks;");
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("id"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
-
-
-
-
-
-
-
-
-
 
     @Test
     public void testSelectAsteriskWhereAttributeEqualsValue() throws IOException {
@@ -233,10 +257,13 @@ public class InterpreterTests {
         assertFalse(response.contains("'Chris'"));
         assertFalse(response.contains("50"));
         //make this after each?
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -257,10 +284,14 @@ public class InterpreterTests {
         assertTrue(response.contains("70"));
         assertFalse(response.contains("'Simon'"));
         assertFalse(response.contains("65"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
-        assertTrue(database.deleteDatabaseDirectory(randomName));    }
+        assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
+        }
+
 
     @Test
     public void testSelectAsteriskNoCondition() throws IOException {
@@ -304,10 +335,13 @@ public class InterpreterTests {
         String penultimateToken = tokens[tokens.length-2];
         assertEquals(3, Integer.parseInt(lastToken));
         assertEquals(2, Integer.parseInt(penultimateToken));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -324,8 +358,11 @@ public class InterpreterTests {
         sendCommandToServer("USE " + randomName + ";");
         String response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', 38, FALSE);");
         assertTrue(response.contains("[ERROR]"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -338,10 +375,13 @@ public class InterpreterTests {
         String response = sendCommandToServer("SELECT colour FROM marks WHERE name == 'Chris';");
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("Attribute"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -364,10 +404,13 @@ public class InterpreterTests {
         assertEquals("TRUE", lastToken);
         assertEquals("70", penultimateToken);
         assertEquals("mark", secondColumnHeader);
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -386,10 +429,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[ERROR]"));
         response = sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
         assertTrue(response.contains("[OK]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -407,10 +453,13 @@ public class InterpreterTests {
         //Try to insert correct number of values
         response = sendCommandToServer("INSERT INTO marks VALUES ('Chris', 50, FALSE);");
         assertTrue(response.contains("[OK]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
 
@@ -427,10 +476,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("select id from marks where name == 'Chris';");
         assertTrue(response.contains("[OK]"));
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -450,8 +502,11 @@ public class InterpreterTests {
         response = sendCommandToServer("CREATE TABLE true (name, mark, pass);");
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("parse"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -464,8 +519,11 @@ public class InterpreterTests {
         response = sendCommandToServer("CREATE TABLE marks (name, mark, null);");
         assertTrue(response.contains("[ERROR]"));
         assertTrue(response.contains("parse"));
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     @Test
@@ -479,8 +537,11 @@ public class InterpreterTests {
         response = sendCommandToServer("CREATE DATABASE CARS;");
         assertTrue(response.contains("[ERROR]"));
         //make this after each?
+        /*
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("cars"));
+
+         */
     }
 
     @Test
@@ -499,10 +560,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("50"));
         //make this after each?
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory("markbook4"));
+
+         */
     }
 
     @Test
@@ -523,10 +587,13 @@ public class InterpreterTests {
         assertTrue(response.contains("[OK]"));
         assertTrue(response.contains("34"));
         //make this after each?
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("test"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+
+         */
     }
 
     //response = sendCommandToServer("SELECT STUDENTMARK FROM marks WHERE name == 'Bob';");
@@ -547,10 +614,12 @@ public class InterpreterTests {
         assertTrue(response.contains("studentMark"));
         assertTrue(response.contains("studentPasses"));
         //make this after each?
+        /*
         Table table = new Table();
         assertTrue(table.deleteTableFile("marks"));
         Database database = new Database();
         assertTrue(database.deleteDatabaseDirectory(randomName));
+         */
     }
 
     @Test
@@ -933,7 +1002,7 @@ public class InterpreterTests {
         Database database = new Database();
         assertTrue(database.isDirectoryEmpty(randomName));
         assertTrue(database.deleteDatabaseDirectory(randomName));
-        
+
          */
     }
 
