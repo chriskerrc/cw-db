@@ -1,6 +1,5 @@
 package edu.uob;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -25,28 +24,20 @@ public class Table {
         currentRecordID = 0;
     }
 
-    public boolean doesFileExist(String fileName) {
-        File fileToOpen = new File(filePath + fileName + fileExtension);
-        return fileToOpen.exists();
-    }
-
     public Table storeNamedFileToTableObject(String fileName) throws IOException{
             File fileToOpen = new File(this.filePath + fileName + this.fileExtension);
-            if(fileToOpen.exists()){
-                this.setTableName(fileName);
-                FileReader reader = new FileReader(fileToOpen);
-                BufferedReader buffReader = new BufferedReader(reader);
-                this.tableDataStructure = new ArrayList<>();
-                String line;
-                while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
-                    String[] rowArray = line.split("\\t"); //split on tab
-                    ArrayList<String> row = fileLineToRow(rowArray);
-                    this.tableDataStructure.add(row);
-                }
-            }
-            else{
+            if(!fileToOpen.exists()) {
                 throw new IOException("File doesn't exist");
-                //create file instead
+            }
+            this.setTableName(fileName);
+            FileReader reader = new FileReader(fileToOpen);
+            BufferedReader buffReader = new BufferedReader(reader);
+            this.tableDataStructure = new ArrayList<>();
+            String line;
+            while ((line = buffReader.readLine()) != null && !line.isEmpty()) {
+                String[] rowArray = line.split("\\t"); //split on tab
+                ArrayList<String> row = fileLineToRow(rowArray);
+                this.tableDataStructure.add(row);
             }
         return this;
     }
@@ -62,67 +53,43 @@ public class Table {
         return row;
     }
 
-
     public ArrayList<ArrayList<String>> getTableDataStructure(){
         return this.tableDataStructure;
     }
 
-
     public void createTableNoValues(String tableName) throws IOException {
-        this.tableDataStructure = this.createTableDataStructureWithNoValues();
+        this.tableDataStructure = this.createTableDataStructure(false, null);
         this.writeTableToFile(tableName, false);
     }
 
     public void createTableWithValues(String tableName, ArrayList<String> values) throws IOException {
-        this.tableDataStructure = this.createTableDataStructureWithValues(values);
+        this.tableDataStructure = this.createTableDataStructure(true, values);
         this.writeTableToFile(tableName, false);
     }
 
-    public ArrayList<ArrayList<String>> createTableDataStructureWithNoValues(){
+    public ArrayList<ArrayList<String>> createTableDataStructure(boolean hasValues, ArrayList<String> values){
         ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
         ArrayList<String> row = new ArrayList<>();
-        //add placeholder column heading to otherwise empty table
-        row.add("id");
+        row.add("id"); //add placeholder column heading to otherwise empty table
+        if(hasValues) {
+            row.addAll(values);
+        }
         tableDataStructure.add(row);
         return tableDataStructure;
     }
-
-    public ArrayList<ArrayList<String>> createTableDataStructureWithValues(ArrayList<String> values){
-        ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
-        ArrayList<String> row = new ArrayList<>();
-        //add placeholder column heading to otherwise empty table
-        row.add("id");
-        row.addAll(values);
-        tableDataStructure.add(row);
-        return tableDataStructure;
-    }
-
-    public Table insertValuesInTable(Table existingTable, ArrayList<String> values){
+    public void insertValuesInTable(Table existingTable, ArrayList<String> values){
         ArrayList<ArrayList<String>> tableDataStructure = existingTable.getTableDataStructure();
         ArrayList<String> row = new ArrayList<>();
-        //add ID at front of values
         String newRecordID = generateRecordID();
         row.add(0, newRecordID);
         row.addAll(values);
         tableDataStructure.add(row);
-        //System.out.println("data structure within insertValuesInTable method " + tableDataStructure);
-        //update table's datastructure with new row
         existingTable.tableDataStructure = tableDataStructure;
-        return existingTable;
     }
 
     private String generateRecordID(){
         currentRecordID++;
         return Integer.toString(currentRecordID);
-    }
-
-    //the following method isn't finished
-    public boolean writeEmptyTableToFile(String tableName) throws IOException {
-        if(doesFileExist(tableName)){
-            return false;
-        }
-        File fileToOpen = new File(this.filePath + tableName + this.fileExtension);
-        return fileToOpen.createNewFile();
     }
 
     public String getTableName(){
@@ -133,23 +100,20 @@ public class Table {
         tableName = newTableName;
     }
 
-    public boolean deleteTableFile(String tableName) throws IOException {
-       if(doesFileExist(tableName)){
-            File tableFile = new File(filePath + tableName + fileExtension);
-            return tableFile.delete();
-        }
-        return false; //or throw error
-    }
-
     public boolean writeTableToFile(String tableName, boolean tableExists) throws IOException { //long method
         String lowercaseTableName = tableName.toLowerCase();
         File tableFile = new File(filePath + lowercaseTableName + fileExtension);
-        if(!tableExists) {
-            if (!tableFile.createNewFile()) {
-                return false;
-            }
+        if(!tableExists && !tableFile.createNewFile()) {
+            return false;
         }
         FileWriter writer = new FileWriter(tableFile);
+        writeTableDataToFile(writer);
+        writer.flush();
+        writer.close();
+        return true;
+    }
+
+    private void writeTableDataToFile (FileWriter writer) throws IOException {
         int numberOfRows = this.tableDataStructure.size();
         int currentRow = 0;
         for (ArrayList<String> row : this.tableDataStructure) {
@@ -167,9 +131,6 @@ public class Table {
                 writer.write("\n");
             }
         }
-        writer.flush();
-        writer.close();
-        return true;
     }
 
     //these two methods seem to add an extra blank line at the end of string: something to do with \n

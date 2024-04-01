@@ -14,7 +14,6 @@ public class Parser {
         this.tokenisedList = tokens;
     }
 
-
     //is there a simpler/less redundant way of doing this? I'm passing strings between multiple levels of functions?
     public String parseCommand(ArrayList<String> tokens) throws Exception{
         Parser p = new Parser(tokens);
@@ -106,7 +105,6 @@ public class Parser {
         if(isSelect(tokens)){
             return "SELECT";
         }
-        //add other commands
         return "INVALID";
     }
     private boolean isUse(ArrayList<String> tokens) throws IOException {
