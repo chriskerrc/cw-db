@@ -49,11 +49,9 @@ public class DatabaseManager {
         return instance;
     }
 
-    //private int activeDatabaseIndex;
-
-    public int addDatabaseToList(Database database){
+    public void addDatabaseToList(Database database){
         databasesList.add(database);
-        return databasesList.indexOf(database);
+        databasesList.indexOf(database);
     }
 
     public Database getDatabaseObjectFromName(String databaseName){
@@ -63,15 +61,6 @@ public class DatabaseManager {
             }
         }
         return null;
-    }
-
-    public int getDatabaseIndexFromName(String databaseName){
-        for (int index = 0; index < databasesList.size(); index++) {
-            if (Objects.equals(databasesList.get(index).getDatabaseName(), databaseName)) {
-                return index;
-            }
-        }
-        return -1;
     }
 
     public boolean databaseObjectAlreadyExists(String databaseName){
@@ -111,7 +100,6 @@ public class DatabaseManager {
         valuesForInsertCommand = valuesList;
     }
 
-
     public void setIsAttributeListForCreateTable(boolean isAttributeList){
         isAttributeListForCreateTable = isAttributeList;
     }
@@ -136,10 +124,6 @@ public class DatabaseManager {
         return selectResponse;
     }
 
-    public void clearDatabasesList(){
-        databasesList.clear();
-    }
-
     public void setConditionAttributeName(String newAttributeName){
         conditionAttributeName = newAttributeName;
     }
@@ -152,73 +136,41 @@ public class DatabaseManager {
         conditionComparator = newConditionComparator;
     }
 
-    public boolean deleteDatabaseObject(String tableName) throws IOException {
-        Iterator<Database> iterator = databasesList.iterator();
-        while(iterator.hasNext()){
-            Database database = iterator.next();
-            if (Objects.equals(database.getDatabaseName(), tableName)) {
-                iterator.remove();
-                return true;
-            }
-        }
-        return false;
-    }
-
     //Interpreter methods
-    public boolean interpretCreateDatabase() throws IOException {
+    public boolean interpretCreateDatabase() {
         if(databaseObjectAlreadyExists(databaseToCreate)) {
             throw new RuntimeException("Trying to create a database that already exists?");
         }
-        Database database = new Database();
+        Database database = createNewDatabase();
         addDatabaseToList(database);
-        database.setDatabaseName(databaseToCreate);
         return database.createDatabaseDirectory(databaseToCreate);
     }
 
     public boolean interpretUseDatabase() throws IOException {
-        if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist? Try creating it");
-        }
+        checkDatabaseInUse("Database doesn't exist or not in USE?");
         setDatabaseInUse(databaseInUse);
         Database database = getDatabaseObjectFromName(databaseInUse);
         String[] filesList = database.getFilesInDatabaseFolder(databaseInUse);
-        if(filesList != null) {
-            database.loadAllTablesInFolderToDatabaseObject(filesList);
-            return true;
+        if(filesList == null){
+            throw new RuntimeException("Failed to load database");
         }
-        throw new RuntimeException("Failed to load database");
+        database.loadAllTablesInFolderToDatabaseObject(filesList);
+        return true;
     }
 
     public boolean interpretCreateTable() throws IOException{
-        if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist or not in USE?");
-        }
+        checkDatabaseInUse("Database doesn't exist? Try creating it");
         Database database = getDatabaseObjectFromName(databaseInUse);
         if(database.tableExistsInDatabase(tableToCreate)){
             throw new RuntimeException("Trying to create a table that already exists?");
         }
-        Table newTable = new Table();
-        newTable.setTableName(tableToCreate);
-        if(!isAttributeListForCreateTable){
-            newTable.createTableNoValues(tableToCreate); //this method also writes the table to file:
-        }
-        else{
-            ArrayList<String> valuesList = attributeNamesForCreateTable;
-            ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
-            //preserve case of values before attributesDuplicated method called
-            if(attributesDuplicated(valuesList)){
-                throw new RuntimeException("Column headers are duplicated?");
-            }
-            newTable.createTableWithValues(tableToCreate, valuesPreserveCase);
-        }
+        Table newTable = createNewTable();
         database.loadTableToDatabase(newTable);
         return true;
     }
 
     public boolean interpretInsert() throws IOException{
-        if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist or not in USE?");
-        }
+        checkDatabaseInUse("Database doesn't exist or not in USE?");
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToInsertInto)) {
             throw new RuntimeException("Trying to insert values into a table that doesn't exist?");
@@ -228,19 +180,14 @@ public class DatabaseManager {
             throw new RuntimeException("Table doesn't exist?");
         }
         updateHighestIDFromTableOnFIle(table);
-        int numberOfColumns = table.getNumberColumnsTable();
-        if(numberOfColumns != valuesForInsertCommand.size() + 1){ //add 1 to account for id column
-            throw new RuntimeException("Attempting to insert wrong number of values?");
-        }
+        checkNumberOfColumns(table);
         table.insertValuesInTable(table, valuesForInsertCommand);
         database.loadTableToDatabase(table);
         return table.writeTableToFile(tableToInsertInto, true);
     }
 
-    public boolean interpretSelect() throws IOException{
-        if(!databaseObjectAlreadyExists(databaseInUse)) {
-            throw new RuntimeException("Database doesn't exist or not in USE?");
-        }
+    public boolean interpretSelect() {
+        checkDatabaseInUse("Database doesn't exist or not in USE?");
         Database database = getDatabaseObjectFromName(databaseInUse);
         if (!database.tableExistsInDatabase(tableToSelect)) {
             throw new RuntimeException("Selected table doesn't exist");
@@ -250,46 +197,30 @@ public class DatabaseManager {
             handleSelectCommandAsteriskNoCondition(selectedTableObject);
             return true;
         }
-        if (hasAsterisk && hasCondition) {
+        if (hasAsterisk) {
             handleSelectCommandAsteriskCondition(selectedTableObject);
             return true;
         }
-        if(!hasAsterisk && hasCondition) {
+        if(hasCondition) {
             return handleSelectCommandNoAsteriskCondition(selectedTableObject);
         }
         return false;
     }
 
     private ArrayList<Integer> interpretSelectCondition(Table table) {
-        ArrayList<Integer> rowsToIncludeInSelectResponse = new ArrayList<>();
+        ArrayList<Integer> rowsToIncludeInSelectResponse;
         int columnIndex = table.getIndexAttributeName(conditionAttributeName);
-        ArrayList<Integer> rowsValueIsIn = table.getRowsValueIsIn(columnIndex, conditionValue);
-        if(Objects.equals(conditionComparator, "==")) {
-            rowsToIncludeInSelectResponse = rowsValueIsIn;
-        }
-        if(Objects.equals(conditionComparator, "!=")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueIsNotIn(rowsValueIsIn);
-        }
-        if(Objects.equals(conditionComparator, ">")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
-        }
-        if(Objects.equals(conditionComparator, "<")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
-        }
-        if(Objects.equals(conditionComparator, ">=")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
-        }
-        if(Objects.equals(conditionComparator, "<=")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueGreaterOrLessThan(columnIndex);
-        }
-        if(Objects.equals(conditionComparator, "LIKE")) {
-            rowsToIncludeInSelectResponse = table.getRowsValueLike(columnIndex);
-        }
+        rowsToIncludeInSelectResponse = switch (conditionComparator) {
+            case "==" -> table.getRowsValueIn(columnIndex, conditionValue);
+            case "!=" -> table.getRowsValueNotIn(table.getRowsValueIn(columnIndex, conditionValue));
+            case ">", "<", ">=", "<=" -> table.getRowsValueGreaterOrLessThan(columnIndex);
+            case "LIKE" -> table.getRowsValueLike(columnIndex);
+            default -> throw new IllegalStateException("Unexpected comparator in condition: " + conditionComparator);
+        };
         return rowsToIncludeInSelectResponse;
     }
 
-
-    //wrapper methods
+    //wrapper and helper methods
     private void handleSelectCommandAsteriskNoCondition(Table selectedTableObject) {
         ArrayList<Integer> listOfRows = selectedTableObject.populateListOfRowsForWholeTable();
         selectResponse = selectedTableObject.tableRowsToString(selectedTableObject, listOfRows);
@@ -333,7 +264,41 @@ public class DatabaseManager {
         tableToInsetInto.setCurrentRecordID(highestCurrentID);
     }
 
+    private Database createNewDatabase(){
+        Database database = new Database();
+        database.setDatabaseName(databaseToCreate);
+        return database;
+    }
 
-    //when running tests, consider zeroing out the attributes in this class after every scenario
+    private Table createNewTable() throws IOException {
+        Table newTable = new Table();
+        newTable.setTableName(tableToCreate);
+        if(!isAttributeListForCreateTable){
+            newTable.createTableNoValues(tableToCreate); //this method also writes the table to file:
+        }
+        else{
+            ArrayList<String> valuesList = attributeNamesForCreateTable;
+            ArrayList<String> valuesPreserveCase = new ArrayList<>(valuesList);
+            //preserve case of values before attributesDuplicated method called
+            if(attributesDuplicated(valuesList)){
+                throw new RuntimeException("Column headers are duplicated?");
+            }
+            newTable.createTableWithValues(tableToCreate, valuesPreserveCase);
+        }
+        return newTable;
+    }
+
+    private void checkDatabaseInUse(String exceptionMessage){
+        if(!databaseObjectAlreadyExists(databaseInUse)) {
+            throw new RuntimeException(exceptionMessage);
+        }
+    }
+
+    private void checkNumberOfColumns(Table tableToInsertInto){
+        int numberOfColumns = tableToInsertInto.getNumberColumnsTable();
+        if(numberOfColumns != valuesForInsertCommand.size() + 1) { //add 1 to account for id column
+            throw new RuntimeException("Attempting to insert wrong number of values?");
+        }
+    }
 
 }

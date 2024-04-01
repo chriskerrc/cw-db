@@ -20,7 +20,6 @@ public class Database {
         DBServer dbServer = new DBServer();
         storageFolderPath = dbServer.getStorageFolderPath();
         filePath = storageFolderPath + File.separator;
-
     }
 
     public boolean doesDirectoryExist(String fileName) {
@@ -29,57 +28,12 @@ public class Database {
         return fileToOpen.exists();
     }
     public boolean createDatabaseDirectory(String databaseName){
-        if(!doesDirectoryExist(databaseName)){
-            String databaseNameLowercase = databaseName.toLowerCase();
-            File databaseFolder = new File(filePath + databaseNameLowercase);
-            return databaseFolder.mkdir();
-        }
-        return false; //or throw error
-    }
-
-    public boolean deleteDatabaseDirectory(String databaseName) throws IOException {
-        String lowercaseDatabaseName = databaseName.toLowerCase();
-        if(isDirectoryEmpty(lowercaseDatabaseName)){
-            File databaseFolder = new File(filePath + lowercaseDatabaseName);
-            return databaseFolder.delete();
-
-        }
-        return false; //or throw error
-    }
-
-
-    public boolean deleteTableObject(String tableName) throws IOException {
-        Iterator<Table> iterator = tablesInDatabase.iterator();
-        while(iterator.hasNext()){
-            Table table = iterator.next();
-            if (Objects.equals(table.getTableName(), tableName)) {
-                iterator.remove();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isDirectoryEmpty(String databaseName) throws IOException {
-        Path directoryPath = Path.of(filePath, databaseName);
         if(doesDirectoryExist(databaseName)){
-            try (DirectoryStream<Path> directory = Files.newDirectoryStream(directoryPath)){
-                return !directory.iterator().hasNext();
-            }//catch exception
+            return false;
         }
-        return true;
-    }
-
-    public boolean databaseDirectoryIsSavedAsLowercase(String databaseName) throws IOException {
-        Path directoryPath = Path.of(filePath, databaseName);
-        if(doesDirectoryExist(databaseName)){
-            String directoryName = directoryPath.getFileName().toString();
-            System.out.println("directory Name " + directoryName);
-            String directoryNameToLowercase = directoryName.toLowerCase();
-            System.out.println("directory Name to lowercase " + directoryNameToLowercase);
-            return directoryName.equals(directoryNameToLowercase);
-        }
-        return false;
+        String databaseNameLowercase = databaseName.toLowerCase();
+        File databaseFolder = new File(filePath + databaseNameLowercase);
+        return databaseFolder.mkdir();
     }
 
     public void loadTableToDatabase(Table table){
@@ -111,17 +65,17 @@ public class Database {
                 return name.toLowerCase().endsWith(".tab");
             }
         });
-        if(listFiles != null) {
-            String[] fileNames = new String[listFiles.length];
-            for(int i = 0; i < listFiles.length; i++){
-                    fileNames[i] = listFiles[i].getName();
-            }
-            for(int i = 0; i <fileNames.length; i++){
-                    fileNames[i] = fileNames[i].replace(".tab", "");
-            }
-            return fileNames;
+        if(listFiles == null){
+            return null;
         }
-        return null;
+        String[] fileNames = new String[listFiles.length];
+        for(int i = 0; i < listFiles.length; i++){
+            fileNames[i] = listFiles[i].getName();
+        }
+        for(int i = 0; i <fileNames.length; i++){
+            fileNames[i] = fileNames[i].replace(".tab", "");
+        }
+        return fileNames;
     }
 
     public boolean tableExistsInDatabase(String tableName){
@@ -141,9 +95,4 @@ public class Database {
         }
         return null;
     }
-    //call addTableToList when creating table
-    //method: have a setter method addTableToActiveDatabase that can be called from Table class to add the table to list of current tables, or remove it when deleted:
-            //a list storing a reference to the table object
-            //need to call this on create table
-
 }

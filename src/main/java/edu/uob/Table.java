@@ -234,7 +234,7 @@ public class Table {
     }
 
     //reduce repeated code across these two methods (hard to do this without triply nested statements but take the hit)
-    public ArrayList<Integer> getRowsValueIsIn(int columnIndex, String conditionValue){
+    public ArrayList<Integer> getRowsValueIn(int columnIndex, String conditionValue){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();
         int totalRows = dataStructure.size();
@@ -248,7 +248,7 @@ public class Table {
         return rowsToInclude;
     }
 
-    public ArrayList<Integer> getRowsValueIsNotIn(ArrayList<Integer> rowsValueIsIn){
+    public ArrayList<Integer> getRowsValueNotIn(ArrayList<Integer> rowsValueIsIn){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();
         int totalRows = dataStructure.size();
