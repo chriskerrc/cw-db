@@ -18,6 +18,8 @@ public class DBServer {
     private static final char END_OF_TRANSMISSION = 4;
     private String storageFolderPath;
 
+    private final String respondOK = "[OK]";
+
     public static void main(String args[]) throws IOException {
         DBServer server = new DBServer();
         server.blockingListenOn(8888);
@@ -46,28 +48,21 @@ public class DBServer {
         try {
             Preprocessor preprocessor = new Preprocessor(command);
             ArrayList<String> tokens = preprocessor.getTokens();
-
             Parser p = new Parser(tokens);
-            //can I "hash define" strings somewhere?
             String responseString = p.parseCommand(tokens);
-            if (Objects.equals(responseString, "CREATE_DATABASE")) { //passing tokens directly to isCommand is redundant when passing it to Parser?
-                return "[OK]";
+            if(responseString != null){
+                switch (responseString) {
+                    case "CREATE_DATABASE":
+                    case "CREATE_TABLE":
+                    case "USE":
+                    case "INSERT":
+                        return respondOK;
+                    case "SELECT":
+                        DatabaseManager databaseManager = DatabaseManager.getInstance();
+                        String selectResponse = databaseManager.getSelectResponse();
+                        return respondOK + "\n" + selectResponse;
+                }
             }
-            if (Objects.equals(responseString, "CREATE_TABLE")) {
-                return "[OK]";
-            }
-            if (Objects.equals(responseString, "USE")) {
-                return "[OK]";
-            }
-            if (Objects.equals(responseString, "INSERT")) {
-                return "[OK]";
-            }
-            DatabaseManager databaseManager = DatabaseManager.getInstance();
-            String selectResponse = databaseManager.getSelectResponse();
-            if (Objects.equals(responseString, "SELECT")) {
-                return "[OK]" + "\n" + selectResponse;
-            }
-            //not sure if I need the error in this return statement: test to see what happens
             return "[ERROR]: Failed to handle command";
         } catch (Throwable throwable) {
             return "[ERROR]: " + throwable.getMessage();
