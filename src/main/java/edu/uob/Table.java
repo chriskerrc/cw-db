@@ -8,6 +8,7 @@ public class Table {
     private ArrayList<ArrayList<String>> tableDataStructure;
     private String storageFolderPath;
     private String filePath;
+
     private final String fileExtension = ".tab";
 
     private String tableName;
@@ -133,8 +134,6 @@ public class Table {
         }
     }
 
-    //these two methods seem to add an extra blank line at the end of string: something to do with \n
-    //deeply nested method
     public String tableRowsToString (Table selectedTable, ArrayList<Integer> rowsToInclude){
         rowsToInclude.add(0, 0); //always include header row at start of list
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
@@ -144,18 +143,23 @@ public class Table {
                 ArrayList<String> row = dataStructure.get(rowIndex);
                 int numberOfColumns = row.size();
                 int currentColumn = 0;
-                for (String token : row) {
-                    stringBuilder.append(token);
-                    if (currentColumn < numberOfColumns - 1) {
-                        stringBuilder.append("\t");
-                    }
-                    currentColumn++;
-                }
-                stringBuilder.append("\n");
+                tokensToString(row, stringBuilder, currentColumn, numberOfColumns);
             }
         }
         return stringBuilder.toString();
     }
+
+    private void tokensToString(ArrayList<String> row, StringBuilder sBuilder, int currentColumn, int numberOfColumns){
+        for (String token : row) {
+            sBuilder.append(token);
+            if (currentColumn < numberOfColumns - 1) {
+                sBuilder.append("\t");
+            }
+            currentColumn++;
+        }
+        sBuilder.append("\n");
+    }
+
 
     public String valuesInColumnToString (Table selectedTable, ArrayList<Integer> rowsToInclude, int columnIndex){
         rowsToInclude.add(0, 0); //always include header row at start of list
@@ -194,29 +198,21 @@ public class Table {
         return -1;
     }
 
-    //reduce repeated code across these two methods (hard to do this without triply nested statements but take the hit)
-    public ArrayList<Integer> getRowsValueIn(int columnIndex, String conditionValue){
+    public ArrayList<Integer> getRowsValueIn(int columnIndex, String conditionValue, boolean includeRow){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<Integer> rowsToInclude = new ArrayList<>();
         int totalRows = dataStructure.size();
         int row = 1; //skip header row
         while(row < totalRows){
-            if(Objects.equals(dataStructure.get(row).get(columnIndex), conditionValue)){
-                rowsToInclude.add(row);
+            if(includeRow){
+               if(Objects.equals(dataStructure.get(row).get(columnIndex), conditionValue)){
+                 rowsToInclude.add(row);
+               }
             }
-            row++;
-        }
-        return rowsToInclude;
-    }
-
-    public ArrayList<Integer> getRowsValueNotIn(ArrayList<Integer> rowsValueIsIn){
-        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
-        ArrayList<Integer> rowsToInclude = new ArrayList<>();
-        int totalRows = dataStructure.size();
-        int row = 1; //skip header row
-        while(row < totalRows){
-            if(!rowsValueIsIn.contains(row)){
-                rowsToInclude.add(row);
+            else{
+                if(!Objects.equals(dataStructure.get(row).get(columnIndex), conditionValue)){
+                    rowsToInclude.add(row);
+                }
             }
             row++;
         }
@@ -232,7 +228,7 @@ public class Table {
         int totalRows = dataStructure.size();
         int row = 1; //skip header row
         while (row < totalRows) {
-            try{ //try catch number format exceptions
+            try{
             if (Objects.equals(conditionComparator, ">")) {
                 if (Integer.parseInt(dataStructure.get(row).get(columnIndex)) > Integer.parseInt(conditionValue)) {
                     rowsToInclude.add(row);
@@ -278,7 +274,8 @@ public class Table {
     public boolean stringContainsCharacter(String token) {
     DatabaseManager databaseManager = DatabaseManager.getInstance();
     String conditionValue = databaseManager.getConditionValue();
-        if(conditionValue.length() > 2 && conditionValue.startsWith("'") && conditionValue.endsWith("'")) { //magic number
+        int minimumLength = 2;
+        if(conditionValue.length() > minimumLength && conditionValue.startsWith("'") && conditionValue.endsWith("'")) {
             conditionValue =  conditionValue.substring(1, conditionValue.length() - 1);
         }
         return token.contains(conditionValue);

@@ -211,8 +211,8 @@ public class DatabaseManager {
         ArrayList<Integer> rowsToIncludeInSelectResponse;
         int columnIndex = table.getIndexAttributeName(conditionAttributeName);
         rowsToIncludeInSelectResponse = switch (conditionComparator) {
-            case "==" -> table.getRowsValueIn(columnIndex, conditionValue);
-            case "!=" -> table.getRowsValueNotIn(table.getRowsValueIn(columnIndex, conditionValue));
+            case "==" -> table.getRowsValueIn(columnIndex, conditionValue, true);
+            case "!=" -> table.getRowsValueIn(columnIndex, conditionValue, false);
             case ">", "<", ">=", "<=" -> table.getRowsValueGreaterOrLessThan(columnIndex);
             case "LIKE" -> table.getRowsValueLike(columnIndex);
             default -> throw new IllegalStateException("Unexpected comparator in condition: " + conditionComparator);
