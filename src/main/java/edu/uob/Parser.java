@@ -14,7 +14,8 @@ public class Parser {
         this.tokenisedList = tokens;
     }
 
-    public String parseCommand(ArrayList<String> tokens) throws Exception{
+    public String parseCommand() throws Exception{
+        ArrayList<String> tokens = this.tokenisedList;
         Parser p = new Parser(tokens);
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         String command = p.isCommand(tokens);

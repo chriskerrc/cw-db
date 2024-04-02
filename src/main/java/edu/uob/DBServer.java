@@ -18,7 +18,7 @@ public class DBServer {
     private static final char END_OF_TRANSMISSION = 4;
     private String storageFolderPath;
 
-    private final String respondOK = "[OK]";
+    private final String okResponse = "[OK]";
 
     public static void main(String args[]) throws IOException {
         DBServer server = new DBServer();
@@ -44,28 +44,28 @@ public class DBServer {
     *
     * <p>This method handles all incoming DB commands and carries out the required actions.
     */
-    public String handleCommand(String command) {
+    public String handleCommand(String dbCommand) {
         try {
-            Preprocessor preprocessor = new Preprocessor(command);
-            ArrayList<String> tokens = preprocessor.getTokens();
-            Parser p = new Parser(tokens);
-            String responseString = p.parseCommand(tokens);
+            Preprocessor commandPreprocessor = new Preprocessor(dbCommand);
+            ArrayList<String> processedTokens = commandPreprocessor.getTokens();
+            Parser commandParser = new Parser(processedTokens);
+            String responseString = commandParser.parseCommand();
             if(responseString != null){
                 switch (responseString) {
                     case "CREATE_DATABASE":
                     case "CREATE_TABLE":
                     case "USE":
                     case "INSERT":
-                        return respondOK;
+                        return okResponse;
                     case "SELECT":
                         DatabaseManager databaseManager = DatabaseManager.getInstance();
                         String selectResponse = databaseManager.getSelectResponse();
-                        return respondOK + "\n" + selectResponse;
+                        return okResponse + "\n" + selectResponse;
                 }
             }
             return "[ERROR]: Failed to handle command";
-        } catch (Throwable throwable) {
-            return "[ERROR]: " + throwable.getMessage();
+        } catch (Throwable throwableException) {
+            return "[ERROR]: " + throwableException.getMessage();
         }
     }
 
