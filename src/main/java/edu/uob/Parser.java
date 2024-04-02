@@ -127,11 +127,11 @@ public class Parser {
             incrementCurrentWord(tokens);
             if (!currentWordMatches(tokens, "(")){ //No attribute list
                 decrementCurrentWord(tokens);
-                databaseManager.setIsAttributeListForCreateTable(false);
+                databaseManager.setTableHasAttributes(false);
                 return true;
             }
             else{ //Expecting attribute list
-                databaseManager.setIsAttributeListForCreateTable(true);
+                databaseManager.setTableHasAttributes(true);
                 return isCreateTableAttributeList(tokens);
             }
         }
@@ -168,7 +168,7 @@ public class Parser {
         if(!isTableName(tokens)) {
             return false;
         }
-        databaseManager.setNameTableToInsertInto(getCurrentWordString());
+        databaseManager.setNameInsertTable(getCurrentWordString());
         incrementCurrentWord(tokens);
         if(!currentWordMatches(tokens, "VALUES")){
             return false;
@@ -301,7 +301,7 @@ public class Parser {
                    //Only one Attribute Name (no list) so reset currentWord after look ahead
                    decrementCurrentWord(tokens);
                    DatabaseManager databaseManager = DatabaseManager.getInstance();
-                   databaseManager.setAttributeNamesForCreateTable(attributeNames);
+                   databaseManager.setTableAttributes(attributeNames);
                    return true;
                }
            }
@@ -325,7 +325,7 @@ public class Parser {
                     //Only one Value (no list) so reset currentWord after look ahead
                     decrementCurrentWord(tokens);
                     DatabaseManager databaseManager = DatabaseManager.getInstance();
-                    databaseManager.setValuesForInsertCommand(valueList);
+                    databaseManager.setInsertionValues(valueList);
                     return true;
                 }
             }
@@ -428,7 +428,7 @@ public class Parser {
         if(!isAttributeName(tokens)){
             return false;
         }
-        databaseManager.setConditionAttributeName(getCurrentWordString());
+        databaseManager.setConditionAttribute(getCurrentWordString());
         incrementCurrentWord(tokens);
         if(!isComparator(tokens)){
             return false;

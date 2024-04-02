@@ -161,7 +161,7 @@ public class Table {
     }
 
 
-    public String valuesInColumnToString (Table selectedTable, ArrayList<Integer> rowsToInclude, int columnIndex){
+    public String columnValuesToString (Table selectedTable, ArrayList<Integer> rowsToInclude, int columnIndex){
         rowsToInclude.add(0, 0); //always include header row at start of list
         ArrayList<ArrayList<String>> dataStructure = selectedTable.tableDataStructure;
         StringBuilder stringBuilder = new StringBuilder();
@@ -175,7 +175,7 @@ public class Table {
         return stringBuilder.toString();
     }
 
-    public ArrayList<Integer> populateListOfRowsForWholeTable (){
+    public ArrayList<Integer> fillListTableRows (){
         ArrayList<ArrayList<String>> dataStructure = this.getTableDataStructure();
         int maximumRow = dataStructure.size();
         ArrayList<Integer> listOfRows = new ArrayList<>();
@@ -187,7 +187,7 @@ public class Table {
         return listOfRows;
     }
 
-    public int getIndexAttributeName(String attributeName) {
+    public int getIndexAttribute(String attributeName) {
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> tableHeader = dataStructure.get(0);
         for(int headerIndex = 0; headerIndex < tableHeader.size(); headerIndex++){
@@ -219,7 +219,7 @@ public class Table {
         return rowsToInclude;
     }
 
-    public ArrayList<Integer> getRowsValueGreaterOrLessThan(int columnIndex) {
+    public ArrayList<Integer> getComparatorRows(int columnIndex) {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         String conditionValue = databaseManager.getConditionValue();
         String conditionComparator = databaseManager.getConditionComparator();
@@ -281,7 +281,7 @@ public class Table {
         return token.contains(conditionValue);
     }
 
-    public int getNumberColumnsTable(){
+    public int getSumColumnsTable(){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> columnHeaderRow = dataStructure.get(0);
         return columnHeaderRow.size();

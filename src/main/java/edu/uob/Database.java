@@ -22,30 +22,30 @@ public class Database {
         filePath = storageFolderPath + File.separator;
     }
 
-    public boolean doesDirectoryExist(String fileName) {
+    public boolean checkFolderExists(String fileName) {
         String lowercaseDatabaseName = fileName.toLowerCase();
         File fileToOpen = new File(filePath + lowercaseDatabaseName);
         return fileToOpen.exists();
     }
-    public boolean createDatabaseDirectory(String databaseName){
-        if(doesDirectoryExist(databaseName)){
+    public boolean createDBDirectory(String databaseName){
+        if(checkFolderExists(databaseName)){
             return false;
         }
-        String databaseNameLowercase = databaseName.toLowerCase();
-        File databaseFolder = new File(filePath + databaseNameLowercase);
+        String lowercaseDatabaseName = databaseName.toLowerCase();
+        File databaseFolder = new File(filePath + lowercaseDatabaseName);
         return databaseFolder.mkdir();
     }
 
-    public void loadTableToDatabase(Table table){
-        tablesInDatabase.add(table);
+    public void loadTableToDatabase(Table newTable){
+        tablesInDatabase.add(newTable);
     }
 
-    public void loadAllTablesInFolderToDatabaseObject(String [] tableNames) throws IOException {
+    public void loadTablesToDatabase(String [] tableNames) throws IOException {
         for (String tableName : tableNames) {
-            Table table = new Table();
-            table.storeNamedFileToTableObject(tableName);
-            table.setTableName(tableName);
-            loadTableToDatabase(table);
+            Table newTable = new Table();
+            newTable.storeNamedFileToTableObject(tableName);
+            newTable.setTableName(tableName);
+            loadTableToDatabase(newTable);
         }
     }
 
@@ -57,12 +57,12 @@ public class Database {
         databaseName = newDatabaseName;
     }
 
-    public String[] getFilesInDatabaseFolder(String databaseName){
+    public String[] getFilesInDBFolder(String databaseName){
         String lowercaseDatabaseName = databaseName.toLowerCase();
         File directoryToOpen = new File(filePath + lowercaseDatabaseName);
         File[] listFiles = directoryToOpen.listFiles(new FilenameFilter() {
-            public boolean accept(File directoryToOpen, String name) {
-                return name.toLowerCase().endsWith(".tab");
+            public boolean accept(File directoryToOpen, String fileName) {
+                return fileName.toLowerCase().endsWith(".tab");
             }
         });
         if(listFiles == null){
@@ -78,19 +78,19 @@ public class Database {
         return fileNames;
     }
 
-    public boolean tableExistsInDatabase(String tableName){
-        for (Table table : tablesInDatabase) {
-            if (table.getTableName().equalsIgnoreCase(tableName)) {
+    public boolean tableExistsInDB(String tableName){
+        for (Table tableToCheck : tablesInDatabase) {
+            if (tableToCheck.getTableName().equalsIgnoreCase(tableName)) {
                 return true;
             }
         }
         return false;
     }
 
-    public Table getTableObjectFromDatabaseFromName(String tableName){
-        for (Table table : tablesInDatabase) {
-            if (table.getTableName().equalsIgnoreCase(tableName)) {
-                return table;
+    public Table getTableFromDatabase(String tableName){
+        for (Table tableToGet : tablesInDatabase) {
+            if (tableToGet.getTableName().equalsIgnoreCase(tableName)) {
+                return tableToGet;
             }
         }
         return null;
