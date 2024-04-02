@@ -6,7 +6,7 @@ import java.util.*;
 //Singleton class to manage databases as single source of truth and contain interpreter methods
 public class DatabaseManager {
 
-    private static DatabaseManager instance = null;
+    static private DatabaseManager instance = null;
 
     static private ArrayList<Database> databasesList = new ArrayList<>();
 
@@ -49,28 +49,7 @@ public class DatabaseManager {
         return instance;
     }
 
-    public void addDatabaseToList(Database newDatabase){
-        databasesList.add(newDatabase);
-        databasesList.indexOf(newDatabase);
-    }
-
-    public Database getDatabase(String databaseName){
-        for (Database databaseInList : databasesList) {
-            if (databaseInList.getDatabaseName().equalsIgnoreCase(databaseName)) {
-                return databaseInList;
-            }
-        }
-        return null;
-    }
-
-    public boolean checkDBExists(String databaseName){
-        for (Database database : databasesList) {
-            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    //Getters and setters
 
     public void setDatabaseInUse(String databaseName){
         databaseInUse = databaseName;
@@ -134,6 +113,14 @@ public class DatabaseManager {
 
     public void setConditionComparator(String newConditionComparator){
         conditionComparator = newConditionComparator;
+    }
+
+    public String getConditionValue() {
+        return conditionValue;
+    }
+
+    public String getConditionComparator() {
+        return conditionComparator;
     }
 
     //Interpreter methods
@@ -207,6 +194,8 @@ public class DatabaseManager {
         return false;
     }
 
+    //Private methods
+
     private ArrayList<Integer> interpretSelectCondition(Table table) {
         ArrayList<Integer> rowsToInclude;
         int columnIndex = table.getIndexAttribute(conditionAttribute);
@@ -220,7 +209,7 @@ public class DatabaseManager {
         return rowsToInclude;
     }
 
-    //wrapper and helper methods
+    //Private methods
     private void selectStarNoCondition(Table selectedTable) {
         ArrayList<Integer> rowList = selectedTable.fillListTableRows();
         selectResponse = selectedTable.tableRowsToString(selectedTable, rowList);
@@ -249,17 +238,9 @@ public class DatabaseManager {
         return attributeSet.size() < attributeList.size();
     }
 
-    public String getConditionValue() {
-        return conditionValue;
-    }
-
-    public String getConditionComparator() {
-        return conditionComparator;
-    }
-
     private void setTableIDFromFile(Table tableToInsetInto) throws IOException {
         Table tableFromFile = new Table();
-        tableFromFile = tableFromFile.storeNamedFileToTableObject(insertionTable);
+        tableFromFile = tableFromFile.storeFileToTable(insertionTable);
         int highestCurrentID = tableFromFile.getCurrentHighestID();
         tableToInsetInto.setCurrentRecordID(highestCurrentID);
     }
@@ -282,7 +263,7 @@ public class DatabaseManager {
             if(checkRepeatAttributes(valuesList)){
                 throw new RuntimeException("Column headers are duplicated?");
             }
-            newTable.createTableWithValues(tableToCreate, valuesOriginalCase);
+            newTable.createTableHasValues(tableToCreate, valuesOriginalCase);
         }
         return newTable;
     }
@@ -294,10 +275,33 @@ public class DatabaseManager {
     }
 
     private void checkTotalColumns(Table tableToInsertInto){
-        int numberOfColumns = tableToInsertInto.getSumColumnsTable();
+        int numberOfColumns = tableToInsertInto.getTotalColumns();
         if(numberOfColumns != insertionValues.size() + 1) { //add 1 to account for id column
             throw new RuntimeException("Attempting to insert wrong number of values?");
         }
+    }
+
+    private void addDatabaseToList(Database newDatabase){
+        databasesList.add(newDatabase);
+        databasesList.indexOf(newDatabase);
+    }
+
+    private Database getDatabase(String databaseName){
+        for (Database databaseInList : databasesList) {
+            if (databaseInList.getDatabaseName().equalsIgnoreCase(databaseName)) {
+                return databaseInList;
+            }
+        }
+        return null;
+    }
+
+    private boolean checkDBExists(String databaseName){
+        for (Database database : databasesList) {
+            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

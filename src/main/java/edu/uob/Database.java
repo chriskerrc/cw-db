@@ -22,7 +22,7 @@ public class Database {
         filePath = storageFolderPath + File.separator;
     }
 
-    public boolean checkFolderExists(String fileName) {
+    private boolean checkFolderExists(String fileName) {
         String lowercaseDatabaseName = fileName.toLowerCase();
         File fileToOpen = new File(filePath + lowercaseDatabaseName);
         return fileToOpen.exists();
@@ -43,7 +43,7 @@ public class Database {
     public void loadTablesToDatabase(String [] tableNames) throws IOException {
         for (String tableName : tableNames) {
             Table newTable = new Table();
-            newTable.storeNamedFileToTableObject(tableName);
+            newTable.storeFileToTable(tableName);
             newTable.setTableName(tableName);
             loadTableToDatabase(newTable);
         }

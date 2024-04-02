@@ -4,47 +4,49 @@ import java.util.ArrayList;
 public class Preprocessor {
 
     String[] specialCharacters = {"(",")",",",";",">","<"};
-    ArrayList<String> tokens = new ArrayList<String>();
+    ArrayList<String> commandTokens = new ArrayList<String>();
 
-    public Preprocessor(String query) {
-        setup(query);
+    int modulusConstant = 2;
+
+    public Preprocessor(String databaseQuery) {
+        setupTokeniser(databaseQuery);
     }
-    void setup(String query)
+    void setupTokeniser(String databaseQuery)
     {
-        query = query.trim();
-        String[] fragments = query.split("'");
-        for (int i=0; i<fragments.length; i++) {
-            if (i%2 != 0) tokens.add("'" + fragments[i] + "'");
+        databaseQuery = databaseQuery.trim();
+        String[] commandFragments = databaseQuery.split("'");
+        for (int fragmentIndex=0; fragmentIndex<commandFragments.length; fragmentIndex++) {
+            if (fragmentIndex % modulusConstant != 0) commandTokens.add("'" + commandFragments[fragmentIndex] + "'");
             else {
-                String[] nextBatchOfTokens = tokenise(fragments[i]);
-                tokens.addAll(Arrays.asList(nextBatchOfTokens));
+                String[] nextBatchOfTokens = tokeniseQuery(commandFragments[fragmentIndex]);
+                commandTokens.addAll(Arrays.asList(nextBatchOfTokens));
             }
         }
     }
 
-    String[] tokenise(String input)
+    String[] tokeniseQuery(String inputString)
     {
         for (String specialCharacter : specialCharacters) {
-                input = input.replace(specialCharacter, " " + specialCharacter + " ");
+            inputString = inputString.replace(specialCharacter, " " + specialCharacter + " ");
         }
-        while (input.contains("  ")) input = input.replaceAll("  ", " ");
-        input = input.trim();
+        while (inputString.contains("  ")) inputString = inputString.replaceAll("  ", " ");
+        inputString = inputString.trim();
         //Ensure composite comparator characters are kept together
-        input = input.replace("> =", ">=");
-        input = input.replace("< =", "<=");
-        input = input.replace("! =", "!=");
-        input = input.replace("= =", "==");
+        inputString = inputString.replace("> =", ">=");
+        inputString = inputString.replace("< =", "<=");
+        inputString = inputString.replace("! =", "!=");
+        inputString = inputString.replace("= =", "==");
         //add a space after >= and <= where they're not already followed by a space
-        input = input.replaceAll(">=(?! )", ">= ");
-        input = input.replaceAll("<=(?! )", "<= ");
+        inputString = inputString.replaceAll(">=(?! )", ">= ");
+        inputString = inputString.replaceAll("<=(?! )", "<= ");
         //add a space before and after == and != where they're not already surrounded by a spaces
-        input = input.replaceAll("(?<! )==(?! )", " == ");
-        input = input.replaceAll("(?<! )!=(?! )", " != ");
-        return input.split(" ");
+        inputString = inputString.replaceAll("(?<! )==(?! )", " == ");
+        inputString = inputString.replaceAll("(?<! )!=(?! )", " != ");
+        return inputString.split(" ");
     }
 
     public ArrayList<String> getTokens(){
-        return tokens;
+        return commandTokens;
     }
 }
 

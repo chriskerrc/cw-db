@@ -2,7 +2,6 @@ package edu.uob;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -10,17 +9,17 @@ public class Parser {
     ArrayList<String> tokenisedList;
     static int currentWord = 0;
 
-    public Parser(ArrayList<String> tokens) {
-        this.tokenisedList = tokens;
+    public Parser(ArrayList<String> commandTokens) {
+        this.tokenisedList = commandTokens;
     }
 
     public String parseCommand() throws Exception{
-        ArrayList<String> tokens = this.tokenisedList;
-        Parser p = new Parser(tokens);
+        ArrayList<String> commandTokens = this.tokenisedList;
+        Parser commandParser = new Parser(commandTokens);
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        String command = p.isCommand(tokens);
+        String dbCommand = commandParser.isCommand(commandTokens);
         try {
-            switch (command) {
+            switch (dbCommand) {
                 case "CREATE_DATABASE":
                     if (databaseManager.interpretCreateDatabase()) {
                         return "CREATE_DATABASE";
@@ -50,57 +49,57 @@ public class Parser {
                     throw new RuntimeException("No matching command found");
             }
             throw new RuntimeException("Failed to parse");
-        } catch (Exception exception) {
-            throw new Exception(exception.getMessage());
+        } catch (Exception parserException) {
+            throw new Exception(parserException.getMessage());
         }
     }
 
     //Commands
 
-    public String isCommand(ArrayList<String> tokens) throws Exception {
-        String command = isCommandType(tokens);
-        if(command.equals("INVALID")){
+    public String isCommand(ArrayList<String> commandTokens) throws Exception {
+        String dbCommand = isCommandType(commandTokens);
+        if(dbCommand.equals("INVALID")){
             throw new RuntimeException("Failed to parse");
         }
-        if (currentWord >= tokens.size()) {
+        if (currentWord >= commandTokens.size()) {
             throw new Exception("Invalid Command: missing command arguments");
         }
-        incrementCurrentWord(tokens);
-        if (currentWord >= tokens.size()) {
+        incrementCurrentWord(commandTokens);
+        if (currentWord >= commandTokens.size()) {
             throw new Exception("Invalid Command: missing semi-colon or arguments?");
         }
-        if (!currentWordMatches(tokens, ";")){
+        if (!currentWordMatches(commandTokens, ";")){
             throw new Exception("Invalid Command: missing semi-colon or arguments?");
         }
-        return command;
+        return dbCommand;
     }
-    private String isCommandType(ArrayList<String> tokens) throws IOException {
-        setCurrentWord(0);
-        if(isUse(tokens)){
+    private String isCommandType(ArrayList<String> commandTokens) throws IOException {
+        resetCurrentWord();
+        if(isUse(commandTokens)){
             return "USE";
         }
-        setCurrentWord(0);
-        if(isCreateTable(tokens)){
+        resetCurrentWord();
+        if(isCreateTable(commandTokens)){
             return "CREATE_TABLE";
         }
-        setCurrentWord(0);
-        if(isCreateDatabase(tokens)){
+        resetCurrentWord();
+        if(isCreateDatabase(commandTokens)){
             return "CREATE_DATABASE";
         }
-        if(isInsert(tokens)){
+        if(isInsert(commandTokens)){
             return "INSERT";
         }
-        if(isSelect(tokens)){
+        if(isSelect(commandTokens)){
             return "SELECT";
         }
         return "INVALID";
     }
-    private boolean isUse(ArrayList<String> tokens) throws IOException {
-        if(!currentWordMatches(tokens, "USE")) {
+    private boolean isUse(ArrayList<String> commandTokens) throws IOException {
+        if(!currentWordMatches(commandTokens, "USE")) {
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(isDatabaseName(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(isDatabaseName(commandTokens)){
             String databaseName = getCurrentWordString();
             DatabaseManager databaseManager = DatabaseManager.getInstance();
             databaseManager.setDatabaseInUse(databaseName);
@@ -109,46 +108,46 @@ public class Parser {
         return false;
     }
 
-    private boolean isCreateTable(ArrayList<String> tokens){
+    private boolean isCreateTable(ArrayList<String> commandTokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        if(!currentWordMatches(tokens, "CREATE")){
+        if(!currentWordMatches(commandTokens, "CREATE")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "TABLE")){
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "TABLE")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!isTableName(tokens) && !currentWordMatches(tokens, "(")) {
+        incrementCurrentWord(commandTokens);
+        if(!isTableName(commandTokens) && !currentWordMatches(commandTokens, "(")) {
             return false;
         }
         databaseManager.setNameTableToCreate(getCurrentWordString());
-        int tokensTableNoAttributes = 3;
-        if(tokens.size() > tokensTableNoAttributes) {
-            incrementCurrentWord(tokens);
-            if (!currentWordMatches(tokens, "(")){ //No attribute list
-                decrementCurrentWord(tokens);
+        int tokensNoAttributes = 3;
+        if(commandTokens.size() > tokensNoAttributes) {
+            incrementCurrentWord(commandTokens);
+            if (!currentWordMatches(commandTokens, "(")){ //No attribute list
+                decrementCurrentWord();
                 databaseManager.setTableHasAttributes(false);
                 return true;
             }
             else{ //Expecting attribute list
                 databaseManager.setTableHasAttributes(true);
-                return isCreateTableAttributeList(tokens);
+                return isCreateTableAttributeList(commandTokens);
             }
         }
         return true;
     }
 
-    private boolean isCreateDatabase(ArrayList<String> tokens) throws IOException {
-        if(!currentWordMatches(tokens, "CREATE")){
+    private boolean isCreateDatabase(ArrayList<String> commandTokens) {
+        if(!currentWordMatches(commandTokens, "CREATE")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "DATABASE")){
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "DATABASE")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(isDatabaseName(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(isDatabaseName(commandTokens)){
             DatabaseManager databaseManager = DatabaseManager.getInstance();
             databaseManager.setDatabaseToCreate(getCurrentWordString());
             return true;
@@ -156,106 +155,106 @@ public class Parser {
         return false;
     }
 
-    private boolean isInsert(ArrayList<String> tokens){
+    private boolean isInsert(ArrayList<String> commandTokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        if(!currentWordMatches(tokens, "INSERT")){
+        if(!currentWordMatches(commandTokens, "INSERT")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "INTO")){
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "INTO")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!isTableName(tokens)) {
+        incrementCurrentWord(commandTokens);
+        if(!isTableName(commandTokens)) {
             return false;
         }
         databaseManager.setNameInsertTable(getCurrentWordString());
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "VALUES")){
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "VALUES")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        return isInsertValueList(tokens);
+        incrementCurrentWord(commandTokens);
+        return isInsertValueList(commandTokens);
     }
 
-    private boolean isSelect(ArrayList<String> tokens){
+    private boolean isSelect(ArrayList<String> commandTokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        if(!currentWordMatches(tokens, "SELECT")){
+        if(!currentWordMatches(commandTokens, "SELECT")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!isWildAttribList(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(!isWildAttribList(commandTokens)){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "FROM")){
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "FROM")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!isTableName(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(!isTableName(commandTokens)){
             return false;
         }
         databaseManager.setTableToSelect(getCurrentWordString());
-        incrementCurrentWord(tokens);
-        if(!currentWordMatches(tokens, "WHERE")){
-            decrementCurrentWord(tokens);
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "WHERE")){
+            decrementCurrentWord();
             databaseManager.setHasCondition(false);
             return true;
         }
         databaseManager.setHasCondition(true);
-        incrementCurrentWord(tokens);
-        return isCondition(tokens);
+        incrementCurrentWord(commandTokens);
+        return isCondition(commandTokens);
     }
 
 
     //Grammar rule methods
 
-    private boolean isBooleanLiteral(ArrayList<String> tokens) {
-        return currentWordMatches(tokens, "TRUE") || currentWordMatches(tokens, "FALSE");
+    private boolean isBooleanLiteral(ArrayList<String> commandTokens) {
+        return currentWordMatches(commandTokens, "TRUE") || currentWordMatches(commandTokens, "FALSE");
     }
 
-    private boolean isDigitSequence(ArrayList<String> tokens, int startCharacter){
-        int tokenLength = tokens.get(currentWord).length();
-        for(int i = startCharacter; i < tokenLength; i++){
-            if(!Character.isDigit(tokens.get(currentWord).charAt(i))){
+    private boolean isDigitSequence(ArrayList<String> commandTokens, int startCharacter){
+        int tokenLength = commandTokens.get(currentWord).length();
+        for(int characterIndex = startCharacter; characterIndex < tokenLength; characterIndex++){
+            if(!Character.isDigit(commandTokens.get(currentWord).charAt(characterIndex))){
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isIntegerLiteral(ArrayList<String> tokens){
-        if(Character.isDigit(tokens.get(currentWord).charAt(0))){
-            if(isDigitSequence(tokens, 0)) {
+    private boolean isIntegerLiteral(ArrayList<String> commandTokens){
+        if(Character.isDigit(commandTokens.get(currentWord).charAt(0))){
+            if(isDigitSequence(commandTokens, 0)) {
                 return true;
             }
         }
-        if(tokens.get(currentWord).charAt(0) == '+' || tokens.get(currentWord).charAt(0) == '-'){
-            return isDigitSequence(tokens, 1);
+        if(commandTokens.get(currentWord).charAt(0) == '+' || commandTokens.get(currentWord).charAt(0) == '-'){
+            return isDigitSequence(commandTokens, 1);
         }
         return false;
     }
 
-    private boolean isComparator(ArrayList<String> tokens) {
-        if (currentWordMatches(tokens, "==")) {
+    private boolean isComparator(ArrayList<String> commandTokens) {
+        if (currentWordMatches(commandTokens, "==")) {
             return true;
         }
-        else if(currentWordMatches(tokens, ">")) {
+        else if(currentWordMatches(commandTokens, ">")) {
             return true;
             }
-        else if(currentWordMatches(tokens, "<")) {
+        else if(currentWordMatches(commandTokens, "<")) {
             return true;
         }
-        else if(currentWordMatches(tokens, ">=")) {
+        else if(currentWordMatches(commandTokens, ">=")) {
             return true;
         }
-        else if(currentWordMatches(tokens, "<=")) {
+        else if(currentWordMatches(commandTokens, "<=")) {
             return true;
         }
-        else if(currentWordMatches(tokens, "!=")) {
+        else if(currentWordMatches(commandTokens, "!=")) {
             return true;
         }
-        else if(currentWordMatches(tokens, "LIKE")) {
+        else if(currentWordMatches(commandTokens, "LIKE")) {
             return true;
         }
         else {
@@ -263,44 +262,44 @@ public class Parser {
         }
     }
 
-    private boolean isPlainText(ArrayList<String> tokens) {
-        int tokenLength = tokens.get(currentWord).length();
-        String currentToken = tokens.get(currentWord);
-        for (int i = 0; i < tokenLength; i++) {
-            char c = currentToken.charAt(i);
-            if (!Character.isDigit(c) && !Character.isAlphabetic(c)) {
+    private boolean isPlainText(ArrayList<String> commandTokens) {
+        int tokenLength = commandTokens.get(currentWord).length();
+        String currentToken = commandTokens.get(currentWord);
+        for (int characterIndex = 0; characterIndex < tokenLength; characterIndex++) {
+            char tokenCharacter = currentToken.charAt(characterIndex);
+            if (!Character.isDigit(tokenCharacter) && !Character.isAlphabetic(tokenCharacter)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isDatabaseName(ArrayList<String> tokens) {
-        if(currentWordIsReserved(tokens)){
+    private boolean isDatabaseName(ArrayList<String> commandTokens) {
+        if(checkWordReserved(commandTokens)){
             return false;
         }
-        return isPlainText(tokens);
+        return isPlainText(commandTokens);
     }
 
-    private boolean isAttributeName(ArrayList<String> tokens) {
-        if(currentWordIsReserved(tokens)){
+    private boolean isAttributeName(ArrayList<String> commandTokens) {
+        if(checkWordReserved(commandTokens)){
             return false;
         }
-        return isPlainText(tokens);
+        return isPlainText(commandTokens);
     }
 
-    private boolean isAttributeList(ArrayList<String> tokens) {
+    private boolean isAttributeList(ArrayList<String> commandTokens) {
         ArrayList<String> attributeNames = new ArrayList<>();
-        while(currentWord < tokens.size()) {
-           if (isAttributeName(tokens)) {
+        while(currentWord < commandTokens.size()) {
+           if (isAttributeName(commandTokens)) {
                attributeNames.add(getCurrentWordString());
-               incrementCurrentWord(tokens);
-               if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
-                   incrementCurrentWord(tokens);
+               incrementCurrentWord(commandTokens);
+               if (currentWord < commandTokens.size() && currentWordMatches(commandTokens, ",")) {
+                   incrementCurrentWord(commandTokens);
                }
                else {
                    //Only one Attribute Name (no list) so reset currentWord after look ahead
-                   decrementCurrentWord(tokens);
+                   decrementCurrentWord();
                    DatabaseManager databaseManager = DatabaseManager.getInstance();
                    databaseManager.setTableAttributes(attributeNames);
                    return true;
@@ -313,18 +312,18 @@ public class Parser {
         return false;
     }
 
-    private boolean isValueList(ArrayList<String> tokens) {
+    private boolean isValueList(ArrayList<String> commandTokens) {
         ArrayList<String> valueList = new ArrayList<>();
-        while(currentWord < tokens.size()) {
-            if (isValue(tokens)) {
+        while(currentWord < commandTokens.size()) {
+            if (isValue(commandTokens)) {
                 valueList.add(getCurrentWordString());
-                incrementCurrentWord(tokens);
-                if (currentWord < tokens.size() && currentWordMatches(tokens, ",")) {
-                    incrementCurrentWord(tokens);
+                incrementCurrentWord(commandTokens);
+                if (currentWord < commandTokens.size() && currentWordMatches(commandTokens, ",")) {
+                    incrementCurrentWord(commandTokens);
                 }
                 else {
                     //Only one Value (no list) so reset currentWord after look ahead
-                    decrementCurrentWord(tokens);
+                    decrementCurrentWord();
                     DatabaseManager databaseManager = DatabaseManager.getInstance();
                     databaseManager.setInsertionValues(valueList);
                     return true;
@@ -337,38 +336,38 @@ public class Parser {
         return false;
     }
 
-    private boolean isTableName(ArrayList<String> tokens) {
-        if(currentWordIsReserved(tokens)){
+    private boolean isTableName(ArrayList<String> commandTokens) {
+        if(checkWordReserved(commandTokens)){
             return false;
         }
-        return isPlainText(tokens);
+        return isPlainText(commandTokens);
     }
 
-    private boolean isCreateTableAttributeList(ArrayList<String> tokens){
-        if(!currentWordMatches(tokens, "(")){
+    private boolean isCreateTableAttributeList(ArrayList<String> commandTokens){
+        if(!currentWordMatches(commandTokens, "(")){
             return false;
         }
-        incrementCurrentWord(tokens);
-        if(!isAttributeList(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(!isAttributeList(commandTokens)){
             return false;
         }
-        incrementCurrentWord(tokens);
-        return currentWordMatches(tokens, ")");
+        incrementCurrentWord(commandTokens);
+        return currentWordMatches(commandTokens, ")");
     }
 
-    private boolean isInsertValueList(ArrayList<String> tokens){
-    if(!currentWordMatches(tokens, "(")){
+    private boolean isInsertValueList(ArrayList<String> commandTokens){
+    if(!currentWordMatches(commandTokens, "(")){
         return false;
     }
-    incrementCurrentWord(tokens);
-    if(!isValueList(tokens)){
+    incrementCurrentWord(commandTokens);
+    if(!isValueList(commandTokens)){
         return false;
     }
-    incrementCurrentWord(tokens);
-    return currentWordMatches(tokens, ")");
+    incrementCurrentWord(commandTokens);
+    return currentWordMatches(commandTokens, ")");
 }
 
-    private boolean isStringLiteral(ArrayList<String> tokens) {
+    private boolean isStringLiteral() {
         String currentWordString = getCurrentWordString();
         String currentWordNoQuotes = removeSingleQuotesFromString(currentWordString);
         if(currentWordNoQuotes == null){
@@ -383,68 +382,68 @@ public class Parser {
         return currentWordNoQuotes.matches("[a-zA-Z]+");
     }
 
-    private boolean isFloatLiteral(ArrayList<String> tokens){
+    private boolean isFloatLiteral(){
         return getCurrentWordString().matches("([-+])?\\d+\\.\\d+");
     }
 
-    private boolean isValue(ArrayList<String> tokens){
-        if(isBooleanLiteral(tokens)){
+    private boolean isValue(ArrayList<String> commandTokens){
+        if(isBooleanLiteral(commandTokens)){
             return true;
         }
-        if(isFloatLiteral(tokens)){
+        if(isFloatLiteral()){
             return true;
         }
-        if(isIntegerLiteral(tokens)){
+        if(isIntegerLiteral(commandTokens)){
             return true;
         }
-        if(currentWordMatches(tokens, "NULL")){
+        if(currentWordMatches(commandTokens, "NULL")){
             return true;
         }
-        return isStringLiteral(tokens);
+        return isStringLiteral();
     }
 
-    private boolean isWildAttribList(ArrayList<String> tokens){
+    private boolean isWildAttribList(ArrayList<String> commandTokens){
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        if(isAttributeList(tokens)){
+        if(isAttributeList(commandTokens)){
             databaseManager.setSelectAsterisk(false);
             //this assumes only one AttributeName
             databaseManager.setSelectAttribute(getCurrentWordString());
             return true;
         }
-        if(currentWordMatches(tokens, "*")){
+        if(currentWordMatches(commandTokens, "*")){
             databaseManager.setSelectAsterisk(true);
             return true;
         }
         return false;
     }
 
-    private boolean isCondition(ArrayList<String> tokens){
+    private boolean isCondition(ArrayList<String> commandTokens){
         //Only works for the simple case: [AttributeName] <Comparator> [Value]
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         boolean isBracketedCondition = false;
-        if(currentWordMatches(tokens,"(")){
-            incrementCurrentWord(tokens);
+        if(currentWordMatches(commandTokens,"(")){
+            incrementCurrentWord(commandTokens);
             isBracketedCondition = true;
         }
-        if(!isAttributeName(tokens)){
+        if(!isAttributeName(commandTokens)){
             return false;
         }
         databaseManager.setConditionAttribute(getCurrentWordString());
-        incrementCurrentWord(tokens);
-        if(!isComparator(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(!isComparator(commandTokens)){
             return false;
         }
         databaseManager.setConditionComparator(getCurrentWordString());
-        incrementCurrentWord(tokens);
-        if(!isValue(tokens)){
+        incrementCurrentWord(commandTokens);
+        if(!isValue(commandTokens)){
             return false;
         }
         databaseManager.setConditionValue(getCurrentWordString());
         if(!isBracketedCondition) {
             return true;
         }
-        incrementCurrentWord(tokens);
-        return currentWordMatches(tokens, ")");
+        incrementCurrentWord(commandTokens);
+        return currentWordMatches(commandTokens, ")");
     }
 
     //Helper methods
@@ -453,19 +452,19 @@ public class Parser {
         return tokenisedList.get(tokenIndex);
     }
 
-    private void setCurrentWord(int wordIndex){
-        currentWord = wordIndex;
+    private void resetCurrentWord(){
+        currentWord = 0;
     }
 
-    private void incrementCurrentWord(ArrayList<String> tokens){
-        if(currentWord < tokens.size()) {
+    private void incrementCurrentWord(ArrayList<String> commandTokens){
+        if(currentWord < commandTokens.size()) {
             currentWord++;
             return;
         }
         throw new RuntimeException("Reached last token");
     }
 
-    private void decrementCurrentWord(ArrayList<String> tokens){
+    private void decrementCurrentWord(){
         if(currentWord > 0) {
             currentWord--;
             return;
@@ -482,27 +481,28 @@ public class Parser {
         return tokenToString(currentWordIndex);
     }
 
-    private String removeSingleQuotesFromString(String input){
-        if(input.isEmpty()){
+    private String removeSingleQuotesFromString(String inputString){
+        if(inputString.isEmpty()){
             return "";
         }
-        if(input.length() > 2 && input.startsWith("'") && input.endsWith("'")) { //magic number
-            return input.substring(1, input.length() - 1);
+        int minimumLength = 2;
+        if(inputString.length() > minimumLength && inputString.startsWith("'") && inputString.endsWith("'")) {
+            return inputString.substring(1, inputString.length() - 1);
         }
         else{
             return null;
         }
     }
 
-    private boolean currentWordMatches(ArrayList<String> tokens, String input){
-        return tokens.get(currentWord).equalsIgnoreCase(input);
+    private boolean currentWordMatches(ArrayList<String> commandTokens, String inputString){
+        return commandTokens.get(currentWord).equalsIgnoreCase(inputString);
     }
 
-    private boolean currentWordIsReserved(ArrayList<String> tokens) {
+    private boolean checkWordReserved(ArrayList<String> commandTokens) {
         Set<String> reservedWords = new HashSet<>(Set.of("CREATE", "TABLE", "DATABASE", "INSERT", "INTO", "SELECT",
                 "FROM", "TRUE", "FALSE", "NULL", "WHERE", "DROP", "ALTER", "UPDATE", "DELETE", "JOIN", "VALUES",
                 "ADD", "AND", "OR", "LIKE"));
-        return reservedWords.contains(tokens.get(currentWord).toUpperCase());
+        return reservedWords.contains(commandTokens.get(currentWord).toUpperCase());
     }
 
 }

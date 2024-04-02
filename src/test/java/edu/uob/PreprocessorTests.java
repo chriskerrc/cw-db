@@ -13,7 +13,7 @@ public class PreprocessorTests {
     public void testProcessorInsertQuery() {
         String query = "  INSERT  INTO  people   VALUES(  'Simon Lock'  ,35, 'simon@bristol.ac.uk' , 1.8  ) ; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[INSERT, INTO, people, VALUES, (, 'Simon Lock', ,, 35, ,, 'simon@bristol.ac.uk', ,, 1.8, ), ;]";
         assertEquals(expected, processed);
     }
@@ -22,7 +22,7 @@ public class PreprocessorTests {
     public void testProcessorSelectComparatorEquals() {
         String query = "  SELECT  *  FROM people   WHERE name == 'Simon'; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, *, FROM, people, WHERE, name, ==, 'Simon', ;]";
         assertEquals(expected, processed);
     }
@@ -31,7 +31,7 @@ public class PreprocessorTests {
     public void testProcessorSelectComparatorNotEquals() {
         String query = "  SELECT  *  FROM people   WHERE name != 'Simon'; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, *, FROM, people, WHERE, name, !=, 'Simon', ;]";
         assertEquals(expected, processed);
     }
@@ -40,7 +40,7 @@ public class PreprocessorTests {
     public void testProcessorSelectComparatorGreaterThanOrEqualTo() {
         String query = "  SELECT  *  FROM people   WHERE age >= 40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, *, FROM, people, WHERE, age, >=, 40, ;]";
         assertEquals(expected, processed);
     }
@@ -49,7 +49,7 @@ public class PreprocessorTests {
     public void testProcessorSelectGreaterThanNoSpaces() {
         String query = "  SELECT name FROM marks WHERE mark>40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, name, FROM, marks, WHERE, mark, >, 40, ;]";
         assertEquals(expected, processed);
     }
@@ -58,7 +58,7 @@ public class PreprocessorTests {
     public void testProcessorSelectLessThanNoSpaces() {
         String query = "  SELECT name FROM marks WHERE mark<40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, name, FROM, marks, WHERE, mark, <, 40, ;]";
         assertEquals(expected, processed);
     }
@@ -67,7 +67,7 @@ public class PreprocessorTests {
     public void testProcessorSelectLessThanEqualToNoSpaces() {
         String query = "  SELECT name FROM marks WHERE mark<=40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, name, FROM, marks, WHERE, mark, <=, 40, ;]";
         assertEquals(expected, processed);
     }
@@ -76,7 +76,7 @@ public class PreprocessorTests {
     public void testProcessorSelectGreaterThanEqualToNoSpaces() {
         String query = "  SELECT name FROM marks WHERE mark>=40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, name, FROM, marks, WHERE, mark, >=, 40, ;]";
         assertEquals(expected, processed);
     }
@@ -85,7 +85,7 @@ public class PreprocessorTests {
     public void testProcessorSelectEqualsNoSpaces() {
         String query = "  SELECT name FROM marks WHERE mark==40; ";
         Preprocessor preprocessor = new Preprocessor(query);
-        String processed = preprocessor.tokens.toString();
+        String processed = preprocessor.commandTokens.toString();
         String expected = "[SELECT, name, FROM, marks, WHERE, mark, ==, 40, ;]";
         assertEquals(expected, processed);
     }
