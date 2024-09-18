@@ -28,9 +28,15 @@ public class DatabaseManager {
 
     static private boolean hasCondition;
 
+    static private boolean isAddAlter;
+
     static private String selectResponse;
 
     static private String tableToSelect;
+
+    static private String tableToAlter;
+
+    static private String columnToAlter;
 
     static private String conditionAttribute;
 
@@ -69,6 +75,18 @@ public class DatabaseManager {
 
     public void setTableToSelect(String tableName){
         tableToSelect = tableName;
+    }
+
+    public void setTableToAlter(String tableName){
+        tableToAlter = tableName;
+    }
+
+    public void setColumnToAlter(String tableName){
+        columnToAlter = tableName;
+    }
+
+    public void setAddAlter(boolean isAdd){
+        isAddAlter = isAdd;
     }
 
     public void setTableAttributes(ArrayList<String> attributeList){
@@ -133,6 +151,7 @@ public class DatabaseManager {
         return newDatabase.createDBDirectory(databaseToCreate);
     }
 
+    //to do: fix bug: can't use database after server goes down (it's not being loaded from file)
     public boolean interpretUseDatabase() throws IOException {
         checkDatabaseInUse("Database doesn't exist or not in USE?");
         setDatabaseInUse(databaseInUse);
@@ -148,6 +167,7 @@ public class DatabaseManager {
     public boolean interpretCreateTable() throws IOException{
         checkDatabaseInUse("Database doesn't exist? Try creating it");
         Database currentDatabase = getDatabase(databaseInUse);
+        assert currentDatabase != null;
         if(currentDatabase.tableExistsInDB(tableToCreate)){
             throw new RuntimeException("Trying to create a table that already exists?");
         }
@@ -159,6 +179,7 @@ public class DatabaseManager {
     public boolean interpretInsert() throws IOException{
         checkDatabaseInUse("Database doesn't exist or not in USE?");
         Database currentDatabase = getDatabase(databaseInUse);
+        assert currentDatabase != null;
         if (!currentDatabase.tableExistsInDB(insertionTable)) {
             throw new RuntimeException("Trying to insert values into a table that doesn't exist?");
         }
@@ -176,6 +197,7 @@ public class DatabaseManager {
     public boolean interpretSelect() {
         checkDatabaseInUse("Database doesn't exist or not in USE?");
         Database currentDatabase = getDatabase(databaseInUse);
+        assert currentDatabase != null;
         if (!currentDatabase.tableExistsInDB(tableToSelect)) {
             throw new RuntimeException("Selected table doesn't exist");
         }
@@ -192,6 +214,32 @@ public class DatabaseManager {
             return selectNoStarCondition(selectedTable);
         }
         return false;
+    }
+
+    public boolean interpretAlter() throws IOException {
+        Database currentDatabase = getDatabase(databaseInUse);
+        assert currentDatabase != null;
+        if(!currentDatabase.tableExistsInDB(tableToAlter)){
+            return false;
+        }
+        Table alteredTable = currentDatabase.getTableFromDatabase(tableToAlter);
+        if(isAddAlter){
+            //check table doesn't already have a column of name specified in command
+            if(alteredTable.columnExistsInTable(columnToAlter)){
+                return false;
+            }
+            //add column
+            alteredTable.alterTableColumn(columnToAlter, true);
+        }
+        else{
+            //check table has column of name specified in command
+            if(!alteredTable.columnExistsInTable(columnToAlter)){
+                return false;
+            }
+            //remove column
+            alteredTable.alterTableColumn(columnToAlter, false);
+        }
+        return true;
     }
 
     //Private methods

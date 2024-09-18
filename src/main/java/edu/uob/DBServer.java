@@ -56,6 +56,7 @@ public class DBServer {
                     case "CREATE_TABLE":
                     case "USE":
                     case "INSERT":
+                    case "ALTER":
                         return okResponse;
                     case "SELECT":
                         DatabaseManager databaseManager = DatabaseManager.getInstance();

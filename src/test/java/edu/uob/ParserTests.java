@@ -553,7 +553,7 @@ public class ParserTests {
         response = sendCommandToParser("SELECT studentName FROM test where (id <= 'Chris');");
         assertTrue(response.contains("SELECT"));
     }
-    
+
     @Test
     public void testAlterTable() throws Exception {
         //valid add command

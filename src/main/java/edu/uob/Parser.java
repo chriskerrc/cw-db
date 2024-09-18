@@ -46,7 +46,9 @@ public class Parser {
                     }
                     break;
                 case "ALTER":
-                    return "ALTER";
+                    if (databaseManager.interpretAlter()) {
+                        return "ALTER";
+                    }
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -224,12 +226,23 @@ public class Parser {
         if(!isUnreservedPlaintext(commandTokens)) {
             return false;
         }
+        databaseManager.setTableToAlter(getCurrentWordString());
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "ADD") && !currentWordMatches(commandTokens, "DROP")){
             return false;
         }
+        if(currentWordMatches(commandTokens, "ADD")){
+            databaseManager.setAddAlter(true);
+        }
+        else{
+            databaseManager.setAddAlter(false);
+        }
         incrementCurrentWord(commandTokens);
-        return isUnreservedPlaintext(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)){
+            return false;
+        }
+        databaseManager.setColumnToAlter(getCurrentWordString());
+        return true;
     }
 
     //Grammar rule methods

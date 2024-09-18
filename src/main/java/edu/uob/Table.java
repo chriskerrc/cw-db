@@ -53,6 +53,39 @@ public class Table {
         this.writeTableToFile(tableName, false);
     }
 
+    public void alterTableColumn(String columnToAlter, boolean isAdd) throws IOException {
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> headerRow = dataStructure.get(0);
+        int newColumnIndex = headerRow.size();
+        int totalRows = this.tableDataStructure.size();
+        if(isAdd) {
+            this.tableDataStructure.get(0).add(newColumnIndex, columnToAlter);
+            //add null values in new column
+            for(int row = 1; row < totalRows ; row++) {
+                this.tableDataStructure.get(row).add(newColumnIndex, "");
+            }
+        }
+        else{
+            int indexColumnRemove = getIndexOfColumn(columnToAlter);
+            //iterate through all rows, and remove the nth value
+            for(int row = 0; row < totalRows ; row++) {
+                this.tableDataStructure.get(row).remove(indexColumnRemove);
+            }
+        }
+        this.writeTableToFile(this.getTableName(), true);
+    }
+
+    private int getIndexOfColumn(String columnName){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> headerRow = dataStructure.get(0);
+        for(String row : headerRow){
+            if(Objects.equals(row, columnName)){
+                return headerRow.indexOf(row);
+            }
+        }
+        return -1;
+    }
+
     private ArrayList<ArrayList<String>> createDataStructure(boolean hasValues, ArrayList<String> tableValues){
         ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
         ArrayList<String> currentRow = new ArrayList<>();
@@ -239,6 +272,17 @@ public class Table {
 
     public void setCurrentRecordID(int newID){
         currentRecordID = newID;
+    }
+
+    public boolean columnExistsInTable(String columnName){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> headerRow = dataStructure.get(0);
+        for(String row : headerRow){
+            if(Objects.equals(row, columnName)){
+                return true;
+            }
+        }
+        return false;
     }
 
     //private methods
