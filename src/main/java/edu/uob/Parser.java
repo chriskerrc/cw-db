@@ -45,6 +45,8 @@ public class Parser {
                         return "SELECT";
                     }
                     break;
+                case "ALTER":
+                    return "ALTER";
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -92,6 +94,9 @@ public class Parser {
         if(isSelect(commandTokens)){
             return "SELECT";
         }
+        if(isAlter(commandTokens)){
+            return "ALTER";
+        }
         return "INVALID";
     }
     private boolean isUse(ArrayList<String> commandTokens) throws IOException {
@@ -118,7 +123,7 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(commandTokens);
-        if(!isTableName(commandTokens) && !currentWordMatches(commandTokens, "(")) {
+        if(!isUnreservedPlaintext(commandTokens) && !currentWordMatches(commandTokens, "(")) {
             return false;
         }
         databaseManager.setNameTableToCreate(getCurrentWordString());
@@ -165,7 +170,7 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(commandTokens);
-        if(!isTableName(commandTokens)) {
+        if(!isUnreservedPlaintext(commandTokens)) {
             return false;
         }
         databaseManager.setNameInsertTable(getCurrentWordString());
@@ -191,7 +196,7 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(commandTokens);
-        if(!isTableName(commandTokens)){
+        if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
         databaseManager.setTableToSelect(getCurrentWordString());
@@ -206,6 +211,26 @@ public class Parser {
         return isCondition(commandTokens);
     }
 
+    private boolean isAlter(ArrayList<String> commandTokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!currentWordMatches(commandTokens, "ALTER")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "TABLE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)) {
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "ADD") && !currentWordMatches(commandTokens, "DROP")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        return isUnreservedPlaintext(commandTokens);
+    }
 
     //Grammar rule methods
 
@@ -336,7 +361,7 @@ public class Parser {
         return false;
     }
 
-    private boolean isTableName(ArrayList<String> commandTokens) {
+    private boolean isUnreservedPlaintext(ArrayList<String> commandTokens) {
         if(checkWordReserved(commandTokens)){
             return false;
         }

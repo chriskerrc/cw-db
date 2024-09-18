@@ -553,4 +553,46 @@ public class ParserTests {
         response = sendCommandToParser("SELECT studentName FROM test where (id <= 'Chris');");
         assertTrue(response.contains("SELECT"));
     }
+    
+    @Test
+    public void testAlterTable() throws Exception {
+        //valid add command
+        String response = sendCommandToParser("ALTER table marks add building;");
+        assertTrue(response.contains("ALTER"));
+        //valid drop command
+        response = sendCommandToParser("ALTER table marks drop building;");
+        assertTrue(response.contains("ALTER"));
+        //no table given
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER marks add building;");
+        });
+        //no column given
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER table marks add;");
+        });
+        //misspelled ALTER
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALER table marks add building;");
+        });
+        //misspelled ADD
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER table marks ad building;");
+        });
+        //misspelled DROP
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER table marks drp building;");
+        });
+        //misspelled table
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER tabe marks drop building;");
+        });
+        //invalid table
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER table m@rks drop building;");
+        });
+        //invalid column
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("ALTER table marks drop bui|ding;");
+        });
+    }
 }
