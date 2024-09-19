@@ -95,4 +95,8 @@ public class Database {
         }
         return null;
     }
+
+    public void dropTableFromDatabase(String tableName){
+        tablesInDatabase.removeIf(tableToDrop -> tableToDrop.getTableName().equalsIgnoreCase(tableName));
+    }
 }

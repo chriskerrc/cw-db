@@ -45,6 +45,10 @@ public class DatabaseManager {
 
     static private String selectAttribute;
 
+    static private String tableToDrop;
+
+    static private String databaseToDrop;
+
     private DatabaseManager() {
     }
 
@@ -135,6 +139,14 @@ public class DatabaseManager {
 
     public String getConditionValue() {
         return conditionValue;
+    }
+
+    public void setTableToDrop(String tableName){
+        tableToDrop = tableName;
+    }
+
+    public void setDatabaseToDrop(String databaseName){
+        databaseToDrop = databaseName;
     }
 
     public String getConditionComparator() {

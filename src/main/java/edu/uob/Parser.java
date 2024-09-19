@@ -49,6 +49,8 @@ public class Parser {
                     if (databaseManager.interpretAlter()) {
                         return "ALTER";
                     }
+                case "DROP":
+                    return "DROP";
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -98,6 +100,9 @@ public class Parser {
         }
         if(isAlter(commandTokens)){
             return "ALTER";
+        }
+        if(isDrop(commandTokens)){
+            return "DROP";
         }
         return "INVALID";
     }
@@ -231,18 +236,32 @@ public class Parser {
         if(!currentWordMatches(commandTokens, "ADD") && !currentWordMatches(commandTokens, "DROP")){
             return false;
         }
-        if(currentWordMatches(commandTokens, "ADD")){
-            databaseManager.setAddAlter(true);
-        }
-        else{
-            databaseManager.setAddAlter(false);
-        }
+        databaseManager.setAddAlter(currentWordMatches(commandTokens, "ADD"));
         incrementCurrentWord(commandTokens);
         if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
         databaseManager.setColumnToAlter(getCurrentWordString());
         return true;
+    }
+
+    private boolean isDrop(ArrayList<String> commandTokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        if(!currentWordMatches(commandTokens, "DROP")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "TABLE") && !currentWordMatches(commandTokens, "DATABASE")){
+            return false;
+        }
+        if(currentWordMatches(commandTokens, "TABLE")){
+            databaseManager.setTableToDrop(getCurrentWordString());
+        }
+        else{
+            databaseManager.setDatabaseToDrop(getCurrentWordString());
+        }
+        incrementCurrentWord(commandTokens);
+        return isUnreservedPlaintext(commandTokens);
     }
 
     //Grammar rule methods

@@ -285,6 +285,12 @@ public class Table {
         return false;
     }
 
+    public boolean deleteTableFile(String tableName){
+        String lowercaseTableName = tableName.toLowerCase();
+        File tableFile = new File(filePath + lowercaseTableName + fileExtension);
+        return tableFile.delete();
+    }
+
     //private methods
 
     private boolean stringContainsCharacter(String currentToken) {
