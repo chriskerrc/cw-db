@@ -143,7 +143,7 @@ public class DatabaseManager {
 
     //Interpreter methods
     public boolean interpretCreateDatabase() {
-        if(checkDBExists(databaseToCreate)) {
+        if(checkDBExistsInMemory(databaseToCreate)) {
             throw new RuntimeException("Trying to create a database that already exists?");
         }
         Database newDatabase = createNewDatabase();
@@ -151,16 +151,20 @@ public class DatabaseManager {
         return newDatabase.createDBDirectory(databaseToCreate);
     }
 
-    //to do: fix bug: can't use database after server goes down (it's not being loaded from file)
     public boolean interpretUseDatabase() throws IOException {
-        checkDatabaseInUse("Database doesn't exist or not in USE?");
-        setDatabaseInUse(databaseInUse);
-        Database currentDatabase = getDatabase(databaseInUse);
-        String[] filesList = currentDatabase.getFilesInDBFolder(databaseInUse);
+        //check if database is in memory
+        if(checkDatabaseInUse("Placeholder")){
+            return true;
+        }
+        //if it's not, check if it's on file and try to load it
+        Database loadedDatabase = new Database();
+        String[] filesList = loadedDatabase.getFilesInDBFolder(databaseInUse);
         if(filesList == null){
             throw new RuntimeException("Failed to load database");
         }
-        currentDatabase.loadTablesToDatabase(filesList);
+        loadedDatabase.loadTablesToDatabase(filesList);
+        loadedDatabase.setDatabaseName(databaseInUse);
+        addDatabaseToList(loadedDatabase);
         return true;
     }
 
@@ -316,10 +320,17 @@ public class DatabaseManager {
         return newTable;
     }
 
-    private void checkDatabaseInUse(String exceptionMessage){
-        if(!checkDBExists(databaseInUse)) {
-            throw new RuntimeException(exceptionMessage);
+    private boolean checkDatabaseInUse(String exceptionMessage){
+        return checkDBExistsInMemory(databaseInUse);
+    }
+
+    private boolean checkDBExistsInMemory(String databaseName){
+        for (Database database : databasesList) {
+            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
+                return true;
+            }
         }
+        return false;
     }
 
     private void checkTotalColumns(Table tableToInsertInto){
@@ -343,13 +354,5 @@ public class DatabaseManager {
         return null;
     }
 
-    private boolean checkDBExists(String databaseName){
-        for (Database database : databasesList) {
-            if (database.getDatabaseName().equalsIgnoreCase(databaseName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }
