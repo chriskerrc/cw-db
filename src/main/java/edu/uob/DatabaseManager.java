@@ -236,6 +236,10 @@ public class DatabaseManager {
             alteredTable.alterTableColumn(columnToAlter, true);
         }
         else{
+            //prevent removal of id column
+            if(columnToAlter.equalsIgnoreCase("id")){
+                return false;
+            }
             //check table has column of name specified in command
             if(!alteredTable.columnExistsInTable(columnToAlter)){
                 return false;

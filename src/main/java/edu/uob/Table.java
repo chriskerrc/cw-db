@@ -60,7 +60,7 @@ public class Table {
         int totalRows = this.tableDataStructure.size();
         if(isAdd) {
             this.tableDataStructure.get(0).add(newColumnIndex, columnToAlter);
-            //add null values in new column
+            //add empty values in new column
             for(int row = 1; row < totalRows ; row++) {
                 this.tableDataStructure.get(row).add(newColumnIndex, "");
             }
