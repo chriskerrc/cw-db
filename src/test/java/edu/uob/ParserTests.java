@@ -597,13 +597,10 @@ public class ParserTests {
     }
 
     @Test
-    public void testDrop() throws Exception {
+    public void testDropTable() throws Exception {
         //valid drop table command
         String response = sendCommandToParser("DROP table marks;");
-        assertTrue(response.contains("DROP"));
-        //valid drop database command
-        response = sendCommandToParser("DROP database markbook;");
-        assertTrue(response.contains("DROP"));
+        assertTrue(response.contains("DROP_TABLE"));
         //misspelled drop
         assertThrows(Exception.class, () -> {
             sendCommandToParser("DRO table marks;");
@@ -612,13 +609,24 @@ public class ParserTests {
         assertThrows(Exception.class, () -> {
             sendCommandToParser("DROP table;");
         });
+        //no table or database keyword
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("DROP marks;");
+        });
+    }
+
+    @Test
+    public void testDropDatabase() throws Exception {
+        //valid drop database command
+        String response = sendCommandToParser("DROP database markbook;");
+        assertTrue(response.contains("DROP_DATABASE"));
         //no database object
         assertThrows(Exception.class, () -> {
             sendCommandToParser("DROP database;");
         });
-        //no table or database keyword
+        //misspelled drop
         assertThrows(Exception.class, () -> {
-            sendCommandToParser("DROP marks;");
+            sendCommandToParser("DRO database markbook;");
         });
     }
 }

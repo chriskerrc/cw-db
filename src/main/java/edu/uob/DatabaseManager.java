@@ -262,6 +262,22 @@ public class DatabaseManager {
         return true;
     }
 
+    public boolean interpretDropTable() throws IOException {
+        Database currentDatabase = getDatabase(databaseInUse);
+        assert currentDatabase != null;
+        if(!currentDatabase.tableExistsInDB(tableToDrop)){
+            return false;
+        }
+        //delete table file
+        Table droppableTable = currentDatabase.getTableFromDatabase(tableToDrop);
+        if(!droppableTable.deleteTableFile(tableToDrop)){
+            return false;
+        }
+        //delete table from memory
+        currentDatabase.dropTableFromDatabase(tableToDrop);
+        return true;
+    }
+
     //Private methods
 
     private ArrayList<Integer> interpretSelectCondition(Table table) {

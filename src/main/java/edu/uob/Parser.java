@@ -49,8 +49,12 @@ public class Parser {
                     if (databaseManager.interpretAlter()) {
                         return "ALTER";
                     }
-                case "DROP":
-                    return "DROP";
+                case "DROP_TABLE":
+                    if (databaseManager.interpretDropTable()) {
+                        return "DROP_TABLE";
+                    }
+                case "DROP_DATABASE":
+                        return "DROP_DATABASE";
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -101,8 +105,12 @@ public class Parser {
         if(isAlter(commandTokens)){
             return "ALTER";
         }
-        if(isDrop(commandTokens)){
-            return "DROP";
+        if(isDropDatabase(commandTokens)){
+            return "DROP_DATABASE";
+        }
+        resetCurrentWord();
+        if(isDropTable(commandTokens)){
+            return "DROP_TABLE";
         }
         return "INVALID";
     }
@@ -245,23 +253,38 @@ public class Parser {
         return true;
     }
 
-    private boolean isDrop(ArrayList<String> commandTokens){
-        DatabaseManager databaseManager = DatabaseManager.getInstance();
+    private boolean isDropTable(ArrayList<String> commandTokens){
         if(!currentWordMatches(commandTokens, "DROP")){
             return false;
         }
         incrementCurrentWord(commandTokens);
-        if(!currentWordMatches(commandTokens, "TABLE") && !currentWordMatches(commandTokens, "DATABASE")){
+        if(!currentWordMatches(commandTokens, "TABLE")){
             return false;
         }
-        if(currentWordMatches(commandTokens, "TABLE")){
+        incrementCurrentWord(commandTokens);
+        if(isUnreservedPlaintext(commandTokens)){
+            DatabaseManager databaseManager = DatabaseManager.getInstance();
             databaseManager.setTableToDrop(getCurrentWordString());
+            return true;
         }
-        else{
-            databaseManager.setDatabaseToDrop(getCurrentWordString());
+        return false;
+    }
+
+    private boolean isDropDatabase(ArrayList<String> commandTokens){
+        if(!currentWordMatches(commandTokens, "DROP")){
+            return false;
         }
         incrementCurrentWord(commandTokens);
-        return isUnreservedPlaintext(commandTokens);
+        if(!currentWordMatches(commandTokens, "DATABASE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(isUnreservedPlaintext(commandTokens)){
+            DatabaseManager databaseManager = DatabaseManager.getInstance();
+            databaseManager.setDatabaseToDrop(getCurrentWordString());
+            return true;
+        }
+        return false;
     }
 
     //Grammar rule methods

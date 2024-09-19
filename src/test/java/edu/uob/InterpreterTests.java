@@ -738,4 +738,30 @@ public class InterpreterTests {
         response = sendCommandToServer("ALTER TABLE marks DROP id;");
         assertTrue(response.contains("[ERROR]"));
     }
+
+    @Test
+    public void testDropTable() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        String response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("name"));
+        //try to drop table
+        response = sendCommandToServer("DROP table marks;");
+        assertTrue(response.contains("[OK]"));
+        //check table is gone
+        response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("[ERROR]"));
+        //create a table of the same name as previous
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("name"));
+        //delete the 2nd table
+        response = sendCommandToServer("DROP table marks;");
+        assertTrue(response.contains("[OK]"));
+        //check 2nd table is gone
+        response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("[ERROR]"));
+    }
 }
