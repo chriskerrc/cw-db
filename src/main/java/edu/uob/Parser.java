@@ -54,7 +54,9 @@ public class Parser {
                         return "DROP_TABLE";
                     }
                 case "DROP_DATABASE":
+                    if (databaseManager.interpretDropDatabase()) {
                         return "DROP_DATABASE";
+                    }
                 default:
                     throw new RuntimeException("No matching command found");
             }

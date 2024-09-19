@@ -22,7 +22,7 @@ public class Database {
         filePath = storageFolderPath + File.separator;
     }
 
-    private boolean checkFolderExists(String fileName) {
+    public boolean checkFolderExists(String fileName) {
         String lowercaseDatabaseName = fileName.toLowerCase();
         File fileToOpen = new File(filePath + lowercaseDatabaseName);
         return fileToOpen.exists();
@@ -98,5 +98,9 @@ public class Database {
 
     public void dropTableFromDatabase(String tableName){
         tablesInDatabase.removeIf(tableToDrop -> tableToDrop.getTableName().equalsIgnoreCase(tableName));
+    }
+
+    public String getFilePath(){
+        return this.filePath;
     }
 }

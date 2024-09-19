@@ -764,4 +764,32 @@ public class InterpreterTests {
         response = sendCommandToServer("SELECT * FROM marks;");
         assertTrue(response.contains("[ERROR]"));
     }
+
+    @Test
+    public void testDropDatabase() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        String response = sendCommandToServer("USE " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        //try to delete an empty database
+        response = sendCommandToServer("DROP database " + randomName + ";");
+        assertTrue(response.contains("[OK]"));
+        //check you can't use deleted database
+        response = sendCommandToServer("USE " + randomName + ";");
+        assertTrue(response.contains("[ERROR]"));
+        //create a new database
+        sendCommandToServer("CREATE DATABASE marine;");
+        response = sendCommandToServer("USE marine;");
+        assertTrue(response.contains("[OK]"));
+        //add some tables to the database
+        sendCommandToServer("CREATE TABLE whales;");
+        sendCommandToServer("CREATE TABLE fish;");
+        sendCommandToServer("CREATE TABLE seas;");
+        //try to delete database with tables in it
+        response = sendCommandToServer("DROP database marine;");
+        assertTrue(response.contains("[OK]"));
+        //check you can't use deleted database
+        response = sendCommandToServer("USE marine;");
+        assertTrue(response.contains("[ERROR]"));
+    }
 }
