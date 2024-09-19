@@ -711,4 +711,31 @@ public class InterpreterTests {
         //check that id of last row is 3, not 1
         assertTrue(response.contains("3"));
     }
+
+    @Test
+    public void testAlterTable() throws IOException {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+        //add column age
+        String response = sendCommandToServer("ALTER TABLE marks ADD age;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        assertTrue(response.contains("age"));
+        //cannot add column name (existing column name)
+        response = sendCommandToServer("ALTER TABLE marks ADD name;");
+        assertTrue(response.contains("[ERROR]"));
+        //drop column pass
+        response = sendCommandToServer("ALTER TABLE marks DROP pass;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        assertFalse(response.contains("pass"));
+        //cannot drop column id
+        response = sendCommandToServer("ALTER TABLE marks DROP id;");
+        assertTrue(response.contains("[ERROR]"));
+    }
 }
