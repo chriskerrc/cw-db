@@ -811,7 +811,6 @@ public class InterpreterTests {
         String response = sendCommandToServer("DELETE FROM marks WHERE name == 'Chris';");
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
         //check that Chris's row is gone
         assertFalse(response.contains("Chris"));
         assertFalse(response.contains("61"));
@@ -822,7 +821,6 @@ public class InterpreterTests {
         response = sendCommandToServer("DELETE FROM marks WHERE mark<50;");
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
         //check that Bob and Fred rows are gone
         assertFalse(response.contains("Bob"));
         assertFalse(response.contains("Fred")); //Bob is deleted but Fred is not deleted...
@@ -833,14 +831,46 @@ public class InterpreterTests {
         response = sendCommandToServer("DELETE FROM marks WHERE mark>85;");
         assertTrue(response.contains("[OK]"));
         response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
         //check that Ahmed row is gone
         assertFalse(response.contains("Ahmed"));
         //check Julia is still there
         assertTrue(response.contains("Julia"));
 
-        //To do: keep testing with other conditions
+        //Check that deleted row IDs aren't reused when adding new rows
+        sendCommandToServer("INSERT INTO marks VALUES ('Jan', 33, FALSE);");
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check that IDs 1 and 2 aren't there
+        assertFalse(response.contains("1"));
+        assertFalse(response.contains("2"));
 
-        //To do: check that deleted row IDs aren't reused when adding new rows
+        //delete where != (with spaces either side of comparator)
+        response = sendCommandToServer("DELETE FROM marks WHERE pass != TRUE;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check Jan is gone
+        assertFalse(response.contains("Jan"));
+
+        //delete where >= (with spaces either side of comparator)
+        response = sendCommandToServer("DELETE FROM marks WHERE mark >= 80;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check Hannah is gone
+        assertFalse(response.contains("Hannah"));
+
+        //delete where <= (with spaces either side of comparator)
+        response = sendCommandToServer("DELETE FROM marks WHERE mark <= 55;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check Julia is gone
+        assertFalse(response.contains("Julia"));
+
+        sendCommandToServer("INSERT INTO marks VALUES ('Ian', 34, FALSE);");
+
+        //delete where name LIKE
+        response = sendCommandToServer("DELETE FROM marks WHERE name LIKE 'F';");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check Finn is gone
+        assertFalse(response.contains("Finn"));
     }
 }
