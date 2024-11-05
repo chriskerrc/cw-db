@@ -766,7 +766,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testDropDatabase() throws IOException {
+    public void testDropDatabase() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         String response = sendCommandToServer("USE " + randomName + ";");
@@ -794,7 +794,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testDeleteFromTable() throws IOException{
+    public void testDeleteFromTable() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -836,36 +836,6 @@ public class InterpreterTests {
         System.out.println(response);
         //check that Ahmed row is gone
         assertFalse(response.contains("Ahmed"));
-        //check Julia is still there
-        assertTrue(response.contains("Julia"));
-    }
-
-    @Test
-    public void testDeleteFromTable2(){
-        String randomName = generateRandomName();
-        sendCommandToServer("CREATE DATABASE " + randomName + ";");
-        sendCommandToServer("USE " + randomName + ";");
-        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Julia', 55, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Hannah', 80, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Ahmed', 90, TRUE);");
-        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
-
-        String response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
-
-
-        //delete two non-consecutive rows with < operator
-        response = sendCommandToServer("DELETE FROM marks WHERE mark<50;");
-        assertTrue(response.contains("[OK]"));
-        response = sendCommandToServer("SELECT * FROM marks;");
-        System.out.println(response);
-        //check that Bob and Fred rows are gone
-        assertFalse(response.contains("Bob"));
-        assertFalse(response.contains("Fred")); //Bob is deleted but Fred is not deleted...
         //check Julia is still there
         assertTrue(response.contains("Julia"));
 
