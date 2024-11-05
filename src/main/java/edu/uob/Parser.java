@@ -57,6 +57,10 @@ public class Parser {
                     if (databaseManager.interpretDropDatabase()) {
                         return "DROP_DATABASE";
                     }
+                case "DELETE":
+                    if (databaseManager.interpretDelete()) {
+                        return "DELETE";
+                    }
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -113,6 +117,9 @@ public class Parser {
         resetCurrentWord();
         if(isDropTable(commandTokens)){
             return "DROP_TABLE";
+        }
+        if(isDelete(commandTokens)){
+            return "DELETE";
         }
         return "INVALID";
     }
@@ -287,6 +294,26 @@ public class Parser {
             return true;
         }
         return false;
+    }
+
+    private boolean isDelete(ArrayList<String> commandTokens){
+        if(!currentWordMatches(commandTokens, "DELETE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "FROM")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "WHERE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        return isCondition(commandTokens);
     }
 
     //Grammar rule methods

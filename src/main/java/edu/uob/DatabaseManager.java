@@ -227,7 +227,7 @@ public class DatabaseManager {
 			selectStarCondition(selectedTable);
 			return true;
 		}
-		if(hasCondition) {
+		if (hasCondition) {
 			return selectNoStarCondition(selectedTable);
 		}
 		return false;
@@ -292,6 +292,10 @@ public class DatabaseManager {
         deleteDatabaseFromMemory(databaseInUse);
         return true;
     }
+
+	public boolean interpretDelete() throws IOException {
+		return true;
+	}
 
 	//Private methods
 

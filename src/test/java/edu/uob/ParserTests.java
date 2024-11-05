@@ -629,4 +629,59 @@ public class ParserTests {
             sendCommandToParser("DRO database markbook;");
         });
     }
+
+    @Test
+    public void testDelete() throws Exception {
+        //greater than condition, no spaces
+        String response = sendCommandToParser("DELETE FROM test WHERE (id>5);");
+        assertTrue(response.contains("DELETE"));
+        //lowercase WHERE
+        response = sendCommandToParser("DELETE FROM test where (id>5);");
+        assertTrue(response.contains("DELETE"));
+        //comparators without spaces
+        response = sendCommandToParser("DELETE FROM test where (id<5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id==5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id!=5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id>=5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id<=5);");
+        assertTrue(response.contains("DELETE"));
+        //comparators with spaces
+        response = sendCommandToParser("DELETE FROM test where (id < 5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id == 5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id != 5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id >= 5);");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id <= 5);");
+        assertTrue(response.contains("DELETE"));
+        //LIKE
+        response = sendCommandToParser("DELETE FROM test where (id LIKE 'i');");
+        assertTrue(response.contains("DELETE"));
+        response = sendCommandToParser("DELETE FROM test where (id LIKE 'ion');");
+        assertTrue(response.contains("DELETE"));
+        //value is string literal
+        response = sendCommandToParser("DELETE FROM test where (id <= 'Chris');");
+        assertTrue(response.contains("DELETE"));
+        //invalid AttributeName in condition
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("DELETE FROM test where (N@me <= 5);");
+        });
+        //missing FROM
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("DELETE test where (Name <= 5);");
+        });
+        //misspelled DELETE
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("DELET FROM test where (Name <= 5);");
+        });
+        //camelCase table name
+        response = sendCommandToParser("DELETE FROM testTest where (id <= 'Chris');");
+        assertTrue(response.contains("DELETE"));
+    }
 }

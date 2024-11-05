@@ -59,6 +59,7 @@ public class DBServer {
                     case "ALTER":
                     case "DROP_TABLE":
                     case "DROP_DATABASE":
+                    case "DELETE":
                         return okResponse;
                     case "SELECT":
                         DatabaseManager databaseManager = DatabaseManager.getInstance();
