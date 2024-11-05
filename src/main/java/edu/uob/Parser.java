@@ -49,18 +49,22 @@ public class Parser {
                     if (databaseManager.interpretAlter()) {
                         return "ALTER";
                     }
+                    break;
                 case "DROP_TABLE":
                     if (databaseManager.interpretDropTable()) {
                         return "DROP_TABLE";
                     }
+                    break;
                 case "DROP_DATABASE":
                     if (databaseManager.interpretDropDatabase()) {
                         return "DROP_DATABASE";
                     }
+                    break;
                 case "DELETE":
                     if (databaseManager.interpretDelete()) {
                         return "DELETE";
                     }
+                    break;
                 default:
                     throw new RuntimeException("No matching command found");
             }
