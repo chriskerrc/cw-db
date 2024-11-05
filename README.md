@@ -7,7 +7,10 @@ A database server written from scratch. The database persists when the server go
 - USE markbook;
 - CREATE TABLE marks (name, mark, pass); 
 - INSERT INTO marks VALUES ('Chris', 70, TRUE);
+- INSERT INTO marks VALUES ('Bob', 56, TRUE);
 - SELECT * FROM marks WHERE name == 'Chris';
 - ALTER TABLE marks ADD age;
+- DELETE FROM marks WHERE name != 'Bob';
 - DROP TABLE marks;
-- DROP DATABASE markbook; 
+- DROP DATABASE markbook;
+ 
