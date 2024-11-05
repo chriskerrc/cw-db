@@ -56,7 +56,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testValidCreateDatabaseCommand() throws IOException {
+    public void testValidCreateDatabaseCommand() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         String response = dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -71,7 +71,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testValidUseCommand() throws IOException {
+    public void testValidUseCommand() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -80,7 +80,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testLowercaseCommandKeywords() throws IOException {
+    public void testLowercaseCommandKeywords(){
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         String response = dbServer.handleCommand("create database " + randomName + ";");
@@ -96,7 +96,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTryCreateDatabaseWithSameNameExisting() throws IOException {
+    public void testTryCreateDatabaseWithSameNameExisting() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -116,7 +116,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testCreateValidTable() throws IOException {
+    public void testCreateValidTable() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -126,7 +126,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTryCreateTableInvalidName() throws IOException {
+    public void testTryCreateTableInvalidName() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -136,7 +136,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTryCreateTableSameNameExisting() throws IOException {
+    public void testTryCreateTableSameNameExisting() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -149,7 +149,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTryCreateTableSameNameExistingDifferentCase() throws IOException {
+    public void testTryCreateTableSameNameExistingDifferentCase() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -162,7 +162,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testCreateTableNoAttributesHasID() throws IOException {
+    public void testCreateTableNoAttributesHasID() {
         String randomName = generateRandomName();
         DBServer dbServer = new DBServer();
         dbServer.handleCommand("CREATE DATABASE " + randomName + ";");
@@ -174,7 +174,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskWhereAttributeEqualsValue() throws IOException {
+    public void testSelectAsteriskWhereAttributeEqualsValue() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -191,7 +191,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskWhereAttributeDoesNotEqualValue() throws IOException {
+    public void testSelectAsteriskWhereAttributeDoesNotEqualValue() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -212,7 +212,7 @@ public class InterpreterTests {
 
 
     @Test
-    public void testSelectAsteriskNoCondition() throws IOException {
+    public void testSelectAsteriskNoCondition() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -229,7 +229,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueryIDDoesNotEqualMultipleResults() throws IOException {
+    public void testQueryIDDoesNotEqualMultipleResults() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -249,14 +249,14 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueryNonexistentDatabase() throws IOException {
+    public void testQueryNonexistentDatabase() {
         String randomName = generateRandomName();
         String response = sendCommandToServer("USE " + randomName + ";");
         assertTrue(response.contains("[ERROR]"));
     }
 
     @Test
-    public void testQueryNonexistentTable() throws IOException {
+    public void testQueryNonexistentTable() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -265,7 +265,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueryNonexistentColumn() throws IOException {
+    public void testQueryNonexistentColumn() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -277,7 +277,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskQueryReturnsValuesInOrderStored() throws IOException {
+    public void testSelectAsteriskQueryReturnsValuesInOrderStored() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -299,7 +299,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueryCreateTableDuplicateAttributes() throws IOException {
+    public void testQueryCreateTableDuplicateAttributes() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -317,7 +317,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueryCreateInsertColumnMismatch() throws IOException {
+    public void testQueryCreateInsertColumnMismatch() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -335,7 +335,7 @@ public class InterpreterTests {
 
 
     @Test
-    public void testQueryKeywordsCaseInsensitive() throws IOException {
+    public void testQueryKeywordsCaseInsensitive() {
         String randomName = generateRandomName();
         String response = sendCommandToServer("create database " + randomName + ";");
         assertTrue(response.contains("[OK]"));
@@ -357,7 +357,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testTableNameIsNotReserved() throws IOException {
+    public void testTableNameIsNotReserved() {
         String randomName = generateRandomName();
         String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
@@ -369,7 +369,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testAttributeNameIsNotReserved() throws IOException {
+    public void testAttributeNameIsNotReserved() {
         String randomName = generateRandomName();
         String response = sendCommandToServer("CREATE DATABASE " + randomName + ";");
         assertTrue(response.contains("[OK]"));
@@ -381,7 +381,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testDatabaseNamesAreCaseInsensitive() throws IOException {
+    public void testDatabaseNamesAreCaseInsensitive() {
         sendCommandToServer("CREATE DATABASE cars;");
         //try to use database of same name but different case
         String response = sendCommandToServer("USE CaRs;");
@@ -392,7 +392,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testColumnNamesAreCaseInsensitiveForQuerying() throws IOException {
+    public void testColumnNamesAreCaseInsensitiveForQuerying() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -411,7 +411,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testColumnNameCaseIsPreservedWhenStored() throws IOException {
+    public void testColumnNameCaseIsPreservedWhenStored() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -426,7 +426,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAttributeComparators() throws IOException {
+    public void testSelectAttributeComparators() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -457,7 +457,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskComparators() throws IOException {
+    public void testSelectAsteriskComparators() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -506,7 +506,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskLike() throws IOException {
+    public void testSelectAsteriskLike() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -527,7 +527,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAsteriskLikeMultiChararacter() throws IOException {
+    public void testSelectAsteriskLikeMultiCharacter()  {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -548,7 +548,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAttributeLike() throws IOException {
+    public void testSelectAttributeLike() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -569,7 +569,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectWithoutSemicolon() throws IOException {
+    public void testSelectWithoutSemicolon() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -583,7 +583,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectTableNotExist() throws IOException {
+    public void testSelectTableNotExist() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -596,7 +596,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectAttributeNotInTable() throws IOException {
+    public void testSelectAttributeNotInTable() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -609,7 +609,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectValidQueryNoMatchesReturnsColumnsNoDataRows() throws IOException {
+    public void testSelectValidQueryNoMatchesReturnsColumnsNoDataRows() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -625,7 +625,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectCompareDifferentDataTypesTextInteger() throws IOException {
+    public void testSelectCompareDifferentDataTypesTextInteger() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -642,7 +642,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectBracketedConditionAsterisk() throws IOException {
+    public void testSelectBracketedConditionAsterisk() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -658,7 +658,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testSelectBracketedConditionAttribute() throws IOException {
+    public void testSelectBracketedConditionAttribute() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -674,7 +674,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testQueriesWithWhitespace() throws IOException {
+    public void testQueriesWithWhitespace() {
         String randomName = generateRandomName();
         sendCommandToServer("    CREATE      DATABASE " + randomName + ";");
         sendCommandToServer("USE     " + randomName + ";");
@@ -691,7 +691,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testRowIDsRemainUniqueAfterServerRestart() throws IOException {
+    public void testRowIDsRemainUniqueAfterServerRestart() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -713,7 +713,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testAlterTable() throws IOException {
+    public void testAlterTable() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -728,7 +728,7 @@ public class InterpreterTests {
         assertTrue(response.contains("age"));
         //cannot add column name (existing column name)
         response = sendCommandToServer("ALTER TABLE marks ADD name;");
-        assertTrue(response.contains("[ERROR]"));
+        assertTrue(response.contains("[ERROR]")); //to do: fix failing test
         //drop column pass
         response = sendCommandToServer("ALTER TABLE marks DROP pass;");
         assertTrue(response.contains("[OK]"));
@@ -740,7 +740,7 @@ public class InterpreterTests {
     }
 
     @Test
-    public void testDropTable() throws IOException {
+    public void testDropTable() {
         String randomName = generateRandomName();
         sendCommandToServer("CREATE DATABASE " + randomName + ";");
         sendCommandToServer("USE " + randomName + ";");
@@ -791,5 +791,86 @@ public class InterpreterTests {
         //check you can't use deleted database
         response = sendCommandToServer("USE marine;");
         assertTrue(response.contains("[ERROR]"));
+    }
+
+    @Test
+    public void testDeleteFromTable() throws IOException{
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Julia', 55, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Hannah', 80, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Ahmed', 90, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+
+        //delete a single row with == operator
+        String response = sendCommandToServer("DELETE FROM marks WHERE name == 'Chris';");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+        //check that Chris's row is gone
+        assertFalse(response.contains("Chris"));
+        assertFalse(response.contains("61"));
+        //check that Bob's row is still there
+        assertTrue(response.contains("Bob"));
+
+        //delete two non-consecutive rows with < operator
+        response = sendCommandToServer("DELETE FROM marks WHERE mark<50;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+        //check that Bob and Fred rows are gone
+        assertFalse(response.contains("Bob"));
+        assertFalse(response.contains("Fred")); //Bob is deleted but Fred is not deleted...
+        //check Julia is still there
+        assertTrue(response.contains("Julia"));
+
+        //delete row with > operator
+        response = sendCommandToServer("DELETE FROM marks WHERE mark>85;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+        //check that Ahmed row is gone
+        assertFalse(response.contains("Ahmed"));
+        //check Julia is still there
+        assertTrue(response.contains("Julia"));
+    }
+
+    @Test
+    public void testDeleteFromTable2(){
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 40, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Julia', 55, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Finn', 70, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Hannah', 80, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Ahmed', 90, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Fred', 30, FALSE);");
+
+        String response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+
+
+        //delete two non-consecutive rows with < operator
+        response = sendCommandToServer("DELETE FROM marks WHERE mark<50;");
+        assertTrue(response.contains("[OK]"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        System.out.println(response);
+        //check that Bob and Fred rows are gone
+        assertFalse(response.contains("Bob"));
+        assertFalse(response.contains("Fred")); //Bob is deleted but Fred is not deleted...
+        //check Julia is still there
+        assertTrue(response.contains("Julia"));
+
+        //To do: keep testing with other conditions
+
+        //To do: check that deleted row IDs aren't reused when adding new rows
     }
 }

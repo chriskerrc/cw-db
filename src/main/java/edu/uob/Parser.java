@@ -297,6 +297,7 @@ public class Parser {
     }
 
     private boolean isDelete(ArrayList<String> commandTokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!currentWordMatches(commandTokens, "DELETE")){
             return false;
         }
@@ -308,6 +309,7 @@ public class Parser {
         if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
+        databaseManager.setTableToDeleteFrom(getCurrentWordString());
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "WHERE")){
             return false;

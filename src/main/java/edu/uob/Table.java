@@ -1,6 +1,7 @@
 package edu.uob;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 public class Table {
@@ -289,6 +290,17 @@ public class Table {
         String lowercaseTableName = tableName.toLowerCase();
         File tableFile = new File(filePath + lowercaseTableName + fileExtension);
         return tableFile.delete();
+    }
+
+    public void deleteTableRows (ArrayList<Integer> rowsToDelete){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        //reverse order to ensure indices stay correct after deletion
+        rowsToDelete.sort(Collections.reverseOrder());
+        for(Integer tableRow : rowsToDelete){
+            if(tableRow >= 0 && tableRow <= dataStructure.size()) {
+                dataStructure.remove((int) tableRow);
+            }
+        }
     }
 
     //private methods

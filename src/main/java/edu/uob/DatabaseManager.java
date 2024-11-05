@@ -50,6 +50,8 @@ public class DatabaseManager {
 
 	static private String databaseToDrop;
 
+	static private String tableToDeleteFrom;
+
 	private DatabaseManager() {
 	}
 
@@ -84,6 +86,10 @@ public class DatabaseManager {
 
 	public void setTableToAlter(String tableName){
 		tableToAlter = tableName;
+	}
+
+	public void setTableToDeleteFrom(String tableName){
+		tableToDeleteFrom = tableName;
 	}
 
 	public void setColumnToAlter(String tableName){
@@ -294,12 +300,23 @@ public class DatabaseManager {
     }
 
 	public boolean interpretDelete() throws IOException {
+		checkDatabaseInUse("Database doesn't exist or not in USE?");
+		Database currentDatabase = getDatabase(databaseInUse);
+		assert currentDatabase != null;
+		if (!currentDatabase.tableExistsInDB(tableToDeleteFrom)) {
+			throw new RuntimeException("Table that you're trying to delete row(s) from doesn't exist");
+		}
+		Table activeTable = currentDatabase.getTableFromDatabase(tableToDeleteFrom);
+		//get the rows that apply to condition
+		ArrayList<Integer> rowsUnderCondition = getRowsIncludeCondition(activeTable);
+		//delete those rows
+		activeTable.deleteTableRows(rowsUnderCondition);
 		return true;
 	}
 
 	//Private methods
 
-	private ArrayList<Integer> interpretSelectCondition(Table table) {
+	private ArrayList<Integer> getRowsIncludeCondition(Table table) {
 		ArrayList<Integer> rowsToInclude;
 		int columnIndex = table.getIndexAttribute(conditionAttribute);
 		rowsToInclude = switch (conditionComparator) {
@@ -318,7 +335,7 @@ public class DatabaseManager {
 	}
 
 	private void selectStarCondition(Table selectedTable) {
-		ArrayList<Integer> rowList = interpretSelectCondition(selectedTable);
+		ArrayList<Integer> rowList = getRowsIncludeCondition(selectedTable);
 		selectResponse = selectedTable.tableRowsToString(selectedTable, rowList);
 	}
 
@@ -328,7 +345,7 @@ public class DatabaseManager {
 		if(columnIndex == -1){
 			throw new RuntimeException("Attribute not in table");
 		}
-		ArrayList<Integer> rowList = interpretSelectCondition(selectedTable);
+		ArrayList<Integer> rowList = getRowsIncludeCondition(selectedTable);
 		selectResponse = selectedTable.columnValuesToString(selectedTable, rowList, columnIndex);
 		return true;
 	}
@@ -408,25 +425,26 @@ public class DatabaseManager {
         databasesList.removeIf(database -> Objects.equals(database.databaseName, databaseName));
     }
 
-    private boolean deleteDatabaseDirectory(String databaseName){
+    private void deleteDatabaseDirectory(String databaseName){
         Database currentDatabase = getDatabase(databaseInUse);
         assert currentDatabase != null;
         String filePath = currentDatabase.getFilePath();
         //check database directory exists
         if(!currentDatabase.checkFolderExists(databaseInUse)){
-            return false;
+            return;
         }
         //delete table files in database directory
         String lowercaseDatabaseName = databaseInUse.toLowerCase();
         File directoryToDelete = new File(filePath + lowercaseDatabaseName);
         for(File file: Objects.requireNonNull(directoryToDelete.listFiles())){
             if(!file.delete()){
-                return false;
+                return;
             }
         }
         //delete database directory
-        return directoryToDelete.delete();
-    }
+		directoryToDelete.delete();
+	}
+
 
 
 }
