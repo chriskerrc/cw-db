@@ -292,7 +292,7 @@ public class Table {
         return tableFile.delete();
     }
 
-    public void deleteTableRows (ArrayList<Integer> rowsToDelete){
+    public void deleteTableRows (ArrayList<Integer> rowsToDelete) throws IOException {
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         //reverse order to ensure indices stay correct after deletion
         rowsToDelete.sort(Collections.reverseOrder());
@@ -301,6 +301,7 @@ public class Table {
                 dataStructure.remove((int) tableRow);
             }
         }
+        this.writeTableToFile(this.getTableName(), true);
     }
 
     //private methods
