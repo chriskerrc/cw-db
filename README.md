@@ -11,6 +11,7 @@ A database server written from scratch. The database persists when the server go
 - SELECT * FROM marks WHERE name == 'Chris';
 - ALTER TABLE marks ADD age;
 - DELETE FROM marks WHERE name != 'Bob';
+- UPDATE marks set pass = FALSE WHERE name == 'Chris';
 - DROP TABLE marks;
 - DROP DATABASE markbook;
  

@@ -339,6 +339,8 @@ public class Parser {
         if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        databaseManager.setTableToUpdate(getCurrentWordString());
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "SET")){
             return false;

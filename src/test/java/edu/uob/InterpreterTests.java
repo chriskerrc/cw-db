@@ -873,4 +873,36 @@ public class InterpreterTests {
         //check Finn is gone
         assertFalse(response.contains("Finn"));
     }
+
+    @Test
+    public void testUpdateTable() {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 61, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Bob', 80, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Julia', 55, TRUE);");
+
+        //update a single row with == operator on string
+        String response = sendCommandToServer("UPDATE marks SET mark = 38 WHERE name == 'Chris';");
+        assertTrue(response.contains("OK"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check that new mark is there
+        assertTrue(response.contains("38"));
+        //check that old mark is gone
+        assertFalse(response.contains("61"));
+        //update another single row with == operator on number
+        response = sendCommandToServer("UPDATE marks SET pass = FALSE WHERE mark == 80;");
+        assertTrue(response.contains("OK"));
+        response = sendCommandToServer("SELECT * FROM marks;");
+        //check that new pass status is there
+        assertTrue(response.contains("FALSE"));
+        //fail to update two rows, because I haven't implemented this
+        response = sendCommandToServer("UPDATE marks SET pass = FALSE , mark = 0  WHERE mark > 20;");
+        assertTrue(response.contains("[ERROR]"));
+        //fail to update column that isn't in table
+        response = sendCommandToServer("UPDATE marks SET unicorn = FALSE WHERE name == 'Chris';");
+        assertTrue(response.contains("[ERROR]"));
+    }
 }

@@ -56,6 +56,8 @@ public class DatabaseManager {
 
 	static private String newUpdatedValue;
 
+	static private String tableToUpdate;
+
 	private DatabaseManager() {
 	}
 
@@ -171,6 +173,8 @@ public class DatabaseManager {
 	public void setUpdateNewValue(String newValue) {
 		newUpdatedValue = newValue;
 	}
+
+	public void setTableToUpdate(String tableName) { tableToUpdate = tableName; }
 
 	//Interpreter methods
 	public boolean interpretCreateDatabase() {
@@ -317,13 +321,7 @@ public class DatabaseManager {
     }
 
 	public boolean interpretDelete() throws IOException {
-		checkDatabaseInUse("Database doesn't exist or not in USE?");
-		Database currentDatabase = getDatabase(databaseInUse);
-		assert currentDatabase != null;
-		if (!currentDatabase.tableExistsInDB(tableToDeleteFrom)) {
-			throw new RuntimeException("Table that you're trying to delete row(s) from doesn't exist");
-		}
-		Table activeTable = currentDatabase.getTableFromDatabase(tableToDeleteFrom);
+		Table activeTable = getTableToModify(tableToDeleteFrom);
 		//get the rows that apply to condition
 		ArrayList<Integer> rowsUnderCondition = getRowsIncludeCondition(activeTable);
 		//delete those rows
@@ -332,10 +330,27 @@ public class DatabaseManager {
 	}
 
 	public boolean interpretUpdate() throws IOException {
-		return true;
+		Table activeTable = getTableToModify(tableToUpdate);
+		//get the rows that apply to condition
+		ArrayList<Integer> rowsUnderCondition = getRowsIncludeCondition(activeTable);
+		//panic if there's more than one row to update (not implementing this for now)
+		if (rowsUnderCondition.size() != 1){
+			return false;
+		}
+		return activeTable.updateTableRows(rowsUnderCondition, columnToUpdate, newUpdatedValue);
 	}
 
 	//Private methods
+
+	private Table getTableToModify (String modifiedTableName){
+		checkDatabaseInUse("Database doesn't exist or not in USE?");
+		Database currentDatabase = getDatabase(databaseInUse);
+		assert currentDatabase != null;
+		if (!currentDatabase.tableExistsInDB(modifiedTableName)) {
+			throw new RuntimeException("Table that you're trying to modify doesn't exist");
+		}
+        return currentDatabase.getTableFromDatabase(modifiedTableName);
+	}
 
 	private ArrayList<Integer> getRowsIncludeCondition(Table table) {
 		ArrayList<Integer> rowsToInclude;

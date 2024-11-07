@@ -304,6 +304,31 @@ public class Table {
         this.writeTableToFile(this.getTableName(), true);
     }
 
+    public boolean updateTableRows(ArrayList<Integer> rowsToUpdate, String columnName, String newValue) throws IOException {
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        //get the row index of row to update
+        int rowIndex = rowsToUpdate.get(0);
+        //get the row we want to update
+        ArrayList<String> rowToUpdate = dataStructure.get(rowIndex);
+        int colIndexToUpdate = -1;
+        //find column index to update
+        for(int colIndex = 0; colIndex < rowToUpdate.size(); colIndex++){
+            if(columnName.equalsIgnoreCase(dataStructure.get(0).get(colIndex))){
+                colIndexToUpdate = colIndex;
+            }
+        }
+        //couldn't find columnName in table
+        if(colIndexToUpdate == -1){
+            return false;
+        }
+        //otherwise, replace the value in cell at column found above
+        rowToUpdate.set(colIndexToUpdate, newValue);
+        //add this row to the table again
+        dataStructure.set(rowIndex, rowToUpdate);
+        this.writeTableToFile(this.getTableName(), true);
+        return true;
+    }
+
     //private methods
 
     private boolean stringContainsCharacter(String currentToken) {
