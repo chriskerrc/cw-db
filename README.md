@@ -14,3 +14,5 @@ A database server written from scratch. The database persists when the server go
 - DROP TABLE marks;
 - DROP DATABASE markbook;
  
+For the specification of the query language, see BNF.txt
+For examples of a sequence of commands, see example-transcript.docx
