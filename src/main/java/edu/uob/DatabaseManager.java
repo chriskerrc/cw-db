@@ -9,7 +9,7 @@ public class DatabaseManager {
 
 	static private DatabaseManager instance = null;
 
-	static private ArrayList<Database> databasesList = new ArrayList<>();
+	static private final ArrayList<Database> databasesList = new ArrayList<>();
 
 	static private String databaseInUse;
 
@@ -51,6 +51,10 @@ public class DatabaseManager {
 	static private String databaseToDrop;
 
 	static private String tableToDeleteFrom;
+
+	static private String columnToUpdate;
+
+	static private String newUpdatedValue;
 
 	private DatabaseManager() {
 	}
@@ -158,6 +162,14 @@ public class DatabaseManager {
 
 	public String getConditionComparator() {
 		return conditionComparator;
+	}
+
+	public void setColumnToUpdate(String columnName) {
+		columnToUpdate = columnName;
+	}
+
+	public void setUpdateNewValue(String newValue) {
+		newUpdatedValue = newValue;
 	}
 
 	//Interpreter methods
@@ -298,7 +310,7 @@ public class DatabaseManager {
 			return false;
 		}
         //delete database directory including all files within it
-        deleteDatabaseDirectory(databaseInUse);
+        deleteDatabaseDirectory();
         //delete database from memory
         deleteDatabaseFromMemory(databaseInUse);
         return true;
@@ -434,7 +446,7 @@ public class DatabaseManager {
         databasesList.removeIf(database -> Objects.equals(database.databaseName, databaseName));
     }
 
-    private void deleteDatabaseDirectory(String databaseName){
+    private void deleteDatabaseDirectory(){
         Database currentDatabase = getDatabase(databaseInUse);
         assert currentDatabase != null;
         String filePath = currentDatabase.getFilePath();

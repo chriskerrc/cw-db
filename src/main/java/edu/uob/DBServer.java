@@ -16,9 +16,7 @@ import java.util.Objects;
 public class DBServer {
 
     private static final char END_OF_TRANSMISSION = 4;
-    private String storageFolderPath;
-
-    private final String okResponse = "[OK]";
+    private final String storageFolderPath;
 
     public static void main(String args[]) throws IOException {
         DBServer server = new DBServer();
@@ -51,6 +49,7 @@ public class DBServer {
             Parser commandParser = new Parser(processedTokens);
             String responseString = commandParser.parseCommand();
             if(responseString != null){
+                String okResponse = "[OK]";
                 switch (responseString) {
                     case "CREATE_DATABASE":
                     case "CREATE_TABLE":

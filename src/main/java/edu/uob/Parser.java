@@ -330,7 +330,7 @@ public class Parser {
         return isCondition(commandTokens);
     }
 
-    //<Update> ::=  "UPDATE " [TableName] " SET " <NameValueList> " WHERE " <Condition>
+    //Interpreting isUpdate currently only works for a single name-value pair
     private boolean isUpdate(ArrayList<String> commandTokens){
         if(!currentWordMatches(commandTokens, "UPDATE")){
             return false;
@@ -596,15 +596,21 @@ public class Parser {
 
     //<NameValuePair>   ::=  [AttributeName] "=" [Value]
     private boolean isNameValuePair(ArrayList<String> commandTokens){
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!isAttributeName(commandTokens)){
             return false;
         }
+        databaseManager.setColumnToUpdate(getCurrentWordString());
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "=")){
             return false;
         }
         incrementCurrentWord(commandTokens);
-        return isValue(commandTokens);
+        if(!isValue(commandTokens)){
+            return false;
+        }
+        databaseManager.setUpdateNewValue(getCurrentWordString());
+        return true;
     }
 
     private boolean isNameValueList(ArrayList<String> commandTokens){
