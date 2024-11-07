@@ -11,9 +11,8 @@ A database server written from scratch. The database persists when the server go
 - SELECT * FROM marks WHERE name == 'Chris';
 - ALTER TABLE marks ADD age;
 - DELETE FROM marks WHERE name != 'Bob';
-- UPDATE marks set pass = FALSE WHERE name == 'Chris';
+- UPDATE marks SET mark = 75 WHERE name == 'Chris';
 - DROP TABLE marks;
 - DROP DATABASE markbook;
  
-For the specification of the query language, see BNF.txt
-For examples of a sequence of commands, see example-transcript.docx
+For the specification of the query language, see `BNF.txt` and for examples of a sequence of commands, see `example-transcript.pdf`.
