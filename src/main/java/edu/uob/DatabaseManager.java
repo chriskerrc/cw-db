@@ -314,6 +314,10 @@ public class DatabaseManager {
 		return true;
 	}
 
+	public boolean interpretUpdate() throws IOException {
+		return true;
+	}
+
 	//Private methods
 
 	private ArrayList<Integer> getRowsIncludeCondition(Table table) {

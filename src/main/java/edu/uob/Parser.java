@@ -65,6 +65,11 @@ public class Parser {
                         return "DELETE";
                     }
                     break;
+                case "UPDATE":
+                    if (databaseManager.interpretUpdate()) {
+                        return "UPDATE";
+                    }
+                    break;
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -124,6 +129,9 @@ public class Parser {
         }
         if(isDelete(commandTokens)){
             return "DELETE";
+        }
+        if(isUpdate(commandTokens)){
+            return "UPDATE";
         }
         return "INVALID";
     }
@@ -314,6 +322,31 @@ public class Parser {
             return false;
         }
         databaseManager.setTableToDeleteFrom(getCurrentWordString());
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "WHERE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        return isCondition(commandTokens);
+    }
+
+    //<Update> ::=  "UPDATE " [TableName] " SET " <NameValueList> " WHERE " <Condition>
+    private boolean isUpdate(ArrayList<String> commandTokens){
+        if(!currentWordMatches(commandTokens, "UPDATE")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "SET")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isNameValueList(commandTokens)){
+            return false;
+        }
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "WHERE")){
             return false;
@@ -559,6 +592,36 @@ public class Parser {
         }
         incrementCurrentWord(commandTokens);
         return currentWordMatches(commandTokens, ")");
+    }
+
+    //<NameValuePair>   ::=  [AttributeName] "=" [Value]
+    private boolean isNameValuePair(ArrayList<String> commandTokens){
+        if(!isAttributeName(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "=")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        return isValue(commandTokens);
+    }
+
+    private boolean isNameValueList(ArrayList<String> commandTokens){
+        while(true){
+            if(!isNameValuePair(commandTokens)){
+                return false;
+            }
+            incrementCurrentWord(commandTokens);
+            if(!currentWordMatches(commandTokens, ",")){
+                //we assume we're at the end of the list
+                //reset current word so that word after the NVP can be checked by the next method
+                decrementCurrentWord();
+                return true;
+            }
+            //if current word is a comma
+            incrementCurrentWord(commandTokens);
+        }
     }
 
     //Helper methods

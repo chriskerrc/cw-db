@@ -684,4 +684,37 @@ public class ParserTests {
         response = sendCommandToParser("DELETE FROM testTest where (id <= 'Chris');");
         assertTrue(response.contains("DELETE"));
     }
+
+    @Test
+    public void testUpdate() throws Exception {
+        //Single valid name-value pair
+        String response = sendCommandToParser("UPDATE marks SET mark = 38 WHERE name == 'Chris';");
+        assertTrue(response.contains("UPDATE"));
+        //Two valid name-value pairs
+        response = sendCommandToParser("UPDATE marks SET mark = 38 , pass = TRUE WHERE name == 'Chris';");
+        assertTrue(response.contains("UPDATE"));
+        //Three valid name-value pairs
+        response = sendCommandToParser("UPDATE marks SET mark = 38 , pass = TRUE , pets = 'Cat' WHERE name == 'Chris';");
+        assertTrue(response.contains("UPDATE"));
+        //misspelled UPDATE
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("UPDAT marks SET mark = 38 WHERE name == 'Chris';");
+        });
+        //missing SET
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("UPDATE marks mark = 38 WHERE name == 'Chris';");
+        });
+        //missing WHERE
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("UPDATE marks SET mark = 38 name == 'Chris';");
+        });
+        //invalid name-value pair list (NVP , nothing)
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("UPDATE marks SET mark = 38 , WHERE name == 'Chris';");
+        });
+        //invalid condition (missing value)
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("UPDATE marks SET mark = 38 WHERE name == ;");
+        });
+    }
 }
