@@ -285,6 +285,7 @@ public class DatabaseManager {
 		return true;
 	}
 
+	//assumes we can only drop a database in use
     public boolean interpretDropDatabase() throws IOException {
         Database currentDatabase = getDatabase(databaseInUse);
         assert currentDatabase != null;
@@ -292,6 +293,10 @@ public class DatabaseManager {
         if(!this.checkDBExistsInMemory(databaseInUse)){
             return false;
         }
+		//check that databaseToDrop matches databaseInUse
+		if(!Objects.equals(databaseToDrop, databaseInUse)){
+			return false;
+		}
         //delete database directory including all files within it
         deleteDatabaseDirectory(databaseInUse);
         //delete database from memory
