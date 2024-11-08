@@ -33,6 +33,8 @@ public class DatabaseManager {
 
 	static private String selectResponse;
 
+	static private String joinResponse;
+
 	static private String tableToSelect;
 
 	static private String tableToAlter;
@@ -57,6 +59,14 @@ public class DatabaseManager {
 	static private String newUpdatedValue;
 
 	static private String tableToUpdate;
+
+	static private String joinTable1;
+
+	static private String joinTable2;
+
+	static private String joinAttribute1;
+
+	static private String joinAttribute2;
 
 	private DatabaseManager() {
 	}
@@ -138,6 +148,10 @@ public class DatabaseManager {
 		return selectResponse;
 	}
 
+	public String getJoinResponse(){
+		return joinResponse;
+	}
+
 	public void setConditionAttribute(String newAttributeName){
 		conditionAttribute = newAttributeName;
 	}
@@ -175,6 +189,16 @@ public class DatabaseManager {
 	}
 
 	public void setTableToUpdate(String tableName) { tableToUpdate = tableName; }
+
+	public void setJoinTables(String tableName1, String tableName2) {
+		joinTable1 = tableName1;
+		joinTable2 = tableName2;
+	}
+
+	public void setJoinAttributes(String attribute1, String attribute2){
+		joinAttribute1 = attribute1;
+		joinAttribute2 = attribute2;
+	}
 
 	//Interpreter methods
 	public boolean interpretCreateDatabase() {
@@ -341,6 +365,10 @@ public class DatabaseManager {
 	}
 
 	public boolean interpretJoin(){
+
+
+
+		//set joinResponse here
 		return true;
 	}
 

@@ -60,12 +60,15 @@ public class DBServer {
                     case "DROP_DATABASE":
                     case "DELETE":
                     case "UPDATE":
-                    case "JOIN": //move to below SELECT and make similar
                         return okResponse;
                     case "SELECT":
-                        DatabaseManager databaseManager = DatabaseManager.getInstance();
-                        String selectResponse = databaseManager.getSelectResponse();
+                        DatabaseManager databaseManagerSelect = DatabaseManager.getInstance();
+                        String selectResponse = databaseManagerSelect.getSelectResponse();
                         return okResponse + "\n" + selectResponse;
+                    case "JOIN":
+                        DatabaseManager databaseManagerJoin = DatabaseManager.getInstance();
+                        String joinResponse = databaseManagerJoin.getJoinResponse();
+                        return okResponse + "\n" + joinResponse;
                 }
             }
             return "[ERROR]: Failed to handle command";

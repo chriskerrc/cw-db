@@ -370,9 +370,11 @@ public class Parser {
             return false;
         }
         incrementCurrentWord(commandTokens);
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
+        String table1Name = getCurrentWordString();
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "AND")){
             return false;
@@ -381,6 +383,7 @@ public class Parser {
         if(!isUnreservedPlaintext(commandTokens)){
             return false;
         }
+        String table2Name = getCurrentWordString();
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "ON")){
             return false;
@@ -389,12 +392,19 @@ public class Parser {
         if(!isAttributeName(commandTokens)){
             return false;
         }
+        String attribute1Name = getCurrentWordString();
         incrementCurrentWord(commandTokens);
         if(!currentWordMatches(commandTokens, "AND")){
             return false;
         }
         incrementCurrentWord(commandTokens);
-        return isAttributeName(commandTokens);
+        if(!isAttributeName(commandTokens)){
+            return false;
+        }
+        String attribute2Name = getCurrentWordString();
+        databaseManager.setJoinTables(table1Name, table2Name);
+        databaseManager.setJoinAttributes(attribute1Name, attribute2Name);
+        return true;
     }
 
     //Grammar rule methods
