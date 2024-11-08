@@ -717,4 +717,31 @@ public class ParserTests {
             sendCommandToParser("UPDATE marks SET mark = 38 WHERE name == ;");
         });
     }
+
+    @Test
+    public void testJoin() throws Exception {
+        //valid join command
+        String response = sendCommandToParser("JOIN coursework AND marks ON submission AND id;");
+        assertTrue(response.contains("JOIN"));
+
+        //misspelled JOIN
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("JON coursework AND marks ON submission AND id");
+        });
+
+        //missing first AND
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("JOIN coursework marks ON submission AND id");
+        });
+
+        //missing second AND
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("JOIN coursework AND marks ON submission id");
+        });
+
+        //missing ON
+        assertThrows(Exception.class, () -> {
+            sendCommandToParser("JOIN coursework AND marks submission AND id");
+        });
+    }
 }

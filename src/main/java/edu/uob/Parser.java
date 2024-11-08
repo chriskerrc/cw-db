@@ -70,6 +70,11 @@ public class Parser {
                         return "UPDATE";
                     }
                     break;
+                case "JOIN":
+                    if (databaseManager.interpretJoin()) {
+                        return "JOIN";
+                    }
+                    break;
                 default:
                     throw new RuntimeException("No matching command found");
             }
@@ -132,6 +137,9 @@ public class Parser {
         }
         if(isUpdate(commandTokens)){
             return "UPDATE";
+        }
+        if(isJoin(commandTokens)){
+            return "JOIN";
         }
         return "INVALID";
     }
@@ -355,6 +363,38 @@ public class Parser {
         }
         incrementCurrentWord(commandTokens);
         return isCondition(commandTokens);
+    }
+
+    private boolean isJoin(ArrayList<String> commandTokens){
+        if(!currentWordMatches(commandTokens, "JOIN")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "AND")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isUnreservedPlaintext(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "ON")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!isAttributeName(commandTokens)){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        if(!currentWordMatches(commandTokens, "AND")){
+            return false;
+        }
+        incrementCurrentWord(commandTokens);
+        return isAttributeName(commandTokens);
     }
 
     //Grammar rule methods

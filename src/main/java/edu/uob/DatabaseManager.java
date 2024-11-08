@@ -333,11 +333,15 @@ public class DatabaseManager {
 		Table activeTable = getTableToModify(tableToUpdate);
 		//get the rows that apply to condition
 		ArrayList<Integer> rowsUnderCondition = getRowsIncludeCondition(activeTable);
-		//panic if there's more than one row to update (not implementing this for now)
+		//panic if there's more than one row to update (not implementing multiple rows for now)
 		if (rowsUnderCondition.size() != 1){
 			return false;
 		}
 		return activeTable.updateTableRows(rowsUnderCondition, columnToUpdate, newUpdatedValue);
+	}
+
+	public boolean interpretJoin(){
+		return true;
 	}
 
 	//Private methods
