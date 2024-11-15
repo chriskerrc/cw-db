@@ -905,4 +905,24 @@ public class InterpreterTests {
         response = sendCommandToServer("UPDATE marks SET unicorn = FALSE WHERE name == 'Chris';");
         assertTrue(response.contains("[ERROR]"));
     }
+
+    @Test
+    public void testJoin() {
+        String randomName = generateRandomName();
+        sendCommandToServer("CREATE DATABASE " + randomName + ";");
+        sendCommandToServer("USE " + randomName + ";");
+        sendCommandToServer("CREATE TABLE marks (name, mark, pass);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Simon', 65, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Sion', 55, TRUE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Rob', 35, FALSE);");
+        sendCommandToServer("INSERT INTO marks VALUES ('Chris', 20, FALSE);");
+        sendCommandToServer("CREATE TABLE coursework (task, submission);");
+        sendCommandToServer("INSERT INTO coursework VALUES ('OXO', 3);");
+        sendCommandToServer("INSERT INTO coursework VALUES ('DB', 1);");
+        sendCommandToServer("INSERT INTO coursework VALUES ('OXO', 4);");
+        sendCommandToServer("INSERT INTO coursework VALUES ('STAG', 2);");
+
+        String response = sendCommandToServer("JOIN coursework AND marks ON submission AND id;");
+        System.out.println(response);
+    }
 }

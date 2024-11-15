@@ -60,9 +60,9 @@ public class DatabaseManager {
 
 	static private String tableToUpdate;
 
-	static private String joinTable1;
+	static private String joinTableName1;
 
-	static private String joinTable2;
+	static private String joinTableName2;
 
 	static private String joinAttribute1;
 
@@ -191,8 +191,8 @@ public class DatabaseManager {
 	public void setTableToUpdate(String tableName) { tableToUpdate = tableName; }
 
 	public void setJoinTables(String tableName1, String tableName2) {
-		joinTable1 = tableName1;
-		joinTable2 = tableName2;
+		joinTableName1 = tableName1;
+		joinTableName2 = tableName2;
 	}
 
 	public void setJoinAttributes(String attribute1, String attribute2){
@@ -364,7 +364,8 @@ public class DatabaseManager {
 		return activeTable.updateTableRows(rowsUnderCondition, columnToUpdate, newUpdatedValue);
 	}
 
-	public boolean interpretJoin(){
+	public boolean interpretJoin() throws IOException {
+		Table joinTable = createJoinTable();
 
 
 
@@ -442,7 +443,7 @@ public class DatabaseManager {
 		Table newTable = new Table();
 		newTable.setTableName(tableToCreate);
 		if(!tableHasAttributes){
-			newTable.createTableNoValues(tableToCreate);
+			newTable.createTableNoValues(tableToCreate, true);
 		}
 		else{
 			ArrayList<String> valuesList = tableAttributes;
@@ -453,6 +454,70 @@ public class DatabaseManager {
 			newTable.createTableHasValues(tableToCreate, valuesOriginalCase);
 		}
 		return newTable;
+	}
+
+	private Table createJoinTable() throws IOException {
+		Table joinTable = new Table();
+		//create table in memory with id
+		joinTable.createTableNoValues("joinTable", false);
+		Database currentDatabase = getDatabase(databaseInUse);
+		assert currentDatabase != null;
+		//check that database exists in memory
+		if(!this.checkDBExistsInMemory(databaseInUse)){
+			return null;
+		}
+		Table firstJoinTable = currentDatabase.getTableFromDatabase(joinTableName1);
+		Table secondJoinTable = currentDatabase.getTableFromDatabase(joinTableName2);
+		ArrayList<String> joinColumns = buildJoinColumns(firstJoinTable, secondJoinTable);
+		joinTable.addJoinColumns(joinColumns);
+		//build rows that match (start with first row, then abstract)
+		ArrayList<String> firstJoinRow = buildJoinRow(firstJoinTable, secondJoinTable, 1);
+		//add row
+		System.out.println("This is the first join row " + firstJoinRow);
+
+		//move on to second join row etc
+
+
+        //assuming I have a method for turning table to string somewhere
+		return joinTable;
+	}
+
+	private ArrayList<String> buildJoinColumns(Table firstJoinTable, Table secondJoinTable){
+		ArrayList<String> tableOneColumnsForJoin = firstJoinTable.getJoinColumns(joinAttribute1);
+		ArrayList<String> tableTwoColumnsForJoin = secondJoinTable.getJoinColumns(joinAttribute2);
+		ArrayList<String> joinColumns = new ArrayList<>();
+		for(String tableColumn : tableOneColumnsForJoin){
+            joinColumns.add(joinTableName1 + "." + tableColumn);
+		}
+		for(String tableColumn : tableTwoColumnsForJoin){
+			joinColumns.add(joinTableName2 + "." + tableColumn);
+		}
+		return joinColumns;
+	}
+
+	private ArrayList<String> buildJoinRow(Table firstJoinTable, Table secondJoinTable, int rowIndex){
+		//pre-process row to remove IDs
+
+		//get value of attribute1 in table1 (method 1)
+		int colIndexAttr1 = firstJoinTable.getColumnIndexJoinAttribute(joinAttribute1);
+		String valueAttr1 = firstJoinTable.getValueAttribute1InJoinTable1(rowIndex, colIndexAttr1);
+		//get the values at the specified rowIndex from table 1, excluding attribute1 value (method 2)
+		ArrayList<String> joinValuesRow = firstJoinTable.getJoinValues(rowIndex, colIndexAttr1);
+		System.out.println("Values from table 1 " + joinValuesRow);
+		int colIndexAttr2 = secondJoinTable.getColumnIndexJoinAttribute(joinAttribute2);
+
+		//find the rowIndex in table2 where attribute2 == value of attribute1 (method 3)
+		int rowIndexTable2 = secondJoinTable.getRowIndexForJoin(valueAttr1, colIndexAttr2);
+
+        //get the values in this row, excluding the attribute2 value (method 4)
+
+		ArrayList<String> joinValuesTable2 = secondJoinTable.getJoinValues(rowIndexTable2, colIndexAttr2);
+		System.out.println("Values from table 2 " + joinValuesTable2);
+		//concatenate: table1 values + table2
+		joinValuesRow.addAll(joinValuesTable2);
+		//add id using rowIndex
+		joinValuesRow.add(0, String.valueOf(rowIndex));
+		return joinValuesRow;
 	}
 
 	private boolean checkDatabaseInUse(String exceptionMessage){

@@ -44,9 +44,11 @@ public class Table {
         return this;
     }
 
-    public void createTableNoValues(String tableName) throws IOException {
+    public void createTableNoValues(String tableName, Boolean isWrite) throws IOException {
         this.tableDataStructure = this.createDataStructure(false, null);
-        this.writeTableToFile(tableName, false);
+        if(isWrite){
+            this.writeTableToFile(tableName, false);
+        }
     }
 
     public void createTableHasValues(String tableName, ArrayList<String> values) throws IOException {
@@ -76,27 +78,50 @@ public class Table {
         this.writeTableToFile(this.getTableName(), true);
     }
 
-    private int getIndexOfColumn(String columnName){
+    public void addJoinColumns(ArrayList<String> joinColumns){
+        for(String column : joinColumns){
+            this.tableDataStructure.get(0).add(column);
+        }
+    }
+
+    public String getValueAttribute1InJoinTable1(int rowIndex, int columnIndexAttribute){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        return dataStructure.get(rowIndex).get(columnIndexAttribute);
+    }
+
+    public int getColumnIndexJoinAttribute(String attribute){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> headerRow = dataStructure.get(0);
-        for(String row : headerRow){
-            if(Objects.equals(row, columnName)){
-                return headerRow.indexOf(row);
+        if(!headerRow.contains(attribute)){
+            return -1; //panic
+        }
+        return headerRow.indexOf(attribute);
+    }
+
+    public ArrayList<String> getJoinValues(int rowIndex, int attributeColIndex){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> tableRow = dataStructure.get(rowIndex);
+        System.out.println("col index " + attributeColIndex);
+        //tableRow.remove(attributeColIndex);
+        //tableRow.remove(0); //remove ID value (do this after other removal to avoid index out of bounds)
+        return tableRow;
+    }
+
+    public int getRowIndexForJoin(String attr1Value, int attr2ColIndex){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        for(int tableRow = 0; tableRow < dataStructure.size(); tableRow++){
+            if(Objects.equals(dataStructure.get(tableRow).get(attr2ColIndex), attr1Value)){
+                return tableRow;
             }
         }
         return -1;
     }
 
-    private ArrayList<ArrayList<String>> createDataStructure(boolean hasValues, ArrayList<String> tableValues){
-        ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
-        ArrayList<String> currentRow = new ArrayList<>();
-        currentRow.add("id"); //add placeholder column heading to otherwise empty table
-        if(hasValues) {
-            currentRow.addAll(tableValues);
-        }
-        tableDataStructure.add(currentRow);
-        return tableDataStructure;
+
+    public void addJoinRows(){
+
     }
+
     public void insertValuesInTable(Table existingTable, ArrayList<String> tableValues){
         ArrayList<ArrayList<String>> tableDataStructure = this.tableDataStructure;
         ArrayList<String> currentRow = new ArrayList<>();
@@ -329,7 +354,42 @@ public class Table {
         return true;
     }
 
+    public ArrayList<String> getJoinColumns (String joinAttribute){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> topTableRow = dataStructure.get(0);
+        ArrayList<String> columnNamesForJoin = new ArrayList<>();
+        for(int i = 1; i < topTableRow.size(); i++){
+            String tableColumn = topTableRow.get(i);
+            if(!Objects.equals(tableColumn, joinAttribute)){
+                columnNamesForJoin.add(tableColumn);
+            }
+        }
+        return columnNamesForJoin;
+    }
+
     //private methods
+
+    private int getIndexOfColumn(String columnName){
+        ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        ArrayList<String> headerRow = dataStructure.get(0);
+        for(String row : headerRow){
+            if(Objects.equals(row, columnName)){
+                return headerRow.indexOf(row);
+            }
+        }
+        return -1;
+    }
+
+    private ArrayList<ArrayList<String>> createDataStructure(boolean hasValues, ArrayList<String> tableValues){
+        ArrayList<ArrayList<String>> tableDataStructure = new ArrayList<>();
+        ArrayList<String> currentRow = new ArrayList<>();
+        currentRow.add("id"); //add placeholder column heading to otherwise empty table
+        if(hasValues) {
+            currentRow.addAll(tableValues);
+        }
+        tableDataStructure.add(currentRow);
+        return tableDataStructure;
+    }
 
     private boolean stringContainsCharacter(String currentToken) {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
