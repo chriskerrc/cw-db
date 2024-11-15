@@ -923,6 +923,13 @@ public class InterpreterTests {
         sendCommandToServer("INSERT INTO coursework VALUES ('STAG', 2);");
 
         String response = sendCommandToServer("JOIN coursework AND marks ON submission AND id;");
-        System.out.println(response);
+        assertTrue(response.contains("coursework.task"));
+        assertTrue(response.contains("marks.name"));
+        assertTrue(response.contains("marks.mark"));
+        assertTrue(response.contains("marks.pass"));
+        assertTrue(response.contains("Chris"));
+        assertTrue(response.contains("OXO"));
+        //check attribute column heading is not there
+        assertFalse(response.contains("submission"));
     }
 }

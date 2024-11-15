@@ -101,10 +101,20 @@ public class Table {
     public ArrayList<String> getJoinValues(int rowIndex, int attributeColIndex){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> tableRow = dataStructure.get(rowIndex);
-        System.out.println("col index " + attributeColIndex);
-        //tableRow.remove(attributeColIndex);
-        //tableRow.remove(0); //remove ID value (do this after other removal to avoid index out of bounds)
-        return tableRow;
+        ArrayList<Integer> indicesToExclude = new ArrayList<>();
+        indicesToExclude.add(0);
+        indicesToExclude.add(attributeColIndex);
+        return filterExcludedValues(tableRow, indicesToExclude);
+    }
+
+    private ArrayList<String> filterExcludedValues(ArrayList<String> originalRow, ArrayList<Integer> excludeList){
+        ArrayList<String> filteredRow = new ArrayList<>();
+        for(int i = 0; i < originalRow.size(); i++){
+            if(!excludeList.contains(i)){
+                filteredRow.add(originalRow.get(i));
+            }
+        }
+        return filteredRow;
     }
 
     public int getRowIndexForJoin(String attr1Value, int attr2ColIndex){
@@ -118,10 +128,6 @@ public class Table {
     }
 
 
-    public void addJoinRows(){
-
-    }
-
     public void insertValuesInTable(Table existingTable, ArrayList<String> tableValues){
         ArrayList<ArrayList<String>> tableDataStructure = this.tableDataStructure;
         ArrayList<String> currentRow = new ArrayList<>();
@@ -130,6 +136,11 @@ public class Table {
         currentRow.addAll(tableValues);
         tableDataStructure.add(currentRow);
         existingTable.tableDataStructure = tableDataStructure;
+    }
+
+    public int getNumberOfRows(){
+        ArrayList<ArrayList<String>> tableDataStructure = this.tableDataStructure;
+        return tableDataStructure.size();
     }
 
     public String getTableName(){
