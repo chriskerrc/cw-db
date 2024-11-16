@@ -6,7 +6,9 @@ A database server written from scratch. The database persists when the server go
 ```sql
 CREATE DATABASE markbook;
 [OK]
+```
 
+```sql
 USE markbook;
 [OK]
 ```
