@@ -3,11 +3,13 @@ A project from the module Object Oriented Programming with Java, part of my MSc 
 
 A database server written from scratch. The database persists when the server goes down. Data is stored in tab-separated files ("tables") within folders ("databases"). The server  can interpret SQL-like commands, for example:
 
-`CREATE DATABASE markbook;`
+```sql
+CREATE DATABASE markbook;
 [OK]
 
-`USE markbook;`
+USE markbook;
 [OK]
+```
 
 `CREATE TABLE marks (name, mark, pass);`
 [OK]
