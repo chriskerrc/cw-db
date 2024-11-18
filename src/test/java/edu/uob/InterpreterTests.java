@@ -951,5 +951,32 @@ public class InterpreterTests {
         assertFalse(response.contains("102"));
         assertFalse(response.contains("103"));
         assertFalse(response.contains("104"));
+
+        //attempt join on a table that doesn't exist
+        response = sendCommandToServer("JOIN employees AND nothing ON departmentID AND departmentID;");
+        assertTrue(response.contains("ERROR"));
+
+        //attempt join on an attribute that doesn't exist
+        response = sendCommandToServer("JOIN employees AND departments ON departmentID AND friends;");
+        assertTrue(response.contains("ERROR"));
+
+        //attempt join when attributes across tables don't match
+        response = sendCommandToServer("JOIN employees AND departments ON employeeName AND departmentID;");
+        assertTrue(response.contains("ERROR"));
+
+        //attempt join on columns without matching values
+        sendCommandToServer("CREATE TABLE houses (name, spiceReserves);");
+        sendCommandToServer("INSERT INTO houses VALUES ('Harkonnen', 101);");
+        sendCommandToServer("INSERT INTO houses VALUES ('Atreides', 102);");
+        sendCommandToServer("INSERT INTO houses VALUES ('Richese', 104);");
+        sendCommandToServer("INSERT INTO houses VALUES ('Corinno', 103);");
+        sendCommandToServer("CREATE TABLE fiefs (spiceReserves, planet);");
+        sendCommandToServer("INSERT INTO fiefs VALUES (20, 'Dune');");
+        sendCommandToServer("INSERT INTO fiefs VALUES (857, 'Ix');");
+        sendCommandToServer("INSERT INTO fiefs VALUES (18, 'Salusa');");
+        sendCommandToServer("INSERT INTO fiefs VALUES (28, 'Kaitan');");
+
+        response = sendCommandToServer("JOIN houses AND fiefs ON spiceReserves AND spiceReserves;");
+        assertTrue(response.contains("ERROR"));
     }
 }
