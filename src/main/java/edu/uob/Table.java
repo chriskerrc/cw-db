@@ -89,6 +89,10 @@ public class Table {
 
     public int getColumnIndexJoinAttribute(String attribute){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        //Guard against table with only header row
+        if(dataStructure.size() < 2){
+            return -1;
+        }
         ArrayList<String> headerRow = dataStructure.get(0);
         if(!headerRow.contains(attribute)){
             return -1; //panic
@@ -117,9 +121,15 @@ public class Table {
 
     public int getRowIndexForJoin(String attr1Value, int attr2ColIndex){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
+        //Guard against table with only header row
+        if(dataStructure.size() < 2){
+            return -1;
+        }
         for(int tableRow = 0; tableRow < dataStructure.size(); tableRow++){
-            if(Objects.equals(dataStructure.get(tableRow).get(attr2ColIndex), attr1Value)){
-                return tableRow;
+            if(attr2ColIndex >= 0 && attr2ColIndex < dataStructure.get(tableRow).size()) {
+                if (Objects.equals(dataStructure.get(tableRow).get(attr2ColIndex), attr1Value)) {
+                    return tableRow;
+                }
             }
         }
         return -1;

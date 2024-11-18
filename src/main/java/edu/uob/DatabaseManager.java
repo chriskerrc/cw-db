@@ -460,15 +460,26 @@ public class DatabaseManager {
 		//create table in memory with id
 		joinTable.createTableNoValues("joinTable", false);
 		Database currentDatabase = getDatabase(databaseInUse);
-		assert currentDatabase != null;
+		if(currentDatabase == null){
+			return false;
+		}
 		if(!this.checkDBExistsInMemory(databaseInUse)){
 			return false;
 		}
 		Table firstJoinTable = currentDatabase.getTableFromDatabase(joinTableName1);
 		Table secondJoinTable = currentDatabase.getTableFromDatabase(joinTableName2);
+		if(firstJoinTable == null || secondJoinTable == null){
+			return false;
+		}
 		ArrayList<String> joinColumns = buildJoinColumns(firstJoinTable, secondJoinTable);
+		if(joinColumns.isEmpty()){
+			return false;
+		}
 		joinTable.addJoinColumns(joinColumns);
 		int sizeTable1 = firstJoinTable.getNumberOfRows();
+		if(sizeTable1 == 0){
+			return false;
+		}
 		//for every row in joinTable1
 		for(int rowIndex = 1; rowIndex < sizeTable1; rowIndex++) {
 			ArrayList<String> joinRow = buildJoinRow(firstJoinTable, secondJoinTable, rowIndex);
