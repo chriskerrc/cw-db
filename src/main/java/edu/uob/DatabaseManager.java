@@ -500,12 +500,12 @@ public class DatabaseManager {
 		ArrayList<String> joinValuesRow = firstJoinTable.getJoinValues(rowIndex, colIndexAttr1);
 		int colIndexAttr2 = secondJoinTable.getColumnIndexJoinAttribute(joinAttribute2);
 		int rowIndexTable2 = secondJoinTable.getRowIndexForJoin(valueAttr1, colIndexAttr2);
-		if(rowIndexTable2 != -1){
+		if(rowIndexTable2 == -1) {
+			return null;
+		}
 		ArrayList<String> joinValuesTable2 = secondJoinTable.getJoinValues(rowIndexTable2, colIndexAttr2);
-
 		joinValuesRow.addAll(joinValuesTable2);
-		return joinValuesRow;}
-		return null;
+		return joinValuesRow;
 	}
 
 	private boolean checkDatabaseInUse(String exceptionMessage){

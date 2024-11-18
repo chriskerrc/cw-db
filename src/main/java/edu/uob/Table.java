@@ -1,8 +1,6 @@
 package edu.uob;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 public class Table {
 
@@ -101,13 +99,13 @@ public class Table {
     public ArrayList<String> getJoinValues(int rowIndex, int attributeColIndex){
         ArrayList<ArrayList<String>> dataStructure = this.tableDataStructure;
         ArrayList<String> tableRow = dataStructure.get(rowIndex);
-        ArrayList<Integer> indicesToExclude = new ArrayList<>();
+        Set<Integer> indicesToExclude = new HashSet<>();
         indicesToExclude.add(0);
         indicesToExclude.add(attributeColIndex);
         return filterExcludedValues(tableRow, indicesToExclude);
     }
 
-    private ArrayList<String> filterExcludedValues(ArrayList<String> originalRow, ArrayList<Integer> excludeList){
+    private ArrayList<String> filterExcludedValues(ArrayList<String> originalRow, Set<Integer> excludeList){
         ArrayList<String> filteredRow = new ArrayList<>();
         for(int i = 0; i < originalRow.size(); i++){
             if(!excludeList.contains(i)){
