@@ -921,7 +921,7 @@ public class InterpreterTests {
         sendCommandToServer("INSERT INTO coursework VALUES ('DB', 1);");
         sendCommandToServer("INSERT INTO coursework VALUES ('OXO', 4);");
         sendCommandToServer("INSERT INTO coursework VALUES ('STAG', 2);");
-
+        //join from example transcripts
         String response = sendCommandToServer("JOIN coursework AND marks ON submission AND id;");
         assertTrue(response.contains("coursework.task"));
         assertTrue(response.contains("marks.name"));
@@ -931,5 +931,25 @@ public class InterpreterTests {
         assertTrue(response.contains("OXO"));
         //check attribute column heading is not there
         assertFalse(response.contains("submission"));
+
+        //another join on attributes with the same name in different tables (id isn't attribute)
+        sendCommandToServer("CREATE TABLE employees (employeeName, departmentID);");
+        sendCommandToServer("INSERT INTO employees VALUES ('Alice', 101);");
+        sendCommandToServer("INSERT INTO employees VALUES ('Bob', 102);");
+        sendCommandToServer("INSERT INTO employees VALUES ('Charlie', 104);");
+        sendCommandToServer("INSERT INTO employees VALUES ('Diana', 103);");
+        sendCommandToServer("CREATE TABLE departments (departmentID, departmentName);");
+        sendCommandToServer("INSERT INTO departments VALUES (104, 'Sales');");
+        sendCommandToServer("INSERT INTO departments VALUES (101, 'Finance');");
+        sendCommandToServer("INSERT INTO departments VALUES (102, 'Marketing');");
+        sendCommandToServer("INSERT INTO departments VALUES (103, 'Research');");
+
+        response = sendCommandToServer("JOIN employees AND departments ON departmentID AND departmentID;");
+        assertTrue(response.contains("OK"));
+        //check that department IDs aren't included in response
+        assertFalse(response.contains("101"));
+        assertFalse(response.contains("102"));
+        assertFalse(response.contains("103"));
+        assertFalse(response.contains("104"));
     }
 }
